@@ -32,8 +32,8 @@ const checks = [
   ],
   [
     "manifest labels",
-    ["规划中", "公开输入", "本地优先", "AI 可选", "含合成样例"].every((label) =>
-      html.includes(label),
+    ["建设中", "规划中", "公开输入", "本地优先", "AI 可选", "含合成样例"].every(
+      (label) => html.includes(label),
     ),
   ],
   [

@@ -42,9 +42,9 @@
 
 ## P1：Token 任务炼金炉 MVP
 
-- [ ] **P1-001 [S] 定义输入与任务输出 Schema**
-  - 输入：额度、到期时间、技术栈、目标、可投入时间、公开仓库 URL。
-  - 输出：S/M/L 任务、依赖、范围、Prompt 和验收标准。
+- [x] **P1-001 [S] 定义输入与任务输出 Schema**
+  - 产物：v1 输入/计划 Schema、TypeScript 类型与验证器、有效 fixture、失败测试和合同文档。
+  - 验收：字段与 S/M/L Token 档位受 Schema 约束；重复、悬空、循环依赖及超 Token/工时计划会失败。
 
 - [ ] **P1-002 [M] 实现无需 AI 的任务模板模式**
   - 验收：内置场景可生成稳定结果；离线可用；作为 AI 降级路径。
@@ -96,4 +96,5 @@
 
 ## 推荐下一项任务
 
-接下来做 **P1-001**：定义 Token 任务炼金炉的输入与任务输出 Schema，为无需 AI 的模板模式建立稳定合同。每个任务使用 `tasks/TASK_TEMPLATE.md` 与 `prompts/IMPLEMENT_TASK.md`。
+接下来做 **P1-002**：基于 v1 合同实现无需 AI、无需网络的确定性任务模板模式，并把它保留为未来 AI 失败时的降级路径。每个任务使用 `tasks/TASK_TEMPLATE.md` 与 `prompts/IMPLEMENT_TASK.md`。
+

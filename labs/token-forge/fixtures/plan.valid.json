@@ -1,0 +1,51 @@
+{
+  "schema_version": "1.0",
+  "mode": "template",
+  "tasks": [
+    {
+      "id": "define-tool-contract",
+      "size": "S",
+      "title": "定义互动工具输入输出合同",
+      "estimated_tokens": 6000,
+      "estimated_hours": 3,
+      "dependencies": [],
+      "scope": {
+        "included": [
+          "定义版本化输入与输出 Schema",
+          "补齐有效和无效输入单元测试"
+        ],
+        "excluded": ["不接入模型服务或外部仓库"]
+      },
+      "prompt": "在不新增网络调用的前提下，为互动工具定义版本化输入输出合同；先实现确定性验证和失败测试，并记录隐私边界与已知限制。",
+      "acceptance_criteria": [
+        "有效 fixture 通过版本化 Schema 验证",
+        "未知字段和不合法输入会明确失败"
+      ]
+    },
+    {
+      "id": "build-offline-prototype",
+      "size": "M",
+      "title": "实现离线可运行的互动工具原型",
+      "estimated_tokens": 16000,
+      "estimated_hours": 8,
+      "dependencies": ["define-tool-contract"],
+      "scope": {
+        "included": [
+          "实现稳定的本地模板生成逻辑",
+          "提供无需登录和 AI 的合成样例"
+        ],
+        "excluded": ["不实现生产部署、登录、支付或持久化"]
+      },
+      "prompt": "基于已经验证的合同，实现完全离线的模板生成器和合成样例；输出必须稳定、可验收，并在界面中区分输入证据、规则结果与未知项。",
+      "acceptance_criteria": [
+        "相同输入重复运行会生成相同任务计划",
+        "离线样例覆盖主要路径和降级路径"
+      ]
+    }
+  ],
+  "unknowns": ["未提供公开仓库 URL，计划未使用仓库结构信息"],
+  "safety_notes": [
+    "计划不包含生产写操作、凭据处理或外部服务调用",
+    "所有用户输入在进入后续消费者前仍需重新验证"
+  ]
+}

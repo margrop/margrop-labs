@@ -1,0 +1,8 @@
+{
+  "schema_version": "1.0",
+  "token_budget": 24000,
+  "expires_in_days": 7,
+  "available_hours": 12,
+  "tech_stack": ["TypeScript", "Astro"],
+  "goal": "为现有技术内容建立一个无需 AI 也能工作的互动工具原型"
+}

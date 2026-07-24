@@ -1,0 +1,205 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lab.margrop.net/schemas/token-forge-plan-v1.schema.json",
+  "title": "Token Forge Plan v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "mode", "tasks", "unknowns", "safety_notes"],
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "mode": {
+      "enum": ["template", "ai-assisted"]
+    },
+    "tasks": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 6,
+      "items": {
+        "$ref": "#/$defs/task"
+      }
+    },
+    "unknowns": {
+      "type": "array",
+      "maxItems": 10,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 5,
+        "maxLength": 300,
+        "pattern": "\\S"
+      }
+    },
+    "safety_notes": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 10,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 5,
+        "maxLength": 300,
+        "pattern": "\\S"
+      }
+    }
+  },
+  "$defs": {
+    "task": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "size",
+        "title",
+        "estimated_tokens",
+        "estimated_hours",
+        "dependencies",
+        "scope",
+        "prompt",
+        "acceptance_criteria"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+        },
+        "size": {
+          "enum": ["S", "M", "L"]
+        },
+        "title": {
+          "type": "string",
+          "minLength": 5,
+          "maxLength": 100,
+          "pattern": "\\S"
+        },
+        "estimated_tokens": {
+          "type": "integer",
+          "minimum": 2000,
+          "maximum": 60000
+        },
+        "estimated_hours": {
+          "type": "number",
+          "minimum": 0.5,
+          "maximum": 80,
+          "multipleOf": 0.5
+        },
+        "dependencies": {
+          "type": "array",
+          "maxItems": 8,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+          }
+        },
+        "scope": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["included", "excluded"],
+          "properties": {
+            "included": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 10,
+              "uniqueItems": true,
+              "items": {
+                "type": "string",
+                "minLength": 5,
+                "maxLength": 300,
+                "pattern": "\\S"
+              }
+            },
+            "excluded": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 10,
+              "uniqueItems": true,
+              "items": {
+                "type": "string",
+                "minLength": 5,
+                "maxLength": 300,
+                "pattern": "\\S"
+              }
+            }
+          }
+        },
+        "prompt": {
+          "type": "string",
+          "minLength": 50,
+          "maxLength": 4000,
+          "pattern": "\\S"
+        },
+        "acceptance_criteria": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 10,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 10,
+            "maxLength": 300,
+            "pattern": "\\S"
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "size": {
+                "const": "S"
+              }
+            },
+            "required": ["size"]
+          },
+          "then": {
+            "properties": {
+              "estimated_tokens": {
+                "type": "integer",
+                "maximum": 7999
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "size": {
+                "const": "M"
+              }
+            },
+            "required": ["size"]
+          },
+          "then": {
+            "properties": {
+              "estimated_tokens": {
+                "type": "integer",
+                "minimum": 8000,
+                "maximum": 24999
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "size": {
+                "const": "L"
+              }
+            },
+            "required": ["size"]
+          },
+          "then": {
+            "properties": {
+              "estimated_tokens": {
+                "type": "integer",
+                "minimum": 25000
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}
