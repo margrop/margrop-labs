@@ -1,0 +1,8 @@
+{
+  "schema_version": "1.0",
+  "token_budget": 16000,
+  "expires_in_days": 7,
+  "available_hours": 8,
+  "tech_stack": ["TypeScript", "Astro"],
+  "goal": "实现一个完全离线并且可以重复验收的功能切片"
+}

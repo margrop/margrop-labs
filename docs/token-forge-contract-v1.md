@@ -1,6 +1,6 @@
 # Token 任务炼金炉 v1 合同
 
-P1-001 只定义输入、输出和失败行为，不生成任务、不读取 GitHub，也不调用 AI。后续模板模式和 AI 模式必须消费同一份合同。
+v1 合同只定义输入、输出和失败行为。P1-002 的确定性模板生成器已经消费该合同；后续 AI 模式也必须使用同一份验证器。
 
 ## 输入
 
@@ -66,10 +66,12 @@ JSON Schema 负责字段形态和单项范围；`token-forge-contracts.ts` 在 S
 
 - [`input.valid.json`](../labs/token-forge/fixtures/input.valid.json)
 - [`plan.valid.json`](../labs/token-forge/fixtures/plan.valid.json)
+- [`template-small.input.json`](../labs/token-forge/fixtures/template-small.input.json)
+- [`template-medium.input.json`](../labs/token-forge/fixtures/template-medium.input.json)
+- [`template-large.input.json`](../labs/token-forge/fixtures/template-large.input.json)
 
-单元测试覆盖有效 fixture、非 GitHub URL、未知字段、规模/Token 不匹配、重复任务、超 Token、超工时、悬空依赖和循环依赖。
+单元测试覆盖有效 fixture、非 GitHub URL、未知字段、规模/Token 不匹配、重复任务、超 Token、超工时、悬空依赖和循环依赖，以及模板模式的稳定输出和预算边界。
 
 ## 版本策略
 
 v1 允许在不改变既有数据含义的前提下补充文档和测试。新增必填字段、删除字段、收紧已发布范围或改变字段语义属于破坏性变化，必须新建 v2 Schema、fixture、消费者测试和迁移说明；不得原地改写 v1。
-

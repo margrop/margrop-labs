@@ -58,7 +58,6 @@ npm run validate
 npm run dev --workspace @margrop-labs/web
 ```
 
-开发者与 GitHub Actions 使用同一条根目录质量命令。检查内容和故障处理见 [质量门](./docs/quality-gates.md)。实验卡片由版本化清单生成，规则见 [实验清单加载器](./docs/lab-manifest-loader.md)。页面组件与交互必须遵循 [UI 与可访问性基线](./docs/ui-accessibility-baseline.md)。Token 任务炼金炉的稳定输入输出见 [v1 合同](./docs/token-forge-contract-v1.md)。
+开发者与 GitHub Actions 使用同一条根目录质量命令。检查内容和故障处理见 [质量门](./docs/quality-gates.md)。实验卡片由版本化清单生成，规则见 [实验清单加载器](./docs/lab-manifest-loader.md)。页面组件与交互必须遵循 [UI 与可访问性基线](./docs/ui-accessibility-baseline.md)。Token 任务炼金炉的稳定输入输出见 [v1 合同](./docs/token-forge-contract-v1.md)，无需 AI 的降级核心见 [确定性模板模式](./docs/token-forge-template-mode.md)。
 
-当前项目仍处于 **pre-alpha**。P1-001 已定义 Token 任务炼金炉输入、计划、依赖图和预算不变量；下一步实现无需 AI 的确定性模板模式。生产站点尚未部署。
-
+当前项目仍处于 **pre-alpha**。P1-002 已实现 Token 任务炼金炉的三种确定性场景，能够在无网络、无 AI 时生成通过 v1 合同验证的稳定计划；下一步读取受限的公开 GitHub 仓库摘要。生产站点尚未部署。

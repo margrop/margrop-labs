@@ -1,0 +1,8 @@
+{
+  "schema_version": "1.0",
+  "token_budget": 6000,
+  "expires_in_days": 3,
+  "available_hours": 2,
+  "tech_stack": ["TypeScript"],
+  "goal": "为一个现有功能补齐稳定合同、失败行为和单元测试"
+}

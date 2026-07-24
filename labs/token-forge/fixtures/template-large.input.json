@@ -1,0 +1,8 @@
+{
+  "schema_version": "1.0",
+  "token_budget": 30000,
+  "expires_in_days": 14,
+  "available_hours": 16,
+  "tech_stack": ["TypeScript", "Preact"],
+  "goal": "把一个内容创意实现为无需登录和人工智能的离线最小可用产品"
+}
