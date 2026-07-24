@@ -45,6 +45,7 @@ Web 端采用 **Astro + TypeScript + Preact Islands**，首期生成静态 HTML�
 - 使用闲置 Token：遵循 [Token 工作流](./docs/token-workflow.md)。
 - 新增实验：遵循 [实验规范](./docs/lab-standard.md)。
 - 接入 AI：先读 [AI 成本与安全](./docs/ai-safety-and-cost.md)。
+- 实现 AI 调用：遵循 [AI Gateway v1 合同](./docs/ai-gateway-contract-v1.md)。
 - 处理用户输入：先读 [隐私模型](./docs/privacy-model.md)。
 
 ## 当前状态
@@ -58,6 +59,6 @@ npm run validate
 npm run dev --workspace @margrop-labs/web
 ```
 
-开发者与 GitHub Actions 使用同一条根目录质量命令。检查内容和故障处理见 [质量门](./docs/quality-gates.md)。实验卡片由版本化清单生成，规则见 [实验清单加载器](./docs/lab-manifest-loader.md)。页面组件与交互必须遵循 [UI 与可访问性基线](./docs/ui-accessibility-baseline.md)。Token 任务炼金炉的稳定输入输出见 [v1 合同](./docs/token-forge-contract-v1.md)，无需 AI 的降级核心见 [确定性模板模式](./docs/token-forge-template-mode.md)，公开仓库的有界只读输入见 [GitHub 摘要适配器](./docs/github-public-repository-adapter.md)。
+开发者与 GitHub Actions 使用同一条根目录质量命令。检查内容和故障处理见 [质量门](./docs/quality-gates.md)。实验卡片由版本化清单生成，规则见 [实验清单加载器](./docs/lab-manifest-loader.md)。页面组件与交互必须遵循 [UI 与可访问性基线](./docs/ui-accessibility-baseline.md)。Token 任务炼金炉的稳定输入输出见 [v1 合同](./docs/token-forge-contract-v1.md)，无需 AI 的降级核心见 [确定性模板模式](./docs/token-forge-template-mode.md)，公开仓库的有界只读输入见 [GitHub 摘要适配器](./docs/github-public-repository-adapter.md)。所有未来 AI 能力必须通过 [Provider 中立的 Gateway 合同](./docs/ai-gateway-contract-v1.md)。
 
-当前项目仍处于 **pre-alpha**。P1-003 已实现公开 GitHub 仓库的无鉴权只读摘要，并对路径、文件数、字节、响应、超时和重试执行硬上限；文件内容作为不可信数据返回，失败时可退回 P1-002 的无网络模板模式。下一步先定义 P0-006 AI Gateway 合同，再接入 P1-004 AI 任务拆分。生产站点尚未部署。
+当前项目仍处于 **pre-alpha**。P0-006 已定义版本化 AI Gateway 请求/响应、Provider Adapter、硬成本边界和失败关闭执行核心；浏览器不能选择 Provider、模型或系统提示词，也不接触密钥。下一步完成 P0-007 隐私与脱敏包，再接入 P1-004 AI 任务拆分。生产站点尚未部署。

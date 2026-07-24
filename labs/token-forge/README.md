@@ -37,6 +37,8 @@
 
 代码负责输入验证、仓库读取上限、任务 Schema、去重基础和安全规则；AI 负责语义拆分、优先级解释和 Prompt 草拟。
 
+未来 AI 拆分必须通过 [AI Gateway v1 合同](../../docs/ai-gateway-contract-v1.md)：Web 只发送操作专属的最小结构化数据，不能指定 Provider、模型、系统提示词或密钥；无效模型响应整体丢弃并保留模板结果。完整脱敏包由 P0-007 提供，完成前不接真实 Provider。
+
 ## 隐私
 
 只读取公开仓库；不得要求 GitHub 私有 Token。导出不包含原始文件正文或隐藏系统 Prompt。Analytics 不记录仓库 URL和表单内容。

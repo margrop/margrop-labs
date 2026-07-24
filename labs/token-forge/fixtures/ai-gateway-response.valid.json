@@ -1,0 +1,16 @@
+{
+  "schema_version": "1.0",
+  "request_id": "123e4567-e89b-42d3-a456-426614174000",
+  "status": "ok",
+  "result": {
+    "summary": "Synthetic gateway result."
+  },
+  "usage": {
+    "input_tokens": 100,
+    "output_tokens": 20,
+    "total_tokens": 120
+  },
+  "meta": {
+    "attempt_count": 1
+  }
+}

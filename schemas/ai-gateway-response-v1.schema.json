@@ -1,0 +1,149 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lab.margrop.net/schemas/ai-gateway-response-v1.schema.json",
+  "title": "Margrop Labs AI Gateway Response v1",
+  "oneOf": [
+    {
+      "$ref": "#/$defs/success"
+    },
+    {
+      "$ref": "#/$defs/failure"
+    }
+  ],
+  "$defs": {
+    "request_id": {
+      "type": "string",
+      "format": "uuid",
+      "maxLength": 36
+    },
+    "meta_success": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["attempt_count"],
+      "properties": {
+        "attempt_count": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 2
+        }
+      }
+    },
+    "meta_failure": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["attempt_count"],
+      "properties": {
+        "attempt_count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2
+        }
+      }
+    },
+    "usage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["input_tokens", "output_tokens", "total_tokens"],
+      "properties": {
+        "input_tokens": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 24000
+        },
+        "output_tokens": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4000
+        },
+        "total_tokens": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 28000
+        }
+      }
+    },
+    "success": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "request_id",
+        "status",
+        "result",
+        "usage",
+        "meta"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": "1.0"
+        },
+        "request_id": {
+          "$ref": "#/$defs/request_id"
+        },
+        "status": {
+          "const": "ok"
+        },
+        "result": {
+          "type": "object",
+          "maxProperties": 64
+        },
+        "usage": {
+          "$ref": "#/$defs/usage"
+        },
+        "meta": {
+          "$ref": "#/$defs/meta_success"
+        }
+      }
+    },
+    "failure": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "status", "error", "meta"],
+      "properties": {
+        "schema_version": {
+          "const": "1.0"
+        },
+        "request_id": {
+          "$ref": "#/$defs/request_id"
+        },
+        "status": {
+          "const": "error"
+        },
+        "error": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["code", "retryable"],
+          "properties": {
+            "code": {
+              "enum": [
+                "invalid_request",
+                "request_too_large",
+                "input_token_limit_exceeded",
+                "rate_limited",
+                "budget_exhausted",
+                "provider_timeout",
+                "provider_unavailable",
+                "invalid_provider_response",
+                "output_token_limit_exceeded",
+                "response_too_large",
+                "policy_blocked",
+                "internal_error"
+              ]
+            },
+            "retryable": {
+              "type": "boolean"
+            },
+            "retry_after_seconds": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 3600
+            }
+          }
+        },
+        "meta": {
+          "$ref": "#/$defs/meta_failure"
+        }
+      }
+    }
+  }
+}

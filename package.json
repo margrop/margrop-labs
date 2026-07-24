@@ -7,13 +7,14 @@
     "npm": ">=10.0.0"
   },
   "workspaces": [
-    "apps/*"
+    "apps/*",
+    "packages/*"
   ],
   "scripts": {
-    "format": "prettier --write apps/web/src apps/web/public apps/web/scripts apps/web/*.json apps/web/*.jsonc apps/web/*.mjs \"labs/**/*.json\" \"schemas/**/*.json\" package.json eslint.config.mjs prettier.config.mjs vitest.config.ts .github/workflows",
-    "format:check": "prettier --check apps/web/src apps/web/public apps/web/scripts apps/web/*.json apps/web/*.jsonc apps/web/*.mjs \"labs/**/*.json\" \"schemas/**/*.json\" package.json eslint.config.mjs prettier.config.mjs vitest.config.ts .github/workflows",
+    "format": "prettier --write apps/web/src apps/web/public apps/web/scripts apps/web/*.json apps/web/*.jsonc apps/web/*.mjs packages \"labs/**/*.json\" \"schemas/**/*.json\" package.json eslint.config.mjs prettier.config.mjs vitest.config.ts .github/workflows",
+    "format:check": "prettier --check apps/web/src apps/web/public apps/web/scripts apps/web/*.json apps/web/*.jsonc apps/web/*.mjs packages \"labs/**/*.json\" \"schemas/**/*.json\" package.json eslint.config.mjs prettier.config.mjs vitest.config.ts .github/workflows",
     "lint": "eslint .",
-    "typecheck": "npm run check --workspace @margrop-labs/web",
+    "typecheck": "npm run check --workspace @margrop-labs/web && npm run typecheck --workspace @margrop-labs/ai-gateway",
     "test": "vitest run",
     "build": "npm run build --workspace @margrop-labs/web",
     "verify:static": "npm run verify:static --workspace @margrop-labs/web",

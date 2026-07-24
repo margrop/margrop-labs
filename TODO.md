@@ -28,9 +28,9 @@
   - 产物：页面壳导航、FormField、StatusNotice、EvidenceCard、ExportActions 和完整基线文档。
   - 验收：原生键盘控件、文字/符号状态、320px 移动端重排、reduced motion、11 个单测与 20 项静态合同通过。
 
-- [ ] **P0-006 [M] 定义 AI Gateway 合同**
-  - 产物：请求/响应 Schema、错误码、超时、Token 上限、Provider 适配接口。
-  - 验收：Web 永远不接触 Provider Key；无效模型响应 fail closed。
+- [x] **P0-006 [M] 定义 AI Gateway 合同**
+  - 产物：Provider 中立 ADR、v1 请求/响应 Schema、错误与 HTTP 映射、硬上限、Provider Adapter 和离线执行核心。
+  - 验收：Web 不能指定 Provider、模型、系统提示词或密钥；请求/响应各 64 KiB、输入 24k/输出 4k Token、15 秒超时、最多 2 次尝试；无效或疑似泄密的模型响应失败关闭。
 
 - [ ] **P0-007 [M] 建立隐私与脱敏包**
   - 产物：IP、域名、邮箱、Token、Cookie、序列号和 WWN 脱敏。
@@ -98,4 +98,4 @@
 
 ## 推荐下一项任务
 
-接下来做 **P0-006**：先定义 AI Gateway 的版本化请求/响应 Schema、错误码、超时、Token 上限和 Provider 适配接口，并确保 Web 永远不接触 Provider Key、无效模型响应失败关闭。它是 P1-004 接入 AI 任务拆分前的安全前置条件。每次仍只处理一个任务。
+接下来做 **P0-007**：建立可离线测试的隐私与脱敏包，覆盖 IP、域名、邮箱、Token、Cookie、序列号和 WWN；输入先按允许字段映射再脱敏，原文不得进入 URL、日志、Analytics、AI 请求和导出。它是 P1-004 发送仓库摘要前的最后一个安全前置条件。每次仍只处理一个任务。
