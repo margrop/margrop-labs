@@ -10,8 +10,8 @@
     "apps/*"
   ],
   "scripts": {
-    "format": "prettier --write apps/web/src apps/web/public apps/web/scripts apps/web/*.json apps/web/*.jsonc apps/web/*.mjs package.json eslint.config.mjs prettier.config.mjs vitest.config.ts .github/workflows",
-    "format:check": "prettier --check apps/web/src apps/web/public apps/web/scripts apps/web/*.json apps/web/*.jsonc apps/web/*.mjs package.json eslint.config.mjs prettier.config.mjs vitest.config.ts .github/workflows",
+    "format": "prettier --write apps/web/src apps/web/public apps/web/scripts apps/web/*.json apps/web/*.jsonc apps/web/*.mjs \"labs/**/*.json\" \"schemas/**/*.json\" package.json eslint.config.mjs prettier.config.mjs vitest.config.ts .github/workflows",
+    "format:check": "prettier --check apps/web/src apps/web/public apps/web/scripts apps/web/*.json apps/web/*.jsonc apps/web/*.mjs \"labs/**/*.json\" \"schemas/**/*.json\" package.json eslint.config.mjs prettier.config.mjs vitest.config.ts .github/workflows",
     "lint": "eslint .",
     "typecheck": "npm run check --workspace @margrop-labs/web",
     "test": "vitest run",

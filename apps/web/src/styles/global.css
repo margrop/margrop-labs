@@ -304,6 +304,9 @@ a {
 
 .lab-card {
   position: relative;
+  display: flex;
+  min-height: 380px;
+  flex-direction: column;
   overflow: hidden;
 }
 
@@ -347,7 +350,7 @@ a {
 }
 
 .lab-card h3 {
-  margin: 3.8rem 0 0.8rem;
+  margin: 2.5rem 0 0.8rem;
   font-size: 1.45rem;
 }
 
@@ -357,9 +360,53 @@ a {
   line-height: 1.7;
 }
 
+.lab-card-tags,
+.lab-card-links ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0;
+  list-style: none;
+}
+
+.lab-card-tags {
+  margin: 1rem 0 0;
+}
+
+.lab-card-tags li {
+  padding: 0.35rem 0.55rem;
+  border: 1px solid var(--line);
+  border-radius: 0.45rem;
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+.lab-card-links {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 0.8rem;
+  margin-top: auto;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--line);
+}
+
+.lab-card-links ul {
+  margin: 0;
+}
+
+.lab-card-links a,
+.related-empty {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.lab-card-links a:hover,
+.lab-card-links a:focus-visible {
+  color: var(--cyan);
+}
+
 .route {
-  position: absolute;
-  bottom: 1.5rem;
   color: var(--cyan);
   font-family: ui-monospace, monospace;
   font-size: 0.78rem;
@@ -552,7 +599,7 @@ a {
   }
 
   .lab-card {
-    min-height: 250px;
+    min-height: 360px;
   }
 
   .task-result {

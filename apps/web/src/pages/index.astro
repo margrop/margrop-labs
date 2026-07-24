@@ -1,35 +1,36 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import TokenBudgetPreview from "../components/TokenBudgetPreview";
+import {
+  type LabAiMode,
+  type LabInputPrivacy,
+  type LabStatus,
+  loadLabManifests,
+} from "../lib/lab-manifests";
 
-const labs = [
-  {
-    index: "01",
-    title: "Token 任务炼金炉",
-    description:
-      "把额度、目标和公开仓库上下文转换成边界清晰、可以验收的开发任务。",
-    route: "/token-forge/",
-    status: "规划中",
-    accent: "cyan",
-  },
-  {
-    index: "02",
-    title: "AI 故障侦探",
-    description:
-      "在合成事故中按顺序收集指标、日志和业务证据，而不是让 AI 猜答案。",
-    route: "/incident-detective/",
-    status: "规划中",
-    accent: "violet",
-  },
-  {
-    index: "03",
-    title: "SMART / RMA 报告机",
-    description: "本地解析并脱敏硬盘信息，输出可读的健康解释和售后材料。",
-    route: "/smart-rma/",
-    status: "规划中",
-    accent: "amber",
-  },
-];
+const labs = await loadLabManifests();
+
+const statusLabels: Record<LabStatus, string> = {
+  proposed: "规划中",
+  building: "建设中",
+  alpha: "Alpha",
+  beta: "Beta",
+  stable: "稳定版",
+};
+
+const privacyLabels: Record<LabInputPrivacy, string> = {
+  public: "公开输入",
+  "local-first": "本地优先",
+  sensitive: "敏感输入",
+};
+
+const aiModeLabels: Record<LabAiMode, string> = {
+  none: "无需 AI",
+  optional: "AI 可选",
+  required: "需要 AI",
+};
+
+const accents = ["cyan", "violet", "amber"] as const;
 ---
 
 <BaseLayout
@@ -75,15 +76,39 @@ const labs = [
 
     <div class="lab-grid">
       {
-        labs.map((lab) => (
-          <article class={`lab-card lab-card--${lab.accent}`}>
+        labs.map((lab, index) => (
+          <article
+            class={`lab-card lab-card--${accents[index % accents.length]}`}
+            data-lab-id={lab.id}
+          >
             <div class="lab-card-meta">
-              <span>{lab.index}</span>
-              <span class="status">{lab.status}</span>
+              <span>{String(index + 1).padStart(2, "0")}</span>
+              <span class="status">{statusLabels[lab.status]}</span>
             </div>
             <h3>{lab.title}</h3>
-            <p>{lab.description}</p>
-            <span class="route">{lab.route}</span>
+            <p>{lab.summary}</p>
+            <ul
+              class="lab-card-tags"
+              aria-label={`${lab.title} 数据与 AI 标签`}
+            >
+              <li>{privacyLabels[lab.input_privacy]}</li>
+              <li>{aiModeLabels[lab.ai_mode]}</li>
+              <li>含合成样例</li>
+            </ul>
+            <div class="lab-card-links">
+              <code class="route">{lab.route}</code>
+              {lab.related_articles.length > 0 ? (
+                <ul aria-label={`${lab.title} 相关文章`}>
+                  {lab.related_articles.map((article, articleIndex) => (
+                    <li>
+                      <a href={article}>阅读相关文章 {articleIndex + 1}</a>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <span class="related-empty">相关文章待补充</span>
+              )}
+            </div>
           </article>
         ))
       }

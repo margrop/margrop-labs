@@ -20,10 +20,9 @@
   - 产物：根 npm workspace、Prettier、ESLint、Astro/TypeScript、Vitest、构建/静态合同和 GitHub Actions。
   - 验收：干净 `npm ci` 后 `npm run validate` 全部通过；CI 调用同一命令；仅抽取并测试已有确定性函数。
 
-- [ ] **P0-004 [M] 实现实验清单加载器**
-  - 输入：`labs/*/lab.json`。
-  - 输出：首页卡片、状态、路由、隐私标签和相关文章。
-  - 验收：按 `lab-manifest-v1.schema.json` 验证；错误条目构建失败。
+- [x] **P0-004 [M] 实现实验清单加载器**
+  - 产物：构建期 Manifest 加载器、首页字段映射、依赖说明和错误合同测试。
+  - 验收：三个 `lab.json` 按 v1 Schema 生成静态卡片；无效清单、目录/ID 不一致和重复路由会阻断构建。
 
 - [ ] **P0-005 [M] 建立 UI 与可访问性基线**
   - 产物：页面壳、导航、表单、状态提示、证据卡、结果导出组件。
@@ -97,4 +96,4 @@
 
 ## 推荐下一项任务
 
-接下来做 **P0-004**：从现有 `labs/*/lab.json` 生成经过 Schema 验证的实验清单；完成后再做 P0-005。每个任务使用 `tasks/TASK_TEMPLATE.md` 与 `prompts/IMPLEMENT_TASK.md`。
+接下来做 **P0-005**：建立可复用的页面壳、导航、表单、状态提示、证据卡和结果导出组件，并补齐移动端与无障碍基线。每个任务使用 `tasks/TASK_TEMPLATE.md` 与 `prompts/IMPLEMENT_TASK.md`。

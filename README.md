@@ -58,6 +58,6 @@ npm run validate
 npm run dev --workspace @margrop-labs/web
 ```
 
-开发者与 GitHub Actions 使用同一条根目录质量命令。检查内容和故障处理见 [质量门](./docs/quality-gates.md)。
+开发者与 GitHub Actions 使用同一条根目录质量命令。检查内容和故障处理见 [质量门](./docs/quality-gates.md)。实验卡片由版本化清单生成，规则见 [实验清单加载器](./docs/lab-manifest-loader.md)。
 
-当前项目仍处于 **pre-alpha**。P0-002 已提供可运行的 Hello Lab：首页输出完整静态 HTML，Token 预算预览仅在进入视口时加载交互代码。三个正式实验仍为 Proposed，生产站点尚未部署。
+当前项目仍处于 **pre-alpha**。P0-004 已将 `labs/*/lab.json` 作为首页唯一内容来源，并在构建阶段按版本化 Schema 阻断无效清单；Token 预算预览仍仅在进入视口时加载交互代码。三个正式实验仍为 Proposed，生产站点尚未部署。
