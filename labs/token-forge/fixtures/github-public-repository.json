@@ -1,0 +1,48 @@
+{
+  "repository_url": "https://github.com/acme/synthetic-repository",
+  "metadata": {
+    "private": false,
+    "visibility": "public",
+    "default_branch": "main"
+  },
+  "files": {
+    "README.md": "# Synthetic repository\n\nA bounded public repository fixture.\n",
+    "package.json": "{\"name\":\"synthetic-repository\",\"private\":true,\"scripts\":{\"test\":\"vitest run\"}}\n",
+    "docs/guide.md": "# Guide\n\nOnly synthetic text is used in adapter tests.\n",
+    "docs/leak.md": "This fixture contains a -----BEGIN PRIVATE KEY REDACTED----- marker only.\n",
+    "src/index.ts": "export const answer: number = 42;\n",
+    "src/worker.ts": "export const run = (): string => \"ok\";\n"
+  },
+  "excluded_tree_entries": [
+    {
+      "path": ".env.example",
+      "type": "blob",
+      "size": 40
+    },
+    {
+      "path": "config/private-key.pem",
+      "type": "blob",
+      "size": 100
+    },
+    {
+      "path": "dist/bundle.js",
+      "type": "blob",
+      "size": 1000
+    },
+    {
+      "path": "assets/logo.png",
+      "type": "blob",
+      "size": 1000
+    },
+    {
+      "path": "docs/huge.md",
+      "type": "blob",
+      "size": 40000
+    },
+    {
+      "path": "vendor/generated.py",
+      "type": "blob",
+      "size": 100
+    }
+  ]
+}
