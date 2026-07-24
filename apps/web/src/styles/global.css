@@ -126,6 +126,9 @@ a {
 
 .site-header nav a,
 .site-footer a {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
   color: var(--muted);
   font-size: 0.9rem;
   text-decoration: none;
@@ -209,6 +212,8 @@ a {
   padding: 0.75rem 1.1rem;
   border: 1px solid var(--line);
   border-radius: 0.7rem;
+  cursor: pointer;
+  font: inherit;
   font-weight: 700;
   text-decoration: none;
 }
@@ -232,6 +237,12 @@ a {
 .button--secondary:hover,
 .button--secondary:focus-visible {
   border-color: var(--cyan);
+}
+
+.button--compact {
+  min-height: 44px;
+  padding: 0.6rem 0.85rem;
+  font-size: 0.84rem;
 }
 
 .hero-principles {
@@ -430,27 +441,137 @@ a {
 }
 
 .preview-controls {
-  display: grid;
-  gap: 0.8rem;
-  align-content: center;
+  align-self: center;
 }
 
-.preview-controls label {
+.preview-controls fieldset {
+  display: grid;
+  gap: 1.2rem;
+  min-width: 0;
+  margin: 0;
+  padding: 1.4rem;
+  border: 1px solid var(--line);
+  border-radius: 1rem;
+  background: rgba(8, 17, 31, 0.42);
+}
+
+.preview-controls legend {
+  padding-inline: 0.4rem;
+  color: var(--text);
+  font-weight: 700;
+}
+
+.form-field {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.form-field-heading {
   display: flex;
+  gap: 1rem;
   justify-content: space-between;
   color: var(--muted);
   font-size: 0.9rem;
 }
 
-.preview-controls output {
+.form-field-heading label {
+  color: var(--text);
+  font-weight: 700;
+}
+
+.form-field-heading output {
   color: var(--text);
   font-family: ui-monospace, monospace;
 }
 
+.form-field-hint {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.76rem;
+  line-height: 1.55;
+}
+
 .preview-controls input[type="range"] {
   width: 100%;
-  margin: 0 0 1rem;
+  min-height: 44px;
+  margin: 0;
   accent-color: var(--cyan);
+}
+
+.status-notice {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.8rem;
+  align-items: start;
+  margin-top: 1.4rem;
+  padding: 0.9rem;
+  border: 1px solid var(--line);
+  border-left-width: 4px;
+  border-radius: 0.8rem;
+  background: rgba(8, 17, 31, 0.46);
+}
+
+.status-notice--ready {
+  border-left-color: var(--cyan);
+}
+
+.status-notice--info {
+  border-left-color: var(--violet);
+}
+
+.status-notice--warning {
+  border-left-color: var(--amber);
+}
+
+.status-notice--error {
+  border-left-color: #ff8b92;
+}
+
+.status-notice-icon {
+  display: grid;
+  width: 1.65rem;
+  height: 1.65rem;
+  place-items: center;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  color: var(--cyan);
+  font-family: ui-monospace, monospace;
+  font-weight: 800;
+}
+
+.status-notice--info .status-notice-icon {
+  color: var(--violet);
+}
+
+.status-notice--warning .status-notice-icon {
+  color: var(--amber);
+}
+
+.status-notice--error .status-notice-icon {
+  color: #ff8b92;
+}
+
+.status-notice-title,
+.status-notice-copy,
+.status-notice-copy p {
+  margin: 0;
+}
+
+.status-notice-title {
+  color: var(--text);
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+
+.status-notice-title span {
+  color: var(--cyan);
+}
+
+.status-notice-copy {
+  margin-top: 0.25rem;
+  color: var(--muted);
+  font-size: 0.8rem;
+  line-height: 1.55;
 }
 
 .task-result {
@@ -499,6 +620,130 @@ a {
 
 .task-result h3 {
   margin-block: 0.25rem;
+}
+
+.evidence-section,
+.export-panel {
+  grid-column: 1 / -1;
+}
+
+.evidence-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.evidence-heading .section-kicker {
+  margin: 0;
+}
+
+.evidence-heading h3 {
+  margin: 0;
+  font-size: 1.3rem;
+}
+
+.evidence-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.8rem;
+  margin-top: 1rem;
+}
+
+.evidence-card {
+  min-width: 0;
+  padding: 1rem;
+  border: 1px solid var(--line);
+  border-top-width: 3px;
+  border-radius: 0.8rem;
+  background: rgba(8, 17, 31, 0.55);
+}
+
+.evidence-card--input {
+  border-top-color: var(--cyan);
+}
+
+.evidence-card--rule {
+  border-top-color: var(--violet);
+}
+
+.evidence-card--ai {
+  border-top-color: var(--amber);
+}
+
+.evidence-card--unknown {
+  border-top-color: var(--muted);
+}
+
+.evidence-kind,
+.evidence-card h3,
+.evidence-value,
+.evidence-copy {
+  margin: 0;
+}
+
+.evidence-kind {
+  color: var(--cyan);
+  font-family: ui-monospace, monospace;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.evidence-card--rule .evidence-kind {
+  color: var(--violet);
+}
+
+.evidence-card--ai .evidence-kind {
+  color: var(--amber);
+}
+
+.evidence-card--unknown .evidence-kind {
+  color: var(--muted);
+}
+
+.evidence-card h3 {
+  margin-top: 1.1rem;
+  font-size: 0.95rem;
+}
+
+.evidence-value {
+  margin-top: 0.35rem;
+  overflow-wrap: anywhere;
+  color: var(--text);
+  font-family: ui-monospace, monospace;
+  font-size: 0.82rem;
+}
+
+.evidence-copy {
+  margin-top: 0.7rem;
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.55;
+}
+
+.export-panel {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem 1rem;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+}
+
+.export-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.export-status {
+  max-width: 520px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.8rem;
+  line-height: 1.5;
 }
 
 .contract-section {
@@ -594,6 +839,7 @@ a {
   }
 
   .lab-grid,
+  .evidence-grid,
   .contract-grid {
     grid-template-columns: 1fr;
   }
@@ -606,10 +852,53 @@ a {
     grid-column: auto;
   }
 
+  .evidence-section,
+  .export-panel {
+    grid-column: auto;
+  }
+
   .site-footer {
     flex-direction: column;
     align-items: flex-start;
     justify-content: center;
+  }
+}
+
+@media (max-width: 600px) {
+  .site-header {
+    flex-wrap: wrap;
+    gap: 0.4rem 1rem;
+    padding-block: 0.6rem;
+  }
+
+  .site-header nav {
+    width: 100%;
+    gap: 0.4rem;
+    justify-content: space-between;
+    border-top: 1px solid var(--line);
+  }
+
+  .hero h1,
+  .not-found h1 {
+    font-size: clamp(2.65rem, 15vw, 4rem);
+  }
+
+  .token-preview {
+    padding-inline: 1rem;
+  }
+
+  .preview-controls fieldset {
+    padding: 1rem;
+  }
+
+  .task-result {
+    grid-template-columns: 1fr;
+  }
+
+  .evidence-heading,
+  .export-panel {
+    align-items: flex-start;
+    flex-direction: column;
   }
 }
 
@@ -625,5 +914,15 @@ a {
     transition-duration: 0.01ms !important;
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
+  }
+}
+
+@media (forced-colors: active) {
+  .button,
+  .status,
+  .status-notice,
+  .evidence-card,
+  .preview-controls fieldset {
+    border-color: ButtonText;
   }
 }

@@ -24,9 +24,9 @@
   - 产物：构建期 Manifest 加载器、首页字段映射、依赖说明和错误合同测试。
   - 验收：三个 `lab.json` 按 v1 Schema 生成静态卡片；无效清单、目录/ID 不一致和重复路由会阻断构建。
 
-- [ ] **P0-005 [M] 建立 UI 与可访问性基线**
-  - 产物：页面壳、导航、表单、状态提示、证据卡、结果导出组件。
-  - 验收：键盘可操作、颜色非唯一提示、reduced motion、手机宽度可用。
+- [x] **P0-005 [M] 建立 UI 与可访问性基线**
+  - 产物：页面壳导航、FormField、StatusNotice、EvidenceCard、ExportActions 和完整基线文档。
+  - 验收：原生键盘控件、文字/符号状态、320px 移动端重排、reduced motion、11 个单测与 20 项静态合同通过。
 
 - [ ] **P0-006 [M] 定义 AI Gateway 合同**
   - 产物：请求/响应 Schema、错误码、超时、Token 上限、Provider 适配接口。
@@ -96,4 +96,4 @@
 
 ## 推荐下一项任务
 
-接下来做 **P0-005**：建立可复用的页面壳、导航、表单、状态提示、证据卡和结果导出组件，并补齐移动端与无障碍基线。每个任务使用 `tasks/TASK_TEMPLATE.md` 与 `prompts/IMPLEMENT_TASK.md`。
+接下来做 **P1-001**：定义 Token 任务炼金炉的输入与任务输出 Schema，为无需 AI 的模板模式建立稳定合同。每个任务使用 `tasks/TASK_TEMPLATE.md` 与 `prompts/IMPLEMENT_TASK.md`。
