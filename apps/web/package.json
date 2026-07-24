@@ -12,8 +12,7 @@
     "build": "astro build",
     "preview": "astro preview",
     "preview:worker": "wrangler dev",
-    "verify:static": "node scripts/verify-static-output.mjs",
-    "validate": "npm run check && npm run build && npm run verify:static"
+    "verify:static": "node scripts/verify-static-output.mjs"
   },
   "dependencies": {
     "@astrojs/preact": "6.0.1",

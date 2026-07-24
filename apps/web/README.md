@@ -14,19 +14,25 @@ Margrop Labs 的可运行 Web 切片。
 
 ## 本地验证
 
-要求 Node.js 22.12 或更高版本。
+要求 Node.js 22.12 或更高版本。依赖和质量命令由仓库根目录统一管理：
 
 ```bash
+nvm use
 npm ci
 npm run validate
-npm run dev
+```
+
+启动 Web：
+
+```bash
+npm run dev --workspace @margrop-labs/web
 ```
 
 Cloudflare Worker 本地预览：
 
 ```bash
-npm run build
-npm run preview:worker
+npm run build --workspace @margrop-labs/web
+npm run preview:worker --workspace @margrop-labs/web
 ```
 
 ## 当前页面

@@ -40,6 +40,12 @@
 - 页面必须适配手机宽度，支持键盘操作，并考虑 reduced motion。
 - 不通过禁用类型检查、跳过测试或放宽安全规则来通过 CI。
 
+## 统一验证
+
+- 依赖只在仓库根目录使用 `npm ci` 安装，根目录 `package-lock.json` 是唯一锁文件。
+- 完成 JavaScript/TypeScript/Astro 任务前必须从根目录执行 `npm run validate`。
+- 本地与 GitHub Actions 使用同一条质量命令，不在 Workflow 维护第二套规则。
+
 ## 每个 Lab 的最低测试
 
 - 确定性核心单元测试；

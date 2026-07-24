@@ -31,8 +31,16 @@ body {
   margin: 0;
   min-width: 320px;
   background:
-    radial-gradient(circle at 78% 8%, rgba(45, 157, 169, 0.13), transparent 28rem),
-    radial-gradient(circle at 8% 36%, rgba(103, 76, 181, 0.1), transparent 28rem),
+    radial-gradient(
+      circle at 78% 8%,
+      rgba(45, 157, 169, 0.13),
+      transparent 28rem
+    ),
+    radial-gradient(
+      circle at 8% 36%,
+      rgba(103, 76, 181, 0.1),
+      transparent 28rem
+    ),
     var(--bg);
   color: var(--text);
 }

@@ -6,14 +6,22 @@ const html = await readFile(fileURLToPath(indexUrl), "utf8");
 
 const checks = [
   ["Chinese language", html.includes('lang="zh-CN"')],
-  ["indexable title", html.includes("<title>Margrop Labs｜魔都水滴实验室</title>")],
+  [
+    "indexable title",
+    html.includes("<title>Margrop Labs｜魔都水滴实验室</title>"),
+  ],
   [
     "meta description",
     html.includes('name="description"') &&
       html.includes("把 AI Agent、Self-hosting、PVE、NAS 与可观测性文章"),
   ],
   ["static H1", html.includes("把技术文章，变成可以")],
-  ["static Lab cards", ["Token 任务炼金炉", "AI 故障侦探", "SMART / RMA 报告机"].every((text) => html.includes(text))],
+  [
+    "static Lab cards",
+    ["Token 任务炼金炉", "AI 故障侦探", "SMART / RMA 报告机"].every((text) =>
+      html.includes(text),
+    ),
+  ],
   ["visible hydration", html.includes('client="visible"')],
   ["no eager hydration", !html.includes('client="load"')],
 ];

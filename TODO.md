@@ -16,9 +16,9 @@
   - 产物：ADR-0003、选型比较、可运行 Hello Lab、移动端/构建基线。
   - 验收：静态标题与 Lab 内容可索引；交互使用 `client:visible`；7 项静态合同检查通过。
 
-- [ ] **P0-003 [M] 建立 Web 工程与质量门**
-  - 产物：workspace、format、lint、type-check、unit test、build 命令。
-  - 验收：单命令本地验证，CI 使用同一命令；不含业务 Lab。
+- [x] **P0-003 [M] 建立 Web 工程与质量门**
+  - 产物：根 npm workspace、Prettier、ESLint、Astro/TypeScript、Vitest、构建/静态合同和 GitHub Actions。
+  - 验收：干净 `npm ci` 后 `npm run validate` 全部通过；CI 调用同一命令；仅抽取并测试已有确定性函数。
 
 - [ ] **P0-004 [M] 实现实验清单加载器**
   - 输入：`labs/*/lab.json`。

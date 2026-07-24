@@ -18,6 +18,8 @@ coverage/
 *.tsbuildinfo
 .pnpm-store/
 .wrangler/
+.eslintcache
+.vitest/
 
 # Go
 bin/

@@ -1,0 +1,32 @@
+{
+  "name": "margrop-labs",
+  "version": "0.0.0",
+  "private": true,
+  "engines": {
+    "node": ">=22.12.0",
+    "npm": ">=10.0.0"
+  },
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "format": "prettier --write apps/web/src apps/web/public apps/web/scripts apps/web/*.json apps/web/*.jsonc apps/web/*.mjs package.json eslint.config.mjs prettier.config.mjs vitest.config.ts .github/workflows",
+    "format:check": "prettier --check apps/web/src apps/web/public apps/web/scripts apps/web/*.json apps/web/*.jsonc apps/web/*.mjs package.json eslint.config.mjs prettier.config.mjs vitest.config.ts .github/workflows",
+    "lint": "eslint .",
+    "typecheck": "npm run check --workspace @margrop-labs/web",
+    "test": "vitest run",
+    "build": "npm run build --workspace @margrop-labs/web",
+    "verify:static": "npm run verify:static --workspace @margrop-labs/web",
+    "validate": "npm run format:check && npm run lint && npm run typecheck && npm run test && npm run build && npm run verify:static"
+  },
+  "devDependencies": {
+    "@eslint/js": "9.39.5",
+    "eslint": "9.39.5",
+    "eslint-plugin-astro": "1.6.0",
+    "globals": "17.7.0",
+    "prettier": "3.9.6",
+    "prettier-plugin-astro": "0.14.1",
+    "typescript-eslint": "8.65.0",
+    "vitest": "4.1.10"
+  }
+}
