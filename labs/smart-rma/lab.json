@@ -1,0 +1,12 @@
+{
+  "schema_version": "1.0",
+  "id": "smart-rma",
+  "title": "SMART / RMA 报告机",
+  "summary": "在浏览器本地解析并脱敏 SMART 输出，生成健康说明与售后材料。",
+  "status": "proposed",
+  "route": "/smart-rma/",
+  "ai_mode": "optional",
+  "input_privacy": "local-first",
+  "sample_mode": true,
+  "related_articles": []
+}

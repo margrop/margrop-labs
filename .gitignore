@@ -1,0 +1,40 @@
+# Environment and secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+secrets/
+
+# JavaScript / TypeScript
+node_modules/
+dist/
+.output/
+.astro/
+.next/
+coverage/
+*.tsbuildinfo
+.pnpm-store/
+
+# Go
+bin/
+vendor/
+*.test
+coverage.out
+
+# Runtime and generated output
+artifacts/
+reports/
+*.log
+*.sqlite
+*.db
+
+# Editors and OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+*.swp
+*~

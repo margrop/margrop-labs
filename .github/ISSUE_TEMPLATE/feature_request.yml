@@ -1,0 +1,33 @@
+name: Feature request
+description: 提出可验证的新 Lab 或能力
+title: "[Feature] "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: 真实问题
+      description: 用户现在如何解决，痛点是什么？
+    validations:
+      required: true
+  - type: textarea
+    id: deterministic
+    attributes:
+      label: 确定性与 AI 边界
+      description: 哪部分必须由代码负责，哪部分适合 AI？
+    validations:
+      required: true
+  - type: textarea
+    id: privacy
+    attributes:
+      label: 隐私与成本
+      description: 输入是否敏感、是否离开浏览器、AI 调用上限是什么？
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: 验收标准
+      description: 如何用合成数据证明完成？
+    validations:
+      required: true

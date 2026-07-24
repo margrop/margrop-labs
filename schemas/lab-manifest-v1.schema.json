@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lab.margrop.net/schemas/lab-manifest-v1.schema.json",
+  "title": "Margrop Lab Manifest v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "id",
+    "title",
+    "summary",
+    "status",
+    "route",
+    "ai_mode",
+    "input_privacy",
+    "sample_mode",
+    "related_articles"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 60
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 10,
+      "maxLength": 180
+    },
+    "status": {
+      "enum": ["proposed", "building", "alpha", "beta", "stable"]
+    },
+    "route": {
+      "type": "string",
+      "pattern": "^/[a-z0-9][a-z0-9/-]*/$"
+    },
+    "ai_mode": {
+      "enum": ["none", "optional", "required"]
+    },
+    "input_privacy": {
+      "enum": ["public", "local-first", "sensitive"]
+    },
+    "sample_mode": {
+      "const": true
+    },
+    "related_articles": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "format": "uri",
+        "pattern": "^https://blog\\.margrop\\.net/"
+      },
+      "uniqueItems": true
+    }
+  }
+}

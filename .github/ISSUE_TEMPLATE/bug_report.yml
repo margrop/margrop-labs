@@ -1,0 +1,37 @@
+name: Bug report
+description: 报告可复现且已脱敏的问题
+title: "[Bug] "
+labels: ["bug"]
+body:
+  - type: dropdown
+    id: lab
+    attributes:
+      label: Lab
+      options:
+        - platform
+        - token-forge
+        - incident-detective
+        - smart-rma
+    validations:
+      required: true
+  - type: textarea
+    id: summary
+    attributes:
+      label: 问题摘要
+      description: 说明期望与实际行为。
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: 合成数据复现
+      description: 不要粘贴真实日志、仓库内容、序列号或凭据。
+    validations:
+      required: true
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: 安全确认
+      options:
+        - label: 我已移除凭据、真实地址、主机名、序列号和用户数据
+          required: true

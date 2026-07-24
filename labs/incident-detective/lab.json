@@ -1,0 +1,14 @@
+{
+  "schema_version": "1.0",
+  "id": "incident-detective",
+  "title": "AI 故障侦探",
+  "summary": "通过合成指标、日志和数据库证据，练习有边界、可审计的故障排查。",
+  "status": "proposed",
+  "route": "/incident-detective/",
+  "ai_mode": "optional",
+  "input_privacy": "public",
+  "sample_mode": true,
+  "related_articles": [
+    "https://blog.margrop.net/post/mysql-prometheus-loki-grafana-ai-agent-hands-on/"
+  ]
+}
