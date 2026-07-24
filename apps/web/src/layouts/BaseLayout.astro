@@ -1,0 +1,46 @@
+---
+import "../styles/global.css";
+
+interface Props {
+  title: string;
+  description: string;
+}
+
+const { title, description } = Astro.props;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#08111f" />
+    <link rel="canonical" href={canonical} />
+    <title>{title}</title>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">跳到主要内容</a>
+    <header class="site-header">
+      <a class="brand" href="/" aria-label="Margrop Labs 首页">
+        <span class="brand-mark" aria-hidden="true">M</span>
+        <span>
+          <strong>MARGROP</strong>
+          <small>LABS</small>
+        </span>
+      </a>
+      <nav aria-label="主导航">
+        <a href="https://blog.margrop.net/">博客</a>
+        <a href="https://github.com/margrop/margrop-labs">GitHub</a>
+      </nav>
+    </header>
+    <main id="main-content">
+      <slot />
+    </main>
+    <footer class="site-footer">
+      <p>确定性内核，AI 增强。敏感原始输入优先在浏览器本地处理。</p>
+      <a href="https://blog.margrop.net/">返回魔都水滴</a>
+    </footer>
+  </body>
+</html>

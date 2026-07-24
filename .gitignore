@@ -17,6 +17,7 @@ dist/
 coverage/
 *.tsbuildinfo
 .pnpm-store/
+.wrangler/
 
 # Go
 bin/

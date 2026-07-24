@@ -1,7 +1,36 @@
 # Web application
 
-公众门户、SEO 落地页和交互 Lab 的预留目录。
+Margrop Labs 的可运行 Web 切片。
 
-P0-002 完成技术栈 ADR 后，由 P0-003 初始化实际工程。目标是静态内容优先、互动代码按需加载、移动端优先，并通过 `labs/*/lab.json` 生成实验入口。
+## 已确定技术栈
 
-在框架未决定前，不提交占位 package manifest 或无法验证的 UI。
+- Astro：静态 HTML 和 SEO 页面；
+- TypeScript strict：公共交互与类型安全；
+- Preact Islands：仅为需要状态的局部组件发送 JavaScript；
+- `client:visible`：低优先级实验进入视口前不加载交互代码；
+- Cloudflare Workers Static Assets：未来承载 `lab.margrop.net`。
+
+首期保持纯静态输出，不安装 Cloudflare SSR Adapter。以后确有按需渲染、Workers AI 或绑定需求时，再通过 ADR 引入 Adapter。
+
+## 本地验证
+
+要求 Node.js 22.12 或更高版本。
+
+```bash
+npm ci
+npm run validate
+npm run dev
+```
+
+Cloudflare Worker 本地预览：
+
+```bash
+npm run build
+npm run preview:worker
+```
+
+## 当前页面
+
+首页包含可被搜索引擎直接读取的静态标题、首批 Lab 卡片和隐私合同，以及一个使用 `client:visible` 按需激活的 Token 预算预览。
+
+P0-004 才会把 Lab 卡片改为自动读取根目录 `labs/*/lab.json`；本任务不提前实现该范围。

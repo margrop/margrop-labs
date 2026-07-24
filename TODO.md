@@ -11,10 +11,10 @@
   - 产物：`LICENSE` 与 README 说明。
   - 验收：由仓库所有者确认，不由 Agent 擅自决定。
 
-- [ ] **P0-002 [M] 决定 Web 技术栈和部署目标**
-  - 候选：Astro + TypeScript + 交互岛；部署目标需支持 `lab.margrop.net`。
-  - 产物：ADR、最小 Hello Lab、选型比较。
-  - 验收：静态内容可索引，互动组件按需加载，移动端 Lighthouse 基线可记录。
+- [x] **P0-002 [M] 决定 Web 技术栈和部署目标**
+  - 决策：Astro + TypeScript strict + Preact Islands，部署目标为 Cloudflare Workers Static Assets。
+  - 产物：ADR-0003、选型比较、可运行 Hello Lab、移动端/构建基线。
+  - 验收：静态标题与 Lab 内容可索引；交互使用 `client:visible`；7 项静态合同检查通过。
 
 - [ ] **P0-003 [M] 建立 Web 工程与质量门**
   - 产物：workspace、format、lint、type-check、unit test、build 命令。

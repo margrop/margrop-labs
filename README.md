@@ -36,7 +36,7 @@ schemas/          # 版本化 JSON Schema
 docs/             # 架构、隐私、成本和博客集成规范
 ```
 
-Web 端优先采用适合静态内容和交互岛的 TypeScript 技术栈；服务端通过稳定 HTTP 合同解耦。具体框架和部署平台在实现前通过 ADR 确认。
+Web 端采用 **Astro + TypeScript + Preact Islands**，首期生成静态 HTML，并以 **Cloudflare Workers Static Assets** 作为 `lab.margrop.net` 的部署目标。低优先级交互使用 `client:visible` 按需加载；服务端 AI Gateway 继续通过稳定 HTTP 合同解耦。选型见 [ADR-0003](./docs/adr/0003-web-stack-and-cloudflare-workers.md)。
 
 ## 开始贡献
 
@@ -49,4 +49,13 @@ Web 端优先采用适合静态内容和交互岛的 TypeScript 技术栈；服�
 
 ## 当前状态
 
-项目处于 **scaffold / pre-alpha**。当前仓库仅建立产品与工程合同，尚无可部署网站，也不会向用户暗示任何实验已经可用。
+## 本地运行
+
+```bash
+cd apps/web
+npm ci
+npm run validate
+npm run dev
+```
+
+当前项目仍处于 **pre-alpha**。P0-002 已提供可运行的 Hello Lab：首页输出完整静态 HTML，Token 预算预览仅在进入视口时加载交互代码。三个正式实验仍为 Proposed，生产站点尚未部署。

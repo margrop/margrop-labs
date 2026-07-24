@@ -1,0 +1,110 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import TokenBudgetPreview from "../components/TokenBudgetPreview";
+
+const labs = [
+  {
+    index: "01",
+    title: "Token 任务炼金炉",
+    description: "把额度、目标和公开仓库上下文转换成边界清晰、可以验收的开发任务。",
+    route: "/token-forge/",
+    status: "规划中",
+    accent: "cyan",
+  },
+  {
+    index: "02",
+    title: "AI 故障侦探",
+    description: "在合成事故中按顺序收集指标、日志和业务证据，而不是让 AI 猜答案。",
+    route: "/incident-detective/",
+    status: "规划中",
+    accent: "violet",
+  },
+  {
+    index: "03",
+    title: "SMART / RMA 报告机",
+    description: "本地解析并脱敏硬盘信息，输出可读的健康解释和售后材料。",
+    route: "/smart-rma/",
+    status: "规划中",
+    accent: "amber",
+  },
+];
+---
+
+<BaseLayout
+  title="Margrop Labs｜魔都水滴实验室"
+  description="把 AI Agent、Self-hosting、PVE、NAS 与可观测性文章变成可以立即体验和验证的互动实验。"
+>
+  <section class="hero">
+    <div class="hero-grid" aria-hidden="true"></div>
+    <div class="hero-content">
+      <p class="eyebrow">AI INFRASTRUCTURE PLAYGROUND</p>
+      <h1>把技术文章，变成可以<br /><em>亲手验证</em>的实验。</h1>
+      <p class="hero-summary">
+        博客解释为什么，Labs 让你马上试一下。这里没有万能聊天框，只有边界清楚、证据可见、可以复现的小工具。
+      </p>
+      <div class="hero-actions">
+        <a class="button button--primary" href="#hello-lab">体验 Hello Lab</a>
+        <a class="button button--secondary" href="https://blog.margrop.net/start-here/">
+          阅读知识地图
+        </a>
+      </div>
+      <dl class="hero-principles">
+        <div><dt>01</dt><dd>确定性内核</dd></div>
+        <div><dt>02</dt><dd>敏感数据本地优先</dd></div>
+        <div><dt>03</dt><dd>AI 随时可降级</dd></div>
+      </dl>
+    </div>
+  </section>
+
+  <section class="labs-section" aria-labelledby="labs-heading">
+    <div class="section-heading">
+      <div>
+        <p class="section-kicker">FIRST EXPERIMENTS</p>
+        <h2 id="labs-heading">首批实验</h2>
+      </div>
+      <p>每个实验都必须提供无需登录、无需真实数据、无需消耗 AI 额度的样例模式。</p>
+    </div>
+
+    <div class="lab-grid">
+      {
+        labs.map((lab) => (
+          <article class={`lab-card lab-card--${lab.accent}`}>
+            <div class="lab-card-meta">
+              <span>{lab.index}</span>
+              <span class="status">{lab.status}</span>
+            </div>
+            <h3>{lab.title}</h3>
+            <p>{lab.description}</p>
+            <span class="route">{lab.route}</span>
+          </article>
+        ))
+      }
+    </div>
+  </section>
+
+  <div id="hello-lab" class="hello-lab-anchor">
+    <TokenBudgetPreview client:visible={{ rootMargin: "240px" }} />
+  </div>
+
+  <section class="contract-section" aria-labelledby="contract-heading">
+    <p class="section-kicker">PUBLIC CONTRACT</p>
+    <h2 id="contract-heading">你始终知道数据去了哪里</h2>
+    <div class="contract-grid">
+      <article>
+        <span>LOCAL</span>
+        <h3>浏览器先处理</h3>
+        <p>解析、计算和脱敏尽可能留在设备上，原始敏感文本默认不上传。</p>
+      </article>
+      <article>
+        <span>MINIMAL</span>
+        <h3>AI 只看必要摘要</h3>
+        <p>需要模型时，只发送版本化、已脱敏、完成当前任务所需的最小结构。</p>
+      </article>
+      <article>
+        <span>FALLBACK</span>
+        <h3>没有 AI 仍然能用</h3>
+        <p>额度耗尽、网络超时或返回无效时，确定性结果和合成样例继续工作。</p>
+      </article>
+    </div>
+  </section>
+</BaseLayout>
