@@ -95,6 +95,6 @@
 - [ ] **P4-007 [M] 建立 Labs 首页 SEO、Open Graph 和 sitemap**
 - [ ] **P4-008 [M] 上线后复盘打开率、运行率、导出率和 GitHub 点击率**
 
-## 推荐第一项任务
+## 推荐下一项任务
 
-先做 **P0-002**，不要直接生成一个大型前端项目。选型完成后做 P0-003，再实现 P1-001。每个任务使用 `tasks/TASK_TEMPLATE.md` 与 `prompts/IMPLEMENT_TASK.md`。
+接下来做 **P0-004**：从现有 `labs/*/lab.json` 生成经过 Schema 验证的实验清单；完成后再做 P0-005。每个任务使用 `tasks/TASK_TEMPLATE.md` 与 `prompts/IMPLEMENT_TASK.md`。
