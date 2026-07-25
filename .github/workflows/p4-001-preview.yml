@@ -47,8 +47,14 @@ jobs:
         id: deploy-preview
         shell: bash
         run: |
+          set +e
           output="$(npm run deploy:preview --workspace @margrop-labs/web 2>&1)"
+          status=$?
+          set -e
           printf '%s\n' "$output"
+          if [[ "$status" -ne 0 ]]; then
+            exit "$status"
+          fi
           deployment_url="$(printf '%s\n' "$output" | sed -nE 's#.*(https://[^[:space:]]+\.workers\.dev).*#\1#p' | tail -n 1)"
           if [[ -z "$deployment_url" ]]; then
             echo "Wrangler did not report a workers.dev deployment URL." >&2
