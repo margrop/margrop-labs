@@ -7,13 +7,20 @@
 正式入口：[https://lab.margrop.net](https://lab.margrop.net)。Preview 与 Production 的发布边界、Secret
 要求、验收和回滚流程见 [Cloudflare Workers 部署](./docs/cloudflare-deployment.md)。
 
+## 当前产品焦点
+
+**Token 任务炼金炉是当前唯一产品开发主线。** 在它完成公开仓库分析、受控 AI 规划、
+可编辑计划、Coding Agent 执行包、可靠性基准和上线验证之前，AI 故障侦探与 SMART / RMA
+报告机只接受生产故障和安全修复，不继续增加功能。具体顺序和解除冻结的量化门槛见
+[Token Forge 优先路线图](./docs/token-forge-roadmap.md)。
+
 ## 首批实验
 
-| 实验                                      | 用户价值                                             | 状态  |
-| ----------------------------------------- | ---------------------------------------------------- | ----- |
-| [Token 任务炼金炉](./labs/token-forge/)   | 把闲置 Token、仓库上下文和目标转换为可验收的开发任务 | Alpha |
-| [AI 故障侦探](./labs/incident-detective/) | 在合成事故中练习按证据排障，而不是让 AI 猜根因       | Alpha |
-| [SMART / RMA 报告机](./labs/smart-rma/)   | 本地解析并遮蔽硬盘标识，分离关键指标与未知项         | Alpha |
+| 实验                                      | 用户价值                                             | 状态       |
+| ----------------------------------------- | ---------------------------------------------------- | ---------- |
+| [Token 任务炼金炉](./labs/token-forge/)   | 把闲置 Token、仓库上下文和目标转换为可验收的开发任务 | Alpha·主线 |
+| [AI 故障侦探](./labs/incident-detective/) | 在合成事故中练习按证据排障，而不是让 AI 猜根因       | Alpha·冻结 |
+| [SMART / RMA 报告机](./labs/smart-rma/)   | 本地解析并遮蔽硬盘标识，分离关键指标与未知项         | Alpha·冻结 |
 
 ## 产品原则
 
@@ -50,6 +57,7 @@ Web 端采用 **Astro + TypeScript + Preact Islands**，首期生成静态 HTML�
 - Token Forge AI 规划：遵循 [AI 任务拆分](./docs/token-forge-ai-planning.md)。
 - Token Forge 本地导出：遵循 [Markdown / GitHub Issue 导出](./docs/token-forge-export.md)。
 - Token Forge 正式页面：遵循 [页面与事件合同](./docs/token-forge-page.md)。
+- Token Forge 当前顺序与 Beta 门槛：遵循 [优先路线图](./docs/token-forge-roadmap.md)。
 - Incident Detective 合同：遵循 [场景与单局推理 v1](./docs/incident-detective-contract-v1.md)。
 - Incident Detective 案例：参阅 [首个完整合成事故](./docs/incident-detective-first-case.md)。
 - Incident Detective 页面：遵循 [逐步取证与时间线界面](./docs/incident-detective-page.md)。
@@ -75,7 +83,8 @@ npm run dev --workspace @margrop-labs/web
 
 开发者与 GitHub Actions 使用同一条根目录质量命令。检查内容和故障处理见 [质量门](./docs/quality-gates.md)。实验卡片由版本化清单生成，规则见 [实验清单加载器](./docs/lab-manifest-loader.md)。页面组件与交互必须遵循 [UI 与可访问性基线](./docs/ui-accessibility-baseline.md)。Token 任务炼金炉的稳定输入输出见 [v1 合同](./docs/token-forge-contract-v1.md)，无需 AI 的降级核心见 [确定性模板模式](./docs/token-forge-template-mode.md)，公开仓库的有界只读输入见 [GitHub 摘要适配器](./docs/github-public-repository-adapter.md)。所有未来 AI 能力必须通过 [Provider 中立的 Gateway 合同](./docs/ai-gateway-contract-v1.md)。
 
-当前站点进入 **alpha**。P4-001/P4-002 已完成隔离的 Preview 与 Production 部署，
+当前站点进入 **alpha**，后续功能开发集中在 Token 任务炼金炉；其他两个 Lab 保留现状并
+冻结新功能。P4-001/P4-002 已完成隔离的 Preview 与 Production 部署，
 正式站点由 Cloudflare Workers Static Assets 和 Custom Domain 提供。P1-004 已在 P0-006
 AI Gateway 和 P0-007 脱敏边界上实现 Token Forge AI 任务拆分核心：最小仓库上下文、
 确定性输出安全检查和 P1-002 完整降级均已有合成测试。P1-005 已增加验证计划的本地
@@ -94,4 +103,5 @@ Score-only 的确定性 SVG 下载，Incident Detective MVP 六个任务全部�
 缺失字段、厂商扩展、SMART 不可用和冲突信号。P3-002 已上线浏览器端只读解析工作台和
 Parse Result v1。P3-003 已增加序列号、WWN、主机名、IP 与常见 Secret 的本地脱敏预览，
 以及不含自由文本的 Boundary Projection v1；URL、日志和 Analytics 进一步收窄为固定元数据，
-AI 与导出尚未启用。下一步是 P3-004 确定性健康分类，现有结果仍不构成厂商保修判断。
+AI 与导出尚未启用，现有结果仍不构成厂商保修判断。下一步改为 P1-007，把已有公开 GitHub
+仓库摘要适配器接入 Token Forge 页面；完整顺序以 Token Forge 优先路线图为准。
