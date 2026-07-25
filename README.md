@@ -4,7 +4,7 @@
 
 `margrop-labs` 是 [blog.margrop.net](https://blog.margrop.net/) 的互动实验层。博客负责解释“为什么”，Labs 负责让读者“马上试一下”，GitHub 负责公开实现、规则和验证过程。
 
-计划部署入口：`https://lab.margrop.net`。Preview 与 Production 的发布边界、Secret
+正式入口：[https://lab.margrop.net](https://lab.margrop.net)。Preview 与 Production 的发布边界、Secret
 要求、验收和回滚流程见 [Cloudflare Workers 部署](./docs/cloudflare-deployment.md)。
 
 ## 首批实验
@@ -63,4 +63,4 @@ npm run dev --workspace @margrop-labs/web
 
 开发者与 GitHub Actions 使用同一条根目录质量命令。检查内容和故障处理见 [质量门](./docs/quality-gates.md)。实验卡片由版本化清单生成，规则见 [实验清单加载器](./docs/lab-manifest-loader.md)。页面组件与交互必须遵循 [UI 与可访问性基线](./docs/ui-accessibility-baseline.md)。Token 任务炼金炉的稳定输入输出见 [v1 合同](./docs/token-forge-contract-v1.md)，无需 AI 的降级核心见 [确定性模板模式](./docs/token-forge-template-mode.md)，公开仓库的有界只读输入见 [GitHub 摘要适配器](./docs/github-public-repository-adapter.md)。所有未来 AI 能力必须通过 [Provider 中立的 Gateway 合同](./docs/ai-gateway-contract-v1.md)。
 
-当前项目仍处于 **pre-alpha**。P0-006 已定义版本化 AI Gateway 请求/响应、Provider Adapter、硬成本边界和失败关闭执行核心；浏览器不能选择 Provider、模型或系统提示词，也不接触密钥。下一步完成 P0-007 隐私与脱敏包，再接入 P1-004 AI 任务拆分。生产站点尚未部署。
+当前项目仍处于 **pre-alpha**。P4-001/P4-002 已完成隔离的 Preview 与 Production 部署，正式站点由 Cloudflare Workers Static Assets 和 Custom Domain 提供。P0-006 已定义版本化 AI Gateway 请求/响应、Provider Adapter、硬成本边界和失败关闭执行核心；浏览器不能选择 Provider、模型或系统提示词，也不接触密钥。下一步完成 P0-007 隐私与脱敏包，再接入 P1-004 AI 任务拆分。

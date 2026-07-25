@@ -87,8 +87,12 @@
 
 ## P4：平台与增长
 
-- [ ] **P4-001 [M] 部署 preview 环境并验证移动端**
-- [ ] **P4-002 [M] 配置 `lab.margrop.net` 正式部署**
+- [x] **P4-001 [M] 部署 preview 环境并验证移动端**
+  - Preview：`https://margrop-labs-preview.margrop.workers.dev`。
+  - 验收：完整质量门、Wrangler dry-run、在线 smoke test、320px 重排、触控目标和显式 viewport 全部通过。
+- [x] **P4-002 [M] 配置 `lab.margrop.net` 正式部署**
+  - Production：`https://lab.margrop.net`。
+  - 验收：Custom Domain、HTTPS、首页、核心内容和 `robots.txt` 在线检查通过；生产发布保持手动触发。
 - [ ] **P4-003 [M] 建立不采集输入正文的 Analytics**
 - [ ] **P4-004 [M] 建立 AI 日/用户/Lab 预算与熔断**
 - [ ] **P4-005 [S] 为博客生成统一 CTA 片段**

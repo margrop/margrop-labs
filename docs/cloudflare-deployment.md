@@ -2,10 +2,10 @@
 
 Margrop Labs 使用同一份静态产物部署到两个彼此隔离的 Cloudflare Worker：
 
-| 环境       | Worker                 | 入口                              | 用途       |
-| ---------- | ---------------------- | --------------------------------- | ---------- |
-| Preview    | `margrop-labs-preview` | Wrangler 返回的 `workers.dev` URL | 上线前验收 |
-| Production | `margrop-labs`         | `https://lab.margrop.net`         | 正式流量   |
+| 环境       | Worker                 | 入口                                               | 用途       |
+| ---------- | ---------------------- | -------------------------------------------------- | ---------- |
+| Preview    | `margrop-labs-preview` | `https://margrop-labs-preview.margrop.workers.dev` | 上线前验收 |
+| Production | `margrop-labs`         | `https://lab.margrop.net`                          | 正式流量   |
 
 `apps/web/wrangler.jsonc` 是路由和静态资源配置的唯一事实来源。Production 关闭稳定的
 `workers.dev` 入口并使用 Custom Domain；Preview 不绑定 `margrop.net` 的任何域名。
