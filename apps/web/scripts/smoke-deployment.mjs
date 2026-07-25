@@ -11,20 +11,24 @@ const baseUrl = new URL(targetUrl);
 const attempts = 12;
 const retryDelayMs = 5_000;
 
-async function fetchWithRetry(url) {
+async function fetchTextWithRetry(url, validate) {
   let lastError;
 
   for (let attempt = 1; attempt <= attempts; attempt += 1) {
     try {
       const response = await fetch(url, {
+        cache: "no-store",
         headers: {
+          "cache-control": "no-cache",
           "user-agent": "margrop-labs-deployment-smoke/1.0",
         },
         redirect: "follow",
       });
 
       if (response.ok) {
-        return response;
+        const text = await response.text();
+        validate(text);
+        return text;
       }
 
       lastError = new Error(`${url} returned HTTP ${response.status}`);
@@ -40,20 +44,18 @@ async function fetchWithRetry(url) {
   throw lastError;
 }
 
-const homepageResponse = await fetchWithRetry(baseUrl);
-const homepage = await homepageResponse.text();
-
-assert.match(homepage, /<title>[^<]*Margrop Labs[^<]*<\/title>/);
-assert.match(homepage, /Token 任务炼金炉/);
-assert.match(
-  homepage,
-  /<meta\s+name="viewport"\s+content="width=device-width,\s*initial-scale=1"\s*\/?>/,
-);
+await fetchTextWithRetry(baseUrl, (homepage) => {
+  assert.match(homepage, /<title>[^<]*Margrop Labs[^<]*<\/title>/);
+  assert.match(homepage, /Token 任务炼金炉/);
+  assert.match(
+    homepage,
+    /<meta\s+name="viewport"\s+content="width=device-width,\s*initial-scale=1"\s*\/?>/,
+  );
+});
 
 const robotsUrl = new URL("/robots.txt", baseUrl);
-const robotsResponse = await fetchWithRetry(robotsUrl);
-const robots = await robotsResponse.text();
-
-assert.match(robots, /User-agent:\s*\*/);
+await fetchTextWithRetry(robotsUrl, (robots) => {
+  assert.match(robots, /User-agent:\s*\*/);
+});
 
 console.log(`Deployment smoke check passed: ${baseUrl.origin}`);
