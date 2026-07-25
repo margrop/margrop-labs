@@ -8,13 +8,13 @@ P0-006 定义 Margrop Labs Web、服务端 Gateway 和 AI Provider Adapter 之�
 
 `ai-gateway-request-v1` 只包含：
 
-| 字段 | 用途 |
-|---|---|
-| `schema_version` | 固定为 `1.0` |
-| `request_id` | UUID 幂等与关联标识 |
-| `lab_id` | 调用来源 Lab |
-| `operation` | 服务端注册的版本化操作 |
-| `input` | 经过操作专属 Schema 验证的结构化业务数据 |
+| 字段             | 用途                                     |
+| ---------------- | ---------------------------------------- |
+| `schema_version` | 固定为 `1.0`                             |
+| `request_id`     | UUID 幂等与关联标识                      |
+| `lab_id`         | 调用来源 Lab                             |
+| `operation`      | 服务端注册的版本化操作                   |
+| `input`          | 经过操作专属 Schema 验证的结构化业务数据 |
 
 客户端不能发送 `provider`、`model`、`messages`、`system_prompt`、Provider Key、Authorization、Cookie、密码或访问 Token。即使这些字段藏在嵌套输入中，也会在调用 Provider 前失败关闭。
 
@@ -24,20 +24,20 @@ P0-006 定义 Margrop Labs Web、服务端 Gateway 和 AI Provider Adapter 之�
 
 成功响应包含经过操作专属验证的 `result`、Provider usage 和 `attempt_count`。失败响应只包含稳定错误码、是否适合稍后重试、可选的受限 `retry_after_seconds`，不包含 Provider 原始消息、堆栈、请求正文或模型正文。
 
-| 错误码 | HTTP | 自动重试 |
-|---|---:|---|
-| `invalid_request` | 400 | 否 |
-| `request_too_large` | 413 | 否 |
-| `input_token_limit_exceeded` | 413 | 否 |
-| `rate_limited` | 429 | 否 |
-| `budget_exhausted` | 429 | 否 |
-| `provider_timeout` | 504 | 否 |
-| `provider_unavailable` | 503 | 最多一次 |
-| `invalid_provider_response` | 502 | 最多一次 |
-| `output_token_limit_exceeded` | 502 | 否 |
-| `response_too_large` | 502 | 否 |
-| `policy_blocked` | 422 | 否 |
-| `internal_error` | 500 | 否 |
+| 错误码                        | HTTP | 自动重试 |
+| ----------------------------- | ---: | -------- |
+| `invalid_request`             |  400 | 否       |
+| `request_too_large`           |  413 | 否       |
+| `input_token_limit_exceeded`  |  413 | 否       |
+| `rate_limited`                |  429 | 否       |
+| `budget_exhausted`            |  429 | 否       |
+| `provider_timeout`            |  504 | 否       |
+| `provider_unavailable`        |  503 | 最多一次 |
+| `invalid_provider_response`   |  502 | 最多一次 |
+| `output_token_limit_exceeded` |  502 | 否       |
+| `response_too_large`          |  502 | 否       |
+| `policy_blocked`              |  422 | 否       |
+| `internal_error`              |  500 | 否       |
 
 表中的“自动重试”是 Gateway 单次执行内部的行为；响应中的 `retryable` 表示用户稍后重新发起是否可能成功。客户端不得据此建立无限自动重试。
 
@@ -66,18 +66,18 @@ Adapter 的初始化和密钥注入属于未来服务端运行时；公共接口
 
 ## 上限
 
-| 边界 | 硬上限 |
-|---|---:|
-| 请求 JSON | 64 KiB |
-| 响应 JSON | 64 KiB |
-| 输入 Token | 24,000 |
-| 服务端指令预留 | 2,000 |
-| 输出 Token | 4,000 |
-| 单次 Provider 超时 | 15 秒 |
-| 总尝试次数 | 2 |
-| JSON 深度 | 8 |
-| JSON 节点 | 1,000 |
-| `retry_after_seconds` | 3,600 |
+| 边界                  | 硬上限 |
+| --------------------- | -----: |
+| 请求 JSON             | 64 KiB |
+| 响应 JSON             | 64 KiB |
+| 输入 Token            | 24,000 |
+| 服务端指令预留        |  2,000 |
+| 输出 Token            |  4,000 |
+| 单次 Provider 超时    |  15 秒 |
+| 总尝试次数            |      2 |
+| JSON 深度             |      8 |
+| JSON 节点             |  1,000 |
+| `retry_after_seconds` |  3,600 |
 
 运行时策略只能降低这些值。调用前使用“操作输入 UTF-8 JSON 字节数 + 2,000”作为保守 Token 上界；Provider 返回后再检查实际 usage 和总数一致性。
 
@@ -103,6 +103,11 @@ P0-007 已提供允许字段优先、Secret 默认拒绝的完整脱敏边界。
 `token-forge.plan-v1` 操作在调用本合同前，会把公开仓库样本进一步压缩为最多 4 个无路径
 脱敏片段，仓库正文合计不超过 10 KiB，整个操作输入不超过 20 KiB。操作和降级行为见
 [Token Forge AI 任务拆分](./token-forge-ai-planning.md)。
+
+P2-005 的 `incident-detective.case-proposal-v1` 操作只发送 ID、主题、允许来源、预算、
+学习目标、base case 服务类型和固定 Guardrails，总输入不超过 8 KiB。它不发送现有证据
+Payload、内部答案、canonical attempt 或评分规则；输出只能进入人工审核，不能自动发布。
+详见[受约束案例生成与审核](./incident-detective-case-generation.md)。
 
 ## Fixture 与验证
 

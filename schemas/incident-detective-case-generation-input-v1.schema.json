@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lab.margrop.net/schemas/incident-detective-case-generation-input-v1.schema.json",
+  "title": "Incident Detective Case Generation Input v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "proposal_id",
+    "base_case_id",
+    "difficulty",
+    "theme",
+    "target_sources",
+    "evidence_budget",
+    "learning_objectives"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "proposal_id": {
+      "$ref": "#/$defs/id"
+    },
+    "base_case_id": {
+      "$ref": "#/$defs/id"
+    },
+    "difficulty": {
+      "enum": ["beginner", "intermediate", "advanced"]
+    },
+    "theme": {
+      "enum": [
+        "query-regression",
+        "dependency-latency",
+        "capacity-pressure",
+        "cache-behavior",
+        "release-regression",
+        "observability-gap"
+      ]
+    },
+    "target_sources": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 5,
+      "uniqueItems": true,
+      "items": {
+        "enum": ["prometheus", "loki", "mysql", "runbook", "topology"]
+      }
+    },
+    "evidence_budget": {
+      "type": "integer",
+      "minimum": 4,
+      "maximum": 16
+    },
+    "learning_objectives": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 4,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/paragraph"
+      }
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "maxLength": 80
+    },
+    "paragraph": {
+      "type": "string",
+      "minLength": 10,
+      "maxLength": 240,
+      "pattern": "\\S"
+    }
+  }
+}

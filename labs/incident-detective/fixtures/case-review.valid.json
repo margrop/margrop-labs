@@ -1,0 +1,19 @@
+{
+  "schema_version": "1.0",
+  "proposal_id": "checkout-cache-stampede",
+  "decision": "approved",
+  "checklist": {
+    "synthetic_data_confirmed": true,
+    "answer_separation_confirmed": true,
+    "read_only_confirmed": true,
+    "counterevidence_confirmed": true,
+    "budget_path_confirmed": true,
+    "privacy_confirmed": true,
+    "scoring_independence_confirmed": true
+  },
+  "review_notes": [
+    "该提案只作为内部案例大纲使用，后续仍需人工制作并验证 Scenario、答案和 canonical attempt。",
+    "人工复核确认预期观察、反证和安全边界互相一致，不允许自动发布。"
+  ],
+  "required_changes": []
+}

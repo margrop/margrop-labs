@@ -21,7 +21,7 @@ P2-001 已定义[公开场景与单局推理合同](../../docs/incident-detectiv
 - Attempt 包含取证顺序、实际花费、安全动作、用户时间线与包含支持/反证的假设；
 - TypeScript 不变量验证证据解锁 DAG、跨对象引用、预算、时间窗口、表格和拓扑；
 - 根因答案、评分规则和 AI 解释不进入 Scenario/Attempt；P2-004 另行定义评分规则与结果合同，
-  P2-005 再处理 AI 解释。
+  P2-005 只生成待人工审核的内部 Proposal。
 
 `fixtures/` 中的 P2-001 场景只是最小合同样例，不是可玩的完整事故。
 
@@ -59,6 +59,12 @@ P2-003 已提供 `/incident-detective/`：
 ## AI 边界
 
 评分、证据解锁和事实由代码决定；AI 不得修改事实或评分，只能解释和生成待审核变体。
+
+P2-005 的 `incident-detective.case-proposal-v1` 操作只接收 ID、主题、来源、预算和学习目标。
+模型不会收到证据 Payload、内部答案、canonical attempt 或评分规则。输出必须通过证据 DAG、
+预算取舍、反证、只读与隐私检查，再进入独立人工审核合同；`approved` 也固定
+`publishable: false`，不能自动变成公开 Scenario。详见
+[受约束案例生成与审核](../../docs/incident-detective-case-generation.md)。
 
 ## 隐私
 

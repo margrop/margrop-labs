@@ -1,0 +1,92 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lab.margrop.net/schemas/incident-detective-case-review-v1.schema.json",
+  "title": "Incident Detective Case Review v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "proposal_id",
+    "decision",
+    "checklist",
+    "review_notes",
+    "required_changes"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "proposal_id": {
+      "$ref": "#/$defs/id"
+    },
+    "decision": {
+      "enum": ["approved", "changes_requested", "rejected"]
+    },
+    "checklist": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "synthetic_data_confirmed",
+        "answer_separation_confirmed",
+        "read_only_confirmed",
+        "counterevidence_confirmed",
+        "budget_path_confirmed",
+        "privacy_confirmed",
+        "scoring_independence_confirmed"
+      ],
+      "properties": {
+        "synthetic_data_confirmed": {
+          "type": "boolean"
+        },
+        "answer_separation_confirmed": {
+          "type": "boolean"
+        },
+        "read_only_confirmed": {
+          "type": "boolean"
+        },
+        "counterevidence_confirmed": {
+          "type": "boolean"
+        },
+        "budget_path_confirmed": {
+          "type": "boolean"
+        },
+        "privacy_confirmed": {
+          "type": "boolean"
+        },
+        "scoring_independence_confirmed": {
+          "type": "boolean"
+        }
+      }
+    },
+    "review_notes": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 12,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/paragraph"
+      }
+    },
+    "required_changes": {
+      "type": "array",
+      "maxItems": 12,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/paragraph"
+      }
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "maxLength": 80
+    },
+    "paragraph": {
+      "type": "string",
+      "minLength": 10,
+      "maxLength": 500,
+      "pattern": "\\S"
+    }
+  }
+}

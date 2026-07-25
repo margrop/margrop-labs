@@ -1,0 +1,146 @@
+{
+  "schema_version": "1.0",
+  "proposal_id": "checkout-cache-stampede",
+  "base_case_id": "mysql-leading-wildcard",
+  "requires_human_review": true,
+  "title": "缓存同时过期后，结账读取为何拖慢？",
+  "summary": "合成结账接口在一批缓存键同时过期后出现延迟抬升，但数据库存活、发布事件和宿主机负载仍需分别核对。",
+  "difficulty": "intermediate",
+  "theme": "cache-behavior",
+  "services": [
+    {
+      "id": "checkout-api",
+      "label": "Checkout API",
+      "kind": "application"
+    },
+    {
+      "id": "orders-mysql",
+      "label": "Orders MySQL",
+      "kind": "database"
+    },
+    {
+      "id": "checkout-cache",
+      "label": "Checkout Cache",
+      "kind": "cache"
+    },
+    {
+      "id": "observability-stack",
+      "label": "Observability Stack",
+      "kind": "observability"
+    }
+  ],
+  "evidence_budget": 8,
+  "evidence_outline": [
+    {
+      "id": "stack-topology",
+      "title": "结账读取调用拓扑",
+      "source": "topology",
+      "service_id": "checkout-api",
+      "acquisition_cost": 1,
+      "unlocks_after": [],
+      "role": "context",
+      "access": "read-only",
+      "purpose": "确认请求先访问缓存、未命中后再读取数据库，并区分每个观测来源。",
+      "expected_observation": "合成拓扑显示 Checkout API 依赖 Checkout Cache，并在未命中时读取 Orders MySQL。"
+    },
+    {
+      "id": "checkout-latency",
+      "title": "结账读取延迟与缓存未命中趋势",
+      "source": "prometheus",
+      "service_id": "checkout-api",
+      "acquisition_cost": 1,
+      "unlocks_after": ["stack-topology"],
+      "role": "support",
+      "access": "read-only",
+      "purpose": "确定延迟抬升窗口，并比较缓存未命中率是否在同一窗口变化。",
+      "expected_observation": "延迟和未命中率在同一合成窗口抬升，但时间相关性本身不能证明因果。"
+    },
+    {
+      "id": "mysql-health",
+      "title": "数据库存活与连接成功率",
+      "source": "prometheus",
+      "service_id": "orders-mysql",
+      "acquisition_cost": 1,
+      "unlocks_after": ["stack-topology"],
+      "role": "counterevidence",
+      "access": "read-only",
+      "purpose": "检查数据库或 Exporter 是否整体下线，避免把局部压力误判成完全不可用。",
+      "expected_observation": "数据库持续存活且连接成功率稳定，反驳整体下线这一过强假设。"
+    },
+    {
+      "id": "checkout-trace",
+      "title": "同一合成 Trace 的缓存与数据库事件",
+      "source": "loki",
+      "service_id": "checkout-api",
+      "acquisition_cost": 2,
+      "unlocks_after": ["checkout-latency"],
+      "role": "support",
+      "access": "read-only",
+      "purpose": "把缓存未命中、数据库回源和接口超时放到同一请求事件链中。",
+      "expected_observation": "日志正文显示缓存未命中后发生并发回源，随后出现连接等待和上游超时。"
+    },
+    {
+      "id": "mysql-read-shape",
+      "title": "回源读取的只读查询形态",
+      "source": "mysql",
+      "service_id": "orders-mysql",
+      "acquisition_cost": 2,
+      "unlocks_after": ["checkout-trace"],
+      "role": "support",
+      "access": "read-only",
+      "purpose": "用只读查询计划确认回源读取是否走预期索引，并估计并发放大后的成本。",
+      "expected_observation": "合成查询计划使用预期索引，但并发回源会放大总读取量和连接等待。"
+    },
+    {
+      "id": "host-cpu",
+      "title": "数据库宿主机 CPU 趋势",
+      "source": "prometheus",
+      "service_id": "orders-mysql",
+      "acquisition_cost": 1,
+      "unlocks_after": ["stack-topology"],
+      "role": "counterevidence",
+      "access": "read-only",
+      "purpose": "检查是否存在宿主机 CPU 饱和，保留其他资源维度仍未知的边界。",
+      "expected_observation": "CPU 保持在合成正常区间，反驳 CPU 饱和，但不能排除连接和存储压力。"
+    },
+    {
+      "id": "cache-runbook",
+      "title": "缓存回源排查 Runbook",
+      "source": "runbook",
+      "service_id": "checkout-cache",
+      "acquisition_cost": 1,
+      "unlocks_after": [],
+      "role": "context",
+      "access": "read-only",
+      "purpose": "提醒先保存证据、限制只读查询范围，并在调整过期策略前请求审批。",
+      "expected_observation": "Runbook 要求先确认未命中窗口和回源量，再在审批后评估分散过期时间。"
+    }
+  ],
+  "learning_objectives": [
+    "先用时间窗口和依赖拓扑缩小范围，再检查缓存与数据库之间的关联。",
+    "明确记录反证与未知项，避免把缓存未命中率上升直接当成根因。",
+    "所有数据库检查保持只读，并在任何生产变更前请求人工审批。"
+  ],
+  "mechanism": {
+    "affected_service_id": "checkout-cache",
+    "summary": "一批合成缓存键同时过期，引发并发回源并放大数据库读取与连接等待。",
+    "trigger": "固定过期窗口让热点键在相近时间失效，多个请求同时穿透缓存。",
+    "recovery_signal": "缓存命中率恢复后，数据库回源量、连接等待和接口延迟同步回落。"
+  },
+  "safety_notes": [
+    "候选案例必须保持完全合成，不连接或描述任何真实基础设施。",
+    "所有证据获取都必须只读，不能执行重启、写入、删除或生产变更。",
+    "根因机制与预期观察只供人工审核，不能直接复制到公开 Scenario。",
+    "评分规则必须由独立确定性合同定义，AI 候选不得携带分数或权重。"
+  ],
+  "known_unknowns": [
+    "候选大纲尚未生成实际指标点、日志条目和只读查询结果，需要人工制作并复核一致性。",
+    "缓存键分布、并发量和过期抖动幅度仍需由案例作者选择合成值。",
+    "该提案没有评分规则，也没有证明最终证据路径能够获得任何特定分数。"
+  ],
+  "reviewer_questions": [
+    "每份预期观察能否由最终合成 Payload 独立验证，而不是依赖根因摘要？",
+    "公开 Scenario 是否删除了机制答案，同时仍保留足够的可玩线索与合理反证？",
+    "最终 canonical attempt 是否能在预算内闭合，并且所有高风险动作都不会执行？"
+  ]
+}
