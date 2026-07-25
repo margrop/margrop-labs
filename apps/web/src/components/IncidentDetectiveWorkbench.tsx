@@ -16,10 +16,18 @@ import {
   getVisibleIncidentTimeline,
   selectIncidentEvidence,
 } from "../lib/incident-detective-session";
+import {
+  type IncidentDetectiveScoreFinding,
+  type IncidentDetectiveScoreResult,
+  type IncidentDetectiveScoringRules,
+  IncidentDetectiveScoringError,
+  scoreIncidentDetectiveAttempt,
+} from "../lib/incident-detective-scoring";
 import { StatusNotice, type StatusTone } from "./ui/StatusNotice";
 
 type IncidentDetectiveWorkbenchProps = {
   scenario: IncidentDetectiveScenario;
+  scoringRules: IncidentDetectiveScoringRules;
   articleUrl: string;
   sourceUrl: string;
 };
@@ -44,6 +52,23 @@ const categoryLabels = {
   observation: "观察",
   recovery: "恢复",
 } as const;
+
+const scoreBandLabels: Record<IncidentDetectiveScoreResult["band"], string> = {
+  "needs-evidence": "证据不足",
+  developing: "正在形成",
+  "evidence-led": "证据驱动",
+  excellent: "完整闭环",
+};
+
+const scoreFindingLabels: Record<
+  IncidentDetectiveScoreFinding["status"],
+  string
+> = {
+  met: "达成",
+  missed: "待补",
+  penalty: "扣分",
+  avoided: "已规避",
+};
 
 const safetyChoices: Array<{
   value: IncidentSafetyAction;
@@ -234,6 +259,7 @@ const renderEvidenceData = (evidence: IncidentEvidence) => {
 
 export default function IncidentDetectiveWorkbench({
   scenario,
+  scoringRules,
   articleUrl,
   sourceUrl,
 }: IncidentDetectiveWorkbenchProps) {
@@ -243,6 +269,7 @@ export default function IncidentDetectiveWorkbench({
   const [draft, setDraft] =
     useState<IncidentDetectiveHypothesisDraft>(emptyDraft);
   const [attempt, setAttempt] = useState<IncidentDetectiveAttempt | null>(null);
+  const [score, setScore] = useState<IncidentDetectiveScoreResult | null>(null);
   const [status, setStatus] = useState<WorkbenchStatus>(initialStatus);
 
   const evidenceStates = useMemo(
@@ -262,12 +289,17 @@ export default function IncidentDetectiveWorkbench({
   );
   const remainingBudget = scenario.evidence_budget - session.spent_budget;
 
+  const clearEvaluation = (): void => {
+    setAttempt(null);
+    setScore(null);
+  };
+
   const acquireEvidence = (evidenceId: string): void => {
     try {
       const nextSession = selectIncidentEvidence(scenario, session, evidenceId);
       const title = evidenceTitles.get(evidenceId) ?? "证据";
       setSession(nextSession);
-      setAttempt(null);
+      clearEvaluation();
       setStatus({
         tone: "ready",
         title: "证据已获取",
@@ -288,7 +320,7 @@ export default function IncidentDetectiveWorkbench({
   const resetSession = (): void => {
     setSession(createIncidentDetectiveSession(scenario));
     setDraft(emptyDraft());
-    setAttempt(null);
+    clearEvaluation();
     setStatus(initialStatus);
   };
 
@@ -301,7 +333,7 @@ export default function IncidentDetectiveWorkbench({
     value: string,
     checked: boolean,
   ): void => {
-    setAttempt(null);
+    clearEvaluation();
     setDraft((current) => {
       const currentValues = current[field] as string[];
       const nextValues = checked
@@ -334,22 +366,30 @@ export default function IncidentDetectiveWorkbench({
         session,
         draft,
       );
+      const scoreResult = scoreIncidentDetectiveAttempt(
+        scenario,
+        validatedAttempt,
+        scoringRules,
+      );
       setAttempt(validatedAttempt);
+      setScore(scoreResult);
       setStatus({
         tone: "ready",
-        title: "Attempt v1 已验证",
+        title: "本地评分已完成",
         message:
-          "证据引用、预算、时间线与安全动作均通过本地合同；P2-004 前不会显示分数或标准答案。",
+          "Attempt v1 已通过合同并按固定规则评分；结果未保存、未上传，也没有调用 AI。",
       });
     } catch (error) {
-      setAttempt(null);
+      clearEvaluation();
       setStatus({
         tone: "error",
         title: "推理尚未完成",
         message:
           error instanceof IncidentDetectiveSessionError
             ? error.message
-            : "请检查推理表单后重试。",
+            : error instanceof IncidentDetectiveScoringError
+              ? "本地评分合同没有通过，请重新开始本局。"
+              : "请检查推理表单后重试。",
       });
     }
   };
@@ -519,7 +559,7 @@ export default function IncidentDetectiveWorkbench({
             <p class="section-kicker">YOUR HYPOTHESIS</p>
             <h3>提交可审计推理</h3>
           </div>
-          <p>只验证合同，不评分</p>
+          <p>确定性规则评分 · 无 AI</p>
         </div>
 
         <label class="incident-text-field">
@@ -536,7 +576,7 @@ export default function IncidentDetectiveWorkbench({
                 ...current,
                 summary: event.currentTarget.value,
               }));
-              setAttempt(null);
+              clearEvaluation();
             }}
           />
         </label>
@@ -632,7 +672,7 @@ export default function IncidentDetectiveWorkbench({
                   confidence: event.currentTarget
                     .value as IncidentDetectiveHypothesisDraft["confidence"],
                 }));
-                setAttempt(null);
+                clearEvaluation();
               }}
             >
               <option value="low">低</option>
@@ -655,7 +695,7 @@ export default function IncidentDetectiveWorkbench({
                   ...current,
                   next_action: event.currentTarget.value,
                 }));
-                setAttempt(null);
+                clearEvaluation();
               }}
             />
           </label>
@@ -693,7 +733,7 @@ export default function IncidentDetectiveWorkbench({
 
         <div class="incident-form-actions">
           <button class="button button--primary" type="submit">
-            验证本局 Attempt
+            验证并评分
           </button>
           <button
             class="button button--secondary"
@@ -705,19 +745,94 @@ export default function IncidentDetectiveWorkbench({
         </div>
       </form>
 
-      {attempt ? (
+      {attempt && score ? (
         <section
           class="incident-attempt-result"
           aria-labelledby="incident-attempt-title"
         >
           <div class="incident-section-heading">
             <div>
-              <p class="section-kicker">VALIDATED ATTEMPT V1</p>
-              <h3 id="incident-attempt-title">本局结构已通过合同</h3>
+              <p class="section-kicker">DETERMINISTIC SCORE V1</p>
+              <h3 id="incident-attempt-title">本局证据评分</h3>
             </div>
-            <p>未保存 · 未上传 · 未评分</p>
+            <p>未保存 · 未上传 · 无 AI</p>
           </div>
-          <dl>
+          <div class="incident-score-summary">
+            <div>
+              <strong class="incident-score-number">
+                {score.total_score}
+                <span>/{score.max_score}</span>
+              </strong>
+              <p class="incident-score-band">{scoreBandLabels[score.band]}</p>
+            </div>
+            <p>
+              评分只检查你选择了哪些证据、取证顺序、结构化结论、反证与安全动作；
+              不判断自由文本语义，也不展示标准答案。
+            </p>
+          </div>
+
+          <div class="incident-score-dimensions" aria-label="评分维度">
+            {score.dimensions.map((dimension) => (
+              <section key={dimension.id}>
+                <div>
+                  <h4>{dimension.label}</h4>
+                  <strong>
+                    {dimension.score}/{dimension.max_score}
+                  </strong>
+                </div>
+                <progress max={dimension.max_score} value={dimension.score}>
+                  {dimension.score} / {dimension.max_score}
+                </progress>
+                <details>
+                  <summary>查看判定明细</summary>
+                  <ul class="incident-score-findings">
+                    {dimension.findings.map((finding) => (
+                      <li
+                        class={`incident-score-finding incident-score-finding--${finding.status}`}
+                        key={finding.rule_id}
+                      >
+                        <span>{scoreFindingLabels[finding.status]}</span>
+                        <p>{finding.message}</p>
+                        <strong>
+                          {finding.points_awarded > 0 ? "+" : ""}
+                          {finding.points_awarded}
+                        </strong>
+                      </li>
+                    ))}
+                  </ul>
+                </details>
+              </section>
+            ))}
+          </div>
+
+          <div class="incident-score-feedback">
+            <section>
+              <h4>做得好的部分</h4>
+              {score.strengths.length > 0 ? (
+                <ul>
+                  {score.strengths.map((strength) => (
+                    <li key={strength}>{strength}</li>
+                  ))}
+                </ul>
+              ) : (
+                <p>本局还没有命中正向规则，先从关键症状证据开始。</p>
+              )}
+            </section>
+            <section>
+              <h4>下一局优先改进</h4>
+              {score.improvements.length > 0 ? (
+                <ul>
+                  {score.improvements.map((improvement) => (
+                    <li key={improvement}>{improvement}</li>
+                  ))}
+                </ul>
+              ) : (
+                <p>五个评分维度均已闭环，可以尝试更少预算的路径。</p>
+              )}
+            </section>
+          </div>
+
+          <dl class="incident-attempt-facts">
             <div>
               <dt>证据</dt>
               <dd>{attempt.selected_evidence_ids.length} 份</dd>

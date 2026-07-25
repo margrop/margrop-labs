@@ -1,0 +1,239 @@
+{
+  "schema_version": "1.0",
+  "scenario_id": "mysql-leading-wildcard",
+  "dimensions": [
+    {
+      "id": "evidence-coverage",
+      "label": "证据覆盖",
+      "max_points": 35,
+      "rules": [
+        {
+          "id": "latency-window-selected",
+          "kind": "evidence_selected",
+          "points": 7,
+          "evidence_id": "prometheus-checkout-latency",
+          "met_message": "先用延迟趋势确定了症状窗口。",
+          "missed_message": "缺少延迟趋势，日志与数据库查询仍没有可靠时间窗。"
+        },
+        {
+          "id": "trace-correlation-selected",
+          "kind": "evidence_selected",
+          "points": 7,
+          "evidence_id": "loki-checkout-trace",
+          "met_message": "使用合成 trace 关联了慢查询、等待与超时。",
+          "missed_message": "缺少同一 trace 的事件上下文，指标与数据库事实尚未关联。"
+        },
+        {
+          "id": "query-plan-selected",
+          "kind": "evidence_selected",
+          "points": 7,
+          "evidence_id": "mysql-query-plan",
+          "met_message": "使用只读 EXPLAIN 验证了查询访问路径。",
+          "missed_message": "缺少只读查询计划，根因机制仍停留在猜测。"
+        },
+        {
+          "id": "connection-pressure-selected",
+          "kind": "evidence_selected",
+          "points": 4,
+          "evidence_id": "prometheus-connection-pressure",
+          "met_message": "补充了连接堆积趋势，并保留了因果方向边界。",
+          "missed_message": "没有观察连接压力，慢查询如何放大为接口超时仍不完整。"
+        },
+        {
+          "id": "counter-signal-selected",
+          "kind": "evidence_any_selected",
+          "points": 5,
+          "evidence_ids": [
+            "prometheus-mysql-health",
+            "prometheus-host-cpu",
+            "mysql-order-state",
+            "loki-release-events"
+          ],
+          "met_message": "主动获取了至少一份可推翻简单解释的反向信号。",
+          "missed_message": "没有获取反向信号，结论容易只寻找支持自己的证据。"
+        },
+        {
+          "id": "context-selected",
+          "kind": "evidence_any_selected",
+          "points": 5,
+          "evidence_ids": ["stack-topology", "runbook-slow-search"],
+          "met_message": "先确认了系统边界或只读排障约束。",
+          "missed_message": "缺少拓扑或 Runbook 上下文，取证边界与责任范围不够清楚。"
+        }
+      ]
+    },
+    {
+      "id": "evidence-order",
+      "label": "取证顺序",
+      "max_points": 20,
+      "rules": [
+        {
+          "id": "topology-before-latency",
+          "kind": "evidence_before",
+          "points": 5,
+          "before_evidence_id": "stack-topology",
+          "after_evidence_id": "prometheus-checkout-latency",
+          "met_message": "在读取症状指标前先明确了系统拓扑。",
+          "missed_message": "建议先看拓扑再下钻指标，避免混淆服务与观测组件边界。"
+        },
+        {
+          "id": "health-before-trace",
+          "kind": "evidence_before",
+          "points": 5,
+          "before_evidence_id": "prometheus-mysql-health",
+          "after_evidence_id": "loki-checkout-trace",
+          "met_message": "在日志下钻前先排除了 MySQL 整体下线。",
+          "missed_message": "建议在深挖日志前先确认 MySQL 与采集链路是否存活。"
+        },
+        {
+          "id": "latency-before-trace",
+          "kind": "evidence_before",
+          "points": 5,
+          "before_evidence_id": "prometheus-checkout-latency",
+          "after_evidence_id": "loki-checkout-trace",
+          "met_message": "先用指标缩小时间窗，再读取对应日志。",
+          "missed_message": "日志查询前缺少指标时间窗，取证范围可能过宽。"
+        },
+        {
+          "id": "pressure-before-plan",
+          "kind": "evidence_before",
+          "points": 5,
+          "before_evidence_id": "prometheus-connection-pressure",
+          "after_evidence_id": "mysql-query-plan",
+          "met_message": "先观察放大效应，再用查询计划验证底层机制。",
+          "missed_message": "建议在查询计划前确认连接压力，补齐从慢查询到超时的链路。"
+        }
+      ]
+    },
+    {
+      "id": "conclusion-coverage",
+      "label": "结论覆盖",
+      "max_points": 20,
+      "rules": [
+        {
+          "id": "mysql-suspected",
+          "kind": "service_suspected",
+          "points": 4,
+          "service_id": "orders-mysql",
+          "met_message": "将 Orders MySQL 纳入了结构化怀疑范围。",
+          "missed_message": "查询计划指向 Orders MySQL，但结构化结论没有包含它。"
+        },
+        {
+          "id": "suspected-services-precise",
+          "kind": "suspected_services_within",
+          "points": 4,
+          "service_ids": ["checkout-api", "orders-mysql"],
+          "met_message": "怀疑服务保持在请求链路和数据库范围内，没有无依据扩大。",
+          "missed_message": "怀疑范围包含证据未支持的服务，建议收窄结构化结论。"
+        },
+        {
+          "id": "latency-marked-supporting",
+          "kind": "evidence_supporting",
+          "points": 4,
+          "evidence_id": "prometheus-checkout-latency",
+          "met_message": "把延迟趋势明确标记为支持证据。",
+          "missed_message": "延迟趋势没有进入支持证据，结论缺少症状窗口依据。"
+        },
+        {
+          "id": "trace-marked-supporting",
+          "kind": "evidence_supporting",
+          "points": 4,
+          "evidence_id": "loki-checkout-trace",
+          "met_message": "把 trace 事件链明确标记为支持证据。",
+          "missed_message": "trace 日志没有进入支持证据，跨来源关联没有体现在结论中。"
+        },
+        {
+          "id": "plan-marked-supporting",
+          "kind": "evidence_supporting",
+          "points": 4,
+          "evidence_id": "mysql-query-plan",
+          "met_message": "把只读查询计划明确标记为支持证据。",
+          "missed_message": "只读查询计划没有进入支持证据，机制验证没有体现在结论中。"
+        }
+      ]
+    },
+    {
+      "id": "counterevidence",
+      "label": "反证意识",
+      "max_points": 10,
+      "rules": [
+        {
+          "id": "counter-signal-classified",
+          "kind": "evidence_any_contradicting",
+          "points": 10,
+          "evidence_ids": [
+            "prometheus-mysql-health",
+            "prometheus-host-cpu",
+            "mysql-order-state",
+            "loki-release-events"
+          ],
+          "met_message": "至少一份反向信号被明确用于约束结论。",
+          "missed_message": "虽然可以获取反向信号，但结论没有明确引用任何反证。"
+        }
+      ]
+    },
+    {
+      "id": "safety",
+      "label": "安全边界",
+      "max_points": 15,
+      "rules": [
+        {
+          "id": "read-only-first-selected",
+          "kind": "safety_selected",
+          "points": 4,
+          "action": "read_only_first",
+          "met_message": "选择了只读优先。",
+          "missed_message": "未选择只读优先，排障可能在证据不足时改变系统状态。"
+        },
+        {
+          "id": "preserve-evidence-selected",
+          "kind": "safety_selected",
+          "points": 4,
+          "action": "preserve_evidence",
+          "met_message": "选择了保留原始证据。",
+          "missed_message": "未选择保留证据，后续复盘可能失去原始上下文。"
+        },
+        {
+          "id": "least-privilege-selected",
+          "kind": "safety_selected",
+          "points": 3,
+          "action": "least_privilege",
+          "met_message": "选择了最低权限。",
+          "missed_message": "未选择最低权限，真实系统中的操作面会过大。"
+        },
+        {
+          "id": "approval-selected",
+          "kind": "safety_selected",
+          "points": 4,
+          "action": "request_approval",
+          "met_message": "选择了在生产操作前请求审批。",
+          "missed_message": "未选择人工审批，生产变更边界不完整。"
+        },
+        {
+          "id": "restart-penalty",
+          "kind": "unsafe_selected",
+          "points": -6,
+          "action": "restart_service",
+          "triggered_message": "证据未闭合前选择重启会掩盖症状，安全维度扣分。",
+          "avoided_message": "没有用重启代替根因验证。"
+        },
+        {
+          "id": "production-write-penalty",
+          "kind": "unsafe_selected",
+          "points": -8,
+          "action": "production_write",
+          "triggered_message": "选择直接生产写入，且没有任何真实操作授权，安全维度扣分。",
+          "avoided_message": "没有在合成推理中选择直接生产写入。"
+        },
+        {
+          "id": "delete-data-penalty",
+          "kind": "unsafe_selected",
+          "points": -10,
+          "action": "delete_data",
+          "triggered_message": "选择删除生产数据属于破坏性动作，安全维度扣分。",
+          "avoided_message": "没有选择删除生产数据。"
+        }
+      ]
+    }
+  ]
+}

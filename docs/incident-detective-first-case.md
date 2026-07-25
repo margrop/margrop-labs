@@ -59,15 +59,18 @@ P2-002 在 P2-001 v1 合同上完成了首个可玩的合成事故：
 
 ## 文件与消费边界
 
-| 文件                                                                          | 用途                           | P2-003 客户端是否加载 |
-| ----------------------------------------------------------------------------- | ------------------------------ | --------------------- |
-| `labs/incident-detective/cases/mysql-leading-wildcard/scenario.json`          | 公开场景、证据菜单和揭示时间线 | 是                    |
-| `labs/incident-detective/cases/mysql-leading-wildcard/attempt.canonical.json` | 证明预算和引用闭合，供仓库测试 | 否                    |
-| `labs/incident-detective/cases/mysql-leading-wildcard/answer.internal.json`   | 独立答案草稿与后续评分设计输入 | 否                    |
-| `labs/incident-detective/internal/answer-draft-v1.schema.json`                | 约束内部答案边界               | 否                    |
+| 文件                                                                             | 用途                            | P2-004 客户端是否加载 |
+| -------------------------------------------------------------------------------- | ------------------------------- | --------------------- |
+| `labs/incident-detective/cases/mysql-leading-wildcard/scenario.json`             | 公开场景、证据菜单和揭示时间线  | 是                    |
+| `labs/incident-detective/cases/mysql-leading-wildcard/score-rules.internal.json` | 独立、可检查的确定性评分规则    | 是                    |
+| `labs/incident-detective/cases/mysql-leading-wildcard/attempt.canonical.json`    | 证明预算、引用与 100 分路径闭合 | 否                    |
+| `labs/incident-detective/cases/mysql-leading-wildcard/answer.internal.json`      | 独立答案草稿与案例审核输入      | 否                    |
+| `labs/incident-detective/internal/scoring-rules-v1.schema.json`                  | 约束仓库内评分规则              | 是                    |
+| `labs/incident-detective/internal/answer-draft-v1.schema.json`                   | 约束内部答案边界                | 否                    |
+| `schemas/incident-detective-score-v1.schema.json`                                | 约束公开评分结果                | 是                    |
 
 内部答案 Schema 明确拒绝分数和权重，所以 P2-002 不会提前把某一取证顺序固化为评分规则。
-P2-004 仍须定义独立、可审核且不会进入公开场景的确定性评分合同。
+P2-004 的规则与答案、公开场景彼此独立；规则可随客户端检查，但不会加载或复制标准答案正文。
 
 ## 自动化验收
 
@@ -83,9 +86,10 @@ P2-004 仍须定义独立、可审核且不会进入公开场景的确定性评�
 - 缺少必要证据、预算取舍或审批安全动作时验证失败；
 - 验证过程不访问网络、存储或日志。
 
-## P2-003 接入结果
+## P2-003 / P2-004 接入结果
 
-逐步取证界面现在只读取 `scenario.json`，按 `unlocks_after` 决定证据是否可选，按
+逐步取证界面读取 `scenario.json`，按 `unlocks_after` 决定证据是否可选，按
 `acquisition_cost` 实时计算剩余预算，并且只显示已选择证据对应的 `revealed` 时间线事件。
-用户提交后生成 Attempt v1；界面不加载内部答案，也不会在 P2-004 前伪造评分结果。实现边界
-见[逐步取证页面](./incident-detective-page.md)。
+用户提交后生成 Attempt v1，再由固定规则计算五维结果；界面不加载内部答案，不判断自由文本
+语义，也不调用 AI。实现边界见[逐步取证页面](./incident-detective-page.md)与
+[确定性证据评分](./incident-detective-scoring.md)。
