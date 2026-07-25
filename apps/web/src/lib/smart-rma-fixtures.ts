@@ -1,6 +1,6 @@
+import { existsSync } from "node:fs";
 import { readdir, readFile } from "node:fs/promises";
-import { basename, join, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { basename, dirname, join, resolve } from "node:path";
 
 import { redactTextWithReport } from "@margrop-labs/redaction";
 import Ajv2020, {
@@ -78,8 +78,43 @@ export class SmartRmaFixtureError extends Error {
   override name = "SmartRmaFixtureError";
 }
 
-export const defaultSmartRmaFixtureDirectory = fileURLToPath(
-  new URL("../../../../labs/smart-rma/fixtures/", import.meta.url),
+const findRepositoryRoot = (startDirectory: string): string => {
+  let currentDirectory = resolve(startDirectory);
+
+  while (true) {
+    if (
+      existsSync(
+        join(
+          currentDirectory,
+          "schemas",
+          "smart-rma-fixture-index-v1.schema.json",
+        ),
+      ) &&
+      existsSync(join(currentDirectory, "labs", "smart-rma", "fixtures"))
+    ) {
+      return currentDirectory;
+    }
+
+    const parentDirectory = dirname(currentDirectory);
+    if (parentDirectory === currentDirectory) {
+      throw new SmartRmaFixtureError(
+        "Unable to locate the repository root containing SMART fixtures.",
+      );
+    }
+
+    currentDirectory = parentDirectory;
+  }
+};
+
+const repositoryRoot = findRepositoryRoot(
+  process.env.INIT_CWD ?? process.cwd(),
+);
+
+export const defaultSmartRmaFixtureDirectory = join(
+  repositoryRoot,
+  "labs",
+  "smart-rma",
+  "fixtures",
 );
 
 const maximumFixtureBytes = 64 * 1024;

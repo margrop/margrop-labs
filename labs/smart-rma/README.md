@@ -32,3 +32,17 @@ P3-001 已建立版本化索引和 7 份离线 `smartctl` 文本，覆盖 ATA、
   [SMART / RMA 完全合成 Fixture](../../docs/smart-rma-synthetic-fixtures.md)
 
 这些文本不来自任何真实设备。真实 SMART 输出不得提交进仓库。
+
+## 浏览器端解析器
+
+P3-002 已上线 `/smart-rma/` Alpha 工作台：可载入上述 7 份合成样例或粘贴文本，并在当前
+浏览器标签页内解析 smartctl 版本、协议、设备类别、SMART 支持、工具报告的总体状态、ATA
+属性与错误摘要、NVMe 健康计数、稳定信号和缺失字段。
+
+- 输出合同：
+  [`smart-rma-parse-result-v1`](../../schemas/smart-rma-parse-result-v1.schema.json)
+- 解析与失败边界：
+  [SMART / RMA 浏览器解析器 v1](../../docs/smart-rma-parser-v1.md)
+
+解析结果不包含原始文本、型号原文、序列号或 WWN。P3-002 不做健康分类，也不声称设备满足
+厂商保修条件；完整输入脱敏由 P3-003 实现。
