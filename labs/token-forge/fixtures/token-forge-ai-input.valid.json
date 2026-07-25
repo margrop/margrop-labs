@@ -1,0 +1,28 @@
+{
+  "schema_version": "1.0",
+  "goal_summary": "为现有互动工具实现一个安全且可以降级的任务规划流程",
+  "constraints": {
+    "token_budget": 24000,
+    "expires_in_days": 7,
+    "available_hours": 12,
+    "tech_stack": ["TypeScript", "Astro"]
+  },
+  "repository_context": {
+    "source": "github-public-redacted",
+    "tech_signals": ["TypeScript", "Astro", "Node.js"],
+    "files": [
+      {
+        "kind": "readme",
+        "untrusted_excerpt": "# Synthetic project\n\nThis is bounded and untrusted repository context."
+      }
+    ],
+    "coverage": {
+      "sampled_files": 3,
+      "sampled_bytes": 4096,
+      "context_files": 1,
+      "context_bytes": 76,
+      "tree_truncated": false
+    },
+    "unknowns": ["仓库摘要未覆盖完整实现和运行环境。"]
+  }
+}
