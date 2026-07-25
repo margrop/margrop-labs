@@ -139,6 +139,43 @@ describe("redactText", () => {
     });
   });
 
+  it("covers smartctl identifier labels and common host-name variants", () => {
+    const values = [
+      "SYNTHETIC SERIAL EDGE 0001",
+      "0 000000 000000001",
+      "SYNTHETIC_HOST_01",
+      "storage-node-02.example.com",
+    ];
+    const result = redactTextWithReport(
+      [
+        `Device Serial No. = ${values[0]}`,
+        `LU WWN Device Id: ${values[1]}`,
+        `Host Name: ${values[2]}`,
+        `Computer_Name=${values[3]}`,
+      ].join("\n"),
+    );
+
+    expect(result.text).toBe(
+      [
+        "Device Serial No. = [REDACTED:SERIAL_NUMBER]",
+        "LU WWN Device Id: [REDACTED:WWN]",
+        "Host Name: [REDACTED:DOMAIN]",
+        "Computer_Name=[REDACTED:DOMAIN]",
+      ].join("\n"),
+    );
+    for (const value of values) {
+      expect(result.text).not.toContain(value);
+    }
+    expect(result.report).toEqual({
+      total: 4,
+      counts: {
+        domain: 2,
+        "serial-number": 1,
+        wwn: 1,
+      },
+    });
+  });
+
   it("does not treat common source file names or invalid IPs as secrets", () => {
     const source =
       "Inspect src/index.ts, schema.json, version 999.2.3.4 and separator :::.";

@@ -1,6 +1,11 @@
 import { useMemo, useState } from "preact/hooks";
 
 import {
+  type SmartRmaRedactionPreview,
+  SmartRmaRedactionError,
+  redactSmartctlText,
+} from "../lib/smart-rma-redaction";
+import {
   type SmartRmaDeviceKind,
   type SmartRmaMissingField,
   type SmartRmaParseResult,
@@ -84,7 +89,7 @@ const initialStatus: WorkbenchStatus = {
   tone: "info",
   title: "合成样例已就绪",
   message:
-    "选择一个完全合成的 smartctl 样例，或粘贴文本后在当前浏览器标签页本地解析。",
+    "选择一个完全合成的 smartctl 样例，或粘贴文本后在当前浏览器标签页解析并脱敏。",
 };
 
 const formatMetric = (value: number | null, suffix = ""): string =>
@@ -101,8 +106,13 @@ export default function SmartRmaWorkbench({
 
   const [selectedSampleId, setSelectedSampleId] = useState(initialSample.id);
   const [rawText, setRawText] = useState(initialSample.raw);
-  const [result, setResult] = useState<SmartRmaParseResult | null>(() =>
-    parseSmartctlText(initialSample.raw),
+  const [redactionPreview, setRedactionPreview] =
+    useState<SmartRmaRedactionPreview | null>(() =>
+      redactSmartctlText(initialSample.raw),
+    );
+  const [result, setResult] = useState<SmartRmaParseResult | null>(
+    () =>
+      redactionPreview?.parse_result ?? parseSmartctlText(initialSample.raw),
   );
   const [status, setStatus] = useState<WorkbenchStatus>(initialStatus);
   const selectedSample = useMemo(
@@ -113,41 +123,58 @@ export default function SmartRmaWorkbench({
   const loadSelectedSample = (): void => {
     setRawText(selectedSample.raw);
     setResult(null);
+    setRedactionPreview(null);
     setStatus({
       tone: "info",
       title: "合成样例已载入",
-      message: `${selectedSample.label} 已放入输入框；点击“本地解析”查看结构化证据。`,
+      message: `${selectedSample.label} 已放入输入框；点击“本地解析并脱敏”查看结果。`,
     });
   };
 
   const parseLocally = (): void => {
     try {
-      const parsed = parseSmartctlText(rawText);
-      setResult(parsed);
+      const preview = redactSmartctlText(rawText);
+      setRedactionPreview(preview);
+      setResult(preview.parse_result);
       setStatus({
         tone: "ready",
-        title: "本地解析完成",
+        title: "本地解析与脱敏完成",
         message:
-          "只展示结构化字段和解析信号；原始文本、型号原文、序列号与 WWN 都不进入结果。",
+          "序列号、WWN、主机名、IP 与其他常见敏感值已遮蔽；跨边界只使用无自由文本的结构化投影。",
       });
     } catch (error) {
       setResult(null);
+      setRedactionPreview(null);
       setStatus({
         tone: "error",
-        title: "无法解析",
+        title: "无法解析或脱敏",
         message:
+          error instanceof SmartRmaRedactionError ||
           error instanceof SmartRmaParserError
             ? error.message
-            : "输入没有通过本地解析合同，请检查是否为 smartctl 文本。",
+            : "输入没有通过本地解析与脱敏合同，请检查是否为 smartctl 文本。",
       });
     }
   };
 
   const resetWorkbench = (): void => {
+    const preview = redactSmartctlText(initialSample.raw);
     setSelectedSampleId(initialSample.id);
     setRawText(initialSample.raw);
-    setResult(parseSmartctlText(initialSample.raw));
+    setRedactionPreview(preview);
+    setResult(preview.parse_result);
     setStatus(initialStatus);
+  };
+
+  const updateRawText = (value: string): void => {
+    setRawText(value);
+    setResult(null);
+    setRedactionPreview(null);
+    setStatus({
+      tone: "info",
+      title: "输入已改变",
+      message: "点击“本地解析并脱敏”生成与当前文本对应的新结果。",
+    });
   };
 
   return (
@@ -205,8 +232,7 @@ export default function SmartRmaWorkbench({
           <label for="smartctl-text">
             <span>smartctl 文本</span>
             <small id="smartctl-text-help">
-              当前版本不导出原文；P3-003
-              完成前，请不要把真实文本复制到其他位置。
+              当前版本不导出原文；解析时会同时生成仅供本页查看的脱敏预览。
             </small>
           </label>
           <textarea
@@ -215,11 +241,11 @@ export default function SmartRmaWorkbench({
             aria-describedby="smartctl-text-help"
             value={rawText}
             spellcheck={false}
-            onInput={(event) => setRawText(event.currentTarget.value)}
+            onInput={(event) => updateRawText(event.currentTarget.value)}
           />
           <div class="smart-rma-actions">
             <button class="button button--primary" type="submit">
-              本地解析
+              本地解析并脱敏
             </button>
             <button class="button button--secondary" type="reset">
               恢复默认样例
@@ -231,14 +257,75 @@ export default function SmartRmaWorkbench({
           <strong>当前隐私边界</strong>
           <p>
             原始文本只存在于这个页面的内存，不写入 URL、Local
-            Storage、Analytics、日志或 AI
-            请求。解析结果也不包含序列号、WWN、型号原文和原始文本。
+            Storage、Analytics、日志、导出或 AI 请求。序列号、WWN、主机名和 IP
+            会在本地预览中遮蔽；未来跨边界能力只能读取无自由文本的允许字段投影。
           </p>
         </aside>
 
         <StatusNotice tone={status.tone} title={status.title}>
           {status.message}
         </StatusNotice>
+
+        {redactionPreview && (
+          <section
+            class="smart-rma-redaction"
+            aria-labelledby="smart-rma-redaction-heading"
+          >
+            <div class="smart-rma-detail-heading">
+              <div>
+                <p class="section-kicker">LOCAL REDACTION</p>
+                <h3 id="smart-rma-redaction-heading">本地脱敏预览</h3>
+              </div>
+              <p>
+                共遮蔽 {redactionPreview.projection.privacy.redactions_total}{" "}
+                处；报告只保留类型和数量。
+              </p>
+            </div>
+
+            <dl class="smart-rma-redaction-counts">
+              <div>
+                <dt>序列号</dt>
+                <dd>
+                  {redactionPreview.projection.privacy.counts.serial_number}
+                </dd>
+              </div>
+              <div>
+                <dt>WWN</dt>
+                <dd>{redactionPreview.projection.privacy.counts.wwn}</dd>
+              </div>
+              <div>
+                <dt>主机名 / 域名</dt>
+                <dd>{redactionPreview.projection.privacy.counts.domain}</dd>
+              </div>
+              <div>
+                <dt>IP</dt>
+                <dd>{redactionPreview.projection.privacy.counts.ip}</dd>
+              </div>
+              <div>
+                <dt>邮箱</dt>
+                <dd>{redactionPreview.projection.privacy.counts.email}</dd>
+              </div>
+              <div>
+                <dt>Secret</dt>
+                <dd>
+                  {redactionPreview.projection.privacy.counts.authorization +
+                    redactionPreview.projection.privacy.counts.cookie +
+                    redactionPreview.projection.privacy.counts.token}
+                </dd>
+              </div>
+            </dl>
+
+            <details>
+              <summary>查看脱敏后的本地文本</summary>
+              <pre>{redactionPreview.redacted_text}</pre>
+            </details>
+            <p class="smart-rma-boundary-note">
+              AI
+              与导出不会接收这段文本，只能使用协议、计数、枚举和受支持指标组成的
+              Boundary Projection v1。
+            </p>
+          </section>
+        )}
       </section>
 
       <section
@@ -406,7 +493,8 @@ export default function SmartRmaWorkbench({
           </>
         ) : (
           <p class="smart-rma-empty">
-            尚无解析结果。载入合成样例或粘贴 smartctl 文本后，点击“本地解析”。
+            尚无解析结果。载入合成样例或粘贴 smartctl
+            文本后，点击“本地解析并脱敏”。
           </p>
         )}
 

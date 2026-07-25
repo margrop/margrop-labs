@@ -45,4 +45,18 @@ P3-002 已上线 `/smart-rma/` Alpha 工作台：可载入上述 7 份合成样�
   [SMART / RMA 浏览器解析器 v1](../../docs/smart-rma-parser-v1.md)
 
 解析结果不包含原始文本、型号原文、序列号或 WWN。P3-002 不做健康分类，也不声称设备满足
-厂商保修条件；完整输入脱敏由 P3-003 实现。
+厂商保修条件。
+
+## 本地脱敏与边界投影
+
+P3-003 已在工作台加入只在当前页面内存生成的脱敏预览，覆盖序列号、WWN、主机名、IPv4、
+IPv6、邮箱和常见 Secret。未来 AI 与导出不能读取预览文本，只能消费无自由文本的版本化
+投影。
+
+- 投影合同：
+  [`smart-rma-boundary-projection-v1`](../../schemas/smart-rma-boundary-projection-v1.schema.json)
+- 模式、sink 最小化与失败边界：
+  [SMART / RMA 本地脱敏与边界投影 v1](../../docs/smart-rma-redaction-v1.md)
+
+模式命中数量不是“输入一定安全”的证明；原文不离开浏览器和显式允许字段映射才是主边界。
+健康分类仍由 P3-004 单独实现。

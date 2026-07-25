@@ -16,6 +16,7 @@
 | [`incident-detective-share-card-v1.schema.json`](./incident-detective-share-card-v1.schema.json)                       | Score-only local SVG share data                        |
 | [`smart-rma-fixture-index-v1.schema.json`](./smart-rma-fixture-index-v1.schema.json)                                   | Fully synthetic smartctl fixture corpus                |
 | [`smart-rma-parse-result-v1.schema.json`](./smart-rma-parse-result-v1.schema.json)                                     | Browser-only structured SMART parse evidence           |
+| [`smart-rma-boundary-projection-v1.schema.json`](./smart-rma-boundary-projection-v1.schema.json)                       | Allowlisted SMART data for AI and export boundaries    |
 | [`ai-gateway-request-v1.schema.json`](./ai-gateway-request-v1.schema.json)                                             | Web-to-Gateway request envelope                        |
 | [`ai-gateway-response-v1.schema.json`](./ai-gateway-response-v1.schema.json)                                           | Validated Gateway result or safe error                 |
 

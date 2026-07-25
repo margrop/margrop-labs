@@ -1,0 +1,304 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lab.margrop.net/schemas/smart-rma-boundary-projection-v1.schema.json",
+  "title": "SMART / RMA Boundary Projection v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "parser_version",
+    "redactor_version",
+    "protocol",
+    "device_kind",
+    "smart_support",
+    "reported_overall_health",
+    "signals",
+    "missing_fields",
+    "temperature_celsius",
+    "power_on_hours",
+    "ata",
+    "nvme",
+    "privacy"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "parser_version": {
+      "const": "1.0"
+    },
+    "redactor_version": {
+      "const": "1.0"
+    },
+    "protocol": {
+      "enum": ["ata", "nvme", "unknown"]
+    },
+    "device_kind": {
+      "enum": ["hdd", "ssd", "nvme", "unknown"]
+    },
+    "smart_support": {
+      "enum": ["available", "unavailable", "unknown"]
+    },
+    "reported_overall_health": {
+      "enum": ["passed", "failed", "unknown"]
+    },
+    "signals": {
+      "type": "array",
+      "maxItems": 13,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/signal"
+      }
+    },
+    "missing_fields": {
+      "type": "array",
+      "maxItems": 6,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/missingField"
+      }
+    },
+    "temperature_celsius": {
+      "$ref": "#/$defs/nullableMetric"
+    },
+    "power_on_hours": {
+      "$ref": "#/$defs/nullableCounter"
+    },
+    "ata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["attributes", "error_count", "self_test_failure_count"],
+      "properties": {
+        "attributes": {
+          "type": "array",
+          "maxItems": 128,
+          "items": {
+            "$ref": "#/$defs/ataAttribute"
+          }
+        },
+        "error_count": {
+          "$ref": "#/$defs/nullableCounter"
+        },
+        "self_test_failure_count": {
+          "$ref": "#/$defs/counter"
+        }
+      }
+    },
+    "nvme": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "critical_warning",
+        "available_spare_percent",
+        "available_spare_threshold_percent",
+        "percentage_used",
+        "media_errors",
+        "error_log_entries"
+      ],
+      "properties": {
+        "critical_warning": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 255
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "available_spare_percent": {
+          "$ref": "#/$defs/nullablePercent"
+        },
+        "available_spare_threshold_percent": {
+          "$ref": "#/$defs/nullablePercent"
+        },
+        "percentage_used": {
+          "$ref": "#/$defs/nullablePercent"
+        },
+        "media_errors": {
+          "$ref": "#/$defs/nullableCounter"
+        },
+        "error_log_entries": {
+          "$ref": "#/$defs/nullableCounter"
+        }
+      }
+    },
+    "privacy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["redactions_total", "counts"],
+      "properties": {
+        "redactions_total": {
+          "$ref": "#/$defs/counter"
+        },
+        "counts": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "authorization",
+            "cookie",
+            "token",
+            "email",
+            "ip",
+            "domain",
+            "serial_number",
+            "wwn"
+          ],
+          "properties": {
+            "authorization": {
+              "$ref": "#/$defs/counter"
+            },
+            "cookie": {
+              "$ref": "#/$defs/counter"
+            },
+            "token": {
+              "$ref": "#/$defs/counter"
+            },
+            "email": {
+              "$ref": "#/$defs/counter"
+            },
+            "ip": {
+              "$ref": "#/$defs/counter"
+            },
+            "domain": {
+              "$ref": "#/$defs/counter"
+            },
+            "serial_number": {
+              "$ref": "#/$defs/counter"
+            },
+            "wwn": {
+              "$ref": "#/$defs/counter"
+            }
+          }
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "protocol": {
+            "const": "nvme"
+          }
+        },
+        "required": ["protocol"]
+      },
+      "then": {
+        "properties": {
+          "device_kind": {
+            "const": "nvme"
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "counter": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    },
+    "nullableCounter": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/counter"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "nullableMetric": {
+      "anyOf": [
+        {
+          "type": "integer",
+          "minimum": -100,
+          "maximum": 500
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "nullablePercent": {
+      "anyOf": [
+        {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100000
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "signal": {
+      "enum": [
+        "smart-overall-passed",
+        "smart-overall-failed",
+        "ata-reallocated-sectors",
+        "ata-pending-sectors",
+        "ata-uncorrectable-sectors",
+        "ata-error-log",
+        "nvme-critical-warning",
+        "nvme-spare-below-threshold",
+        "nvme-percentage-used",
+        "nvme-media-errors",
+        "vendor-extension",
+        "smart-unavailable",
+        "incomplete-identification"
+      ]
+    },
+    "missingField": {
+      "enum": [
+        "model",
+        "serial_number",
+        "firmware_version",
+        "overall_health",
+        "temperature",
+        "power_on_hours"
+      ]
+    },
+    "ataAttribute": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "normalized_value",
+        "worst_value",
+        "threshold",
+        "when_failed",
+        "raw_value"
+      ],
+      "properties": {
+        "id": {
+          "enum": [5, 9, 187, 194, 197, 198]
+        },
+        "normalized_value": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 255
+        },
+        "worst_value": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 255
+        },
+        "threshold": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 255
+        },
+        "when_failed": {
+          "type": "boolean"
+        },
+        "raw_value": {
+          "$ref": "#/$defs/nullableCounter"
+        }
+      }
+    }
+  }
+}
