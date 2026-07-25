@@ -10,6 +10,7 @@ const incidentDetectiveUrl = new URL(
   "../dist/incident-detective/index.html",
   import.meta.url,
 );
+const smartRmaUrl = new URL("../dist/smart-rma/index.html", import.meta.url);
 const stylesUrl = new URL("../src/styles/global.css", import.meta.url);
 const html = await readFile(fileURLToPath(indexUrl), "utf8");
 const tokenForgeHtml = await readFile(fileURLToPath(tokenForgeUrl), "utf8");
@@ -17,6 +18,7 @@ const incidentDetectiveHtml = await readFile(
   fileURLToPath(incidentDetectiveUrl),
   "utf8",
 );
+const smartRmaHtml = await readFile(fileURLToPath(smartRmaUrl), "utf8");
 const styles = await readFile(fileURLToPath(stylesUrl), "utf8");
 
 const checks = [
@@ -45,8 +47,8 @@ const checks = [
   ],
   [
     "manifest labels",
-    ["Alpha", "建设中", "公开输入", "本地优先", "AI 可选", "含合成样例"].every(
-      (label) => html.includes(label),
+    ["Alpha", "公开输入", "本地优先", "AI 可选", "含合成样例"].every((label) =>
+      html.includes(label),
     ),
   ],
   [
@@ -58,6 +60,11 @@ const checks = [
     "live Incident Detective route",
     html.includes('href="/incident-detective/"') &&
       html.includes("打开实验 · /incident-detective/"),
+  ],
+  [
+    "live SMART / RMA route",
+    html.includes('href="/smart-rma/"') &&
+      html.includes("打开实验 · /smart-rma/"),
   ],
   [
     "related articles",
@@ -251,6 +258,72 @@ const checks = [
       styles.includes(".incident-score-dimensions") &&
       styles.includes(".incident-score-feedback") &&
       styles.includes(".incident-share-actions"),
+  ],
+  [
+    "SMART / RMA indexable page",
+    smartRmaHtml.includes("<title>SMART / RMA 报告机｜Margrop Labs</title>") &&
+      smartRmaHtml.includes("先看懂 SMART") &&
+      smartRmaHtml.includes("再谈健康结论"),
+  ],
+  [
+    "SMART / RMA native controls",
+    smartRmaHtml.includes('class="smart-rma-form"') &&
+      smartRmaHtml.includes('name="synthetic_sample"') &&
+      smartRmaHtml.includes('name="smartctl_text"') &&
+      smartRmaHtml.includes("<select") &&
+      smartRmaHtml.includes("<textarea") &&
+      smartRmaHtml.includes('type="submit"') &&
+      smartRmaHtml.includes('type="reset"'),
+  ],
+  [
+    "SMART / RMA synthetic corpus",
+    [
+      "ATA SSD · 基础正常样例",
+      "ATA HDD · PASSED 但关键计数非零",
+      "ATA SSD · 未知厂商扩展",
+      "NVMe · 基础正常样例",
+      "NVMe · Critical Warning 与介质错误",
+      "USB-SAT · SMART 不可用",
+      "ATA · 旧版本与字段不完整",
+    ].every((label) => smartRmaHtml.includes(label)),
+  ],
+  [
+    "SMART / RMA local privacy boundary",
+    [
+      "仅当前标签页",
+      "不上传文本",
+      "本阶段不调用",
+      "不写入 URL",
+      "Local Storage",
+      "不包含序列号、WWN、型号原文和原始文本",
+    ].every((label) => smartRmaHtml.includes(label)),
+  ],
+  [
+    "SMART / RMA parse evidence",
+    [
+      "原始总体状态",
+      "解析信号（未判定健康）",
+      "未知项 / 缺失字段",
+      "ATA 属性",
+      "设备类别",
+      "SMART 支持",
+      "不是健康结论",
+      "不是厂商保修判断",
+    ].every((label) => smartRmaHtml.includes(label)),
+  ],
+  [
+    "SMART / RMA visible hydration",
+    smartRmaHtml.includes('client="visible"') &&
+      !smartRmaHtml.includes('client="load"'),
+  ],
+  [
+    "SMART / RMA responsive workbench",
+    styles.includes(".smart-rma-shell") &&
+      styles.includes(".smart-rma-sample-controls") &&
+      styles.includes(".smart-rma-form textarea") &&
+      styles.includes(".smart-rma-summary-grid") &&
+      styles.includes(".smart-rma-table-scroll") &&
+      styles.includes(".smart-rma-nvme-grid"),
   ],
 ];
 

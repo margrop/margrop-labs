@@ -1,0 +1,276 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lab.margrop.net/schemas/smart-rma-parse-result-v1.schema.json",
+  "title": "SMART / RMA Parse Result v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "parser_version",
+    "smartctl_version",
+    "protocol",
+    "device_kind",
+    "smart_support",
+    "reported_overall_health",
+    "signals",
+    "missing_fields",
+    "temperature_celsius",
+    "power_on_hours",
+    "ata",
+    "nvme"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "parser_version": {
+      "const": "1.0"
+    },
+    "smartctl_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+$",
+      "maxLength": 12
+    },
+    "protocol": {
+      "enum": ["ata", "nvme", "unknown"]
+    },
+    "device_kind": {
+      "enum": ["hdd", "ssd", "nvme", "unknown"]
+    },
+    "smart_support": {
+      "enum": ["available", "unavailable", "unknown"]
+    },
+    "reported_overall_health": {
+      "enum": ["passed", "failed", "unknown"]
+    },
+    "signals": {
+      "type": "array",
+      "maxItems": 13,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/signal"
+      }
+    },
+    "missing_fields": {
+      "type": "array",
+      "maxItems": 6,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/missingField"
+      }
+    },
+    "temperature_celsius": {
+      "$ref": "#/$defs/nullableMetric"
+    },
+    "power_on_hours": {
+      "$ref": "#/$defs/nullableCounter"
+    },
+    "ata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["attributes", "error_count", "self_test_failure_count"],
+      "properties": {
+        "attributes": {
+          "type": "array",
+          "maxItems": 128,
+          "items": {
+            "$ref": "#/$defs/ataAttribute"
+          }
+        },
+        "error_count": {
+          "$ref": "#/$defs/nullableCounter"
+        },
+        "self_test_failure_count": {
+          "$ref": "#/$defs/counter"
+        }
+      }
+    },
+    "nvme": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "critical_warning",
+        "available_spare_percent",
+        "available_spare_threshold_percent",
+        "percentage_used",
+        "media_errors",
+        "error_log_entries"
+      ],
+      "properties": {
+        "critical_warning": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 255
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "available_spare_percent": {
+          "$ref": "#/$defs/nullablePercent"
+        },
+        "available_spare_threshold_percent": {
+          "$ref": "#/$defs/nullablePercent"
+        },
+        "percentage_used": {
+          "$ref": "#/$defs/nullablePercent"
+        },
+        "media_errors": {
+          "$ref": "#/$defs/nullableCounter"
+        },
+        "error_log_entries": {
+          "$ref": "#/$defs/nullableCounter"
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "protocol": {
+            "const": "nvme"
+          }
+        },
+        "required": ["protocol"]
+      },
+      "then": {
+        "properties": {
+          "device_kind": {
+            "const": "nvme"
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "counter": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    },
+    "nullableCounter": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/counter"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "nullableMetric": {
+      "anyOf": [
+        {
+          "type": "integer",
+          "minimum": -100,
+          "maximum": 500
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "nullablePercent": {
+      "anyOf": [
+        {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100000
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "signal": {
+      "enum": [
+        "smart-overall-passed",
+        "smart-overall-failed",
+        "ata-reallocated-sectors",
+        "ata-pending-sectors",
+        "ata-uncorrectable-sectors",
+        "ata-error-log",
+        "nvme-critical-warning",
+        "nvme-spare-below-threshold",
+        "nvme-percentage-used",
+        "nvme-media-errors",
+        "vendor-extension",
+        "smart-unavailable",
+        "incomplete-identification"
+      ]
+    },
+    "missingField": {
+      "enum": [
+        "model",
+        "serial_number",
+        "firmware_version",
+        "overall_health",
+        "temperature",
+        "power_on_hours"
+      ]
+    },
+    "ataAttribute": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name",
+        "normalized_value",
+        "worst_value",
+        "threshold",
+        "type",
+        "updated",
+        "when_failed",
+        "raw_value",
+        "recognized"
+      ],
+      "properties": {
+        "id": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 255
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[A-Za-z0-9_-]+$"
+        },
+        "normalized_value": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 255
+        },
+        "worst_value": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 255
+        },
+        "threshold": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 255
+        },
+        "type": {
+          "enum": ["pre-fail", "old-age", "unknown"]
+        },
+        "updated": {
+          "enum": ["always", "offline", "unknown"]
+        },
+        "when_failed": {
+          "type": "boolean"
+        },
+        "raw_value": {
+          "$ref": "#/$defs/nullableCounter"
+        },
+        "recognized": {
+          "type": "boolean"
+        }
+      }
+    }
+  }
+}
