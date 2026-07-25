@@ -295,7 +295,20 @@ const checks = [
       "本阶段不调用",
       "不写入 URL",
       "Local Storage",
-      "不包含序列号、WWN、型号原文和原始文本",
+      "序列号、WWN、主机名和 IP",
+      "无自由文本的允许字段投影",
+    ].every((label) => smartRmaHtml.includes(label)),
+  ],
+  [
+    "SMART / RMA local redaction preview",
+    [
+      "本地解析并脱敏",
+      "本地脱敏预览",
+      "主机名 / 域名",
+      "查看脱敏后的本地文本",
+      "[REDACTED:SERIAL_NUMBER]",
+      "[REDACTED:WWN]",
+      "Boundary Projection v1",
     ].every((label) => smartRmaHtml.includes(label)),
   ],
   [
@@ -323,7 +336,8 @@ const checks = [
       styles.includes(".smart-rma-form textarea") &&
       styles.includes(".smart-rma-summary-grid") &&
       styles.includes(".smart-rma-table-scroll") &&
-      styles.includes(".smart-rma-nvme-grid"),
+      styles.includes(".smart-rma-nvme-grid") &&
+      styles.includes(".smart-rma-redaction-counts"),
   ],
 ];
 

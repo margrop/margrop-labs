@@ -10,6 +10,10 @@ P0-007 首批覆盖：
 - Authorization、Token 与 Cookie；
 - 有标签的序列号与 WWN。
 
+P3-003 扩展了常见 smartctl 与主机标签变体，包括 `Device Serial No.`、`SerialNumber`、
+`LU WWN Device Id`、`Host Name`、`Computer Name` 等；有标签主机名允许真实环境中常见的
+下划线，但仍只返回固定占位符。
+
 ## 处理顺序
 
 结构化输入必须调用 `sanitizeAllowedFields`，顺序固定为：

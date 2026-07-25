@@ -32,7 +32,7 @@ const samples: SmartRmaSample[] = corpus.fixtures.map(({ id, raw }) => ({
 
 <BaseLayout
   title="SMART / RMA 报告机｜Margrop Labs"
-  description="在浏览器本地解析 smartctl 文本，识别 ATA、NVMe、关键属性、错误计数与缺失字段，不上传或保存原始输入。"
+  description="在浏览器本地解析并脱敏 smartctl 文本，识别 ATA、NVMe、关键属性、错误计数与缺失字段，不上传或保存原始输入。"
 >
   <section class="lab-page">
     <header class="lab-page-hero">
@@ -41,14 +41,15 @@ const samples: SmartRmaSample[] = corpus.fixtures.map(({ id, raw }) => ({
         <h1>先看懂 SMART，<br /><em>再谈健康结论。</em></h1>
         <p>
           粘贴 smartctl 文本或加载完全合成样例。浏览器只做确定性结构化解析，
-          把工具报告、异常信号和未知项分开，不把 PASSED 包装成保修结论。
+          同时遮蔽序列号、WWN、主机名和 IP，把工具报告、异常信号和未知项分开，
+          不把 PASSED 包装成保修结论。
         </p>
       </div>
       <dl class="lab-page-contract">
         <div><dt>RAW INPUT</dt><dd>仅当前标签页</dd></div>
         <div><dt>NETWORK</dt><dd>不上传文本</dd></div>
         <div><dt>AI</dt><dd>本阶段不调用</dd></div>
-        <div><dt>OUTPUT</dt><dd>仅解析证据</dd></div>
+        <div><dt>OUTPUT</dt><dd>脱敏结构证据</dd></div>
       </dl>
     </header>
 

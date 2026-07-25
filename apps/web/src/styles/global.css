@@ -2050,6 +2050,89 @@ a {
   margin-top: 1.25rem;
 }
 
+.smart-rma-redaction {
+  margin-top: 1.25rem;
+  padding: 1rem;
+  border: 1px solid var(--line);
+  border-radius: 0.8rem;
+  background: rgba(8, 17, 31, 0.4);
+}
+
+.smart-rma-redaction .section-kicker {
+  margin-bottom: 0.5rem;
+}
+
+.smart-rma-redaction-counts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0;
+  margin: 1rem 0;
+  border: 1px solid var(--line);
+  border-radius: 0.7rem;
+  overflow: hidden;
+}
+
+.smart-rma-redaction-counts > div {
+  padding: 0.8rem;
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.smart-rma-redaction-counts > div:nth-child(3n) {
+  border-right: 0;
+}
+
+.smart-rma-redaction-counts > div:nth-last-child(-n + 3) {
+  border-bottom: 0;
+}
+
+.smart-rma-redaction-counts dt {
+  color: var(--muted);
+  font-size: 0.72rem;
+}
+
+.smart-rma-redaction-counts dd {
+  margin: 0.35rem 0 0;
+  color: var(--cyan);
+  font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+  font-size: 1.15rem;
+  font-weight: 800;
+}
+
+.smart-rma-redaction details {
+  border: 1px solid var(--line);
+  border-radius: 0.7rem;
+}
+
+.smart-rma-redaction summary {
+  display: flex;
+  min-height: 44px;
+  align-items: center;
+  padding: 0.75rem;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.smart-rma-redaction pre {
+  max-height: 26rem;
+  margin: 0;
+  overflow: auto;
+  padding: 0.9rem;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 0.72rem;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.smart-rma-boundary-note {
+  margin: 0.9rem 0 0;
+  color: var(--muted);
+  font-size: 0.8rem;
+  line-height: 1.6;
+}
+
 .smart-rma-facts,
 .smart-rma-nvme-grid {
   display: grid;
@@ -2417,20 +2500,28 @@ a {
 
   .smart-rma-sample-controls,
   .smart-rma-facts,
-  .smart-rma-nvme-grid {
+  .smart-rma-nvme-grid,
+  .smart-rma-redaction-counts {
     grid-template-columns: 1fr;
   }
 
   .smart-rma-facts > div,
   .smart-rma-nvme-grid > div,
   .smart-rma-facts > div:nth-child(3n),
-  .smart-rma-nvme-grid > div:nth-child(3n) {
+  .smart-rma-nvme-grid > div:nth-child(3n),
+  .smart-rma-redaction-counts > div,
+  .smart-rma-redaction-counts > div:nth-child(3n),
+  .smart-rma-redaction-counts > div:nth-last-child(-n + 3) {
     border-right: 0;
     border-bottom: 1px solid var(--line);
   }
 
   .smart-rma-facts > div:last-child,
   .smart-rma-nvme-grid > div:last-child {
+    border-bottom: 0;
+  }
+
+  .smart-rma-redaction-counts > div:last-child {
     border-bottom: 0;
   }
 
@@ -2481,7 +2572,9 @@ a {
   .smart-rma-form textarea,
   .smart-rma-summary-grid > section,
   .smart-rma-detail,
-  .smart-rma-table-scroll {
+  .smart-rma-table-scroll,
+  .smart-rma-redaction,
+  .smart-rma-redaction details {
     border-color: ButtonText;
   }
 }

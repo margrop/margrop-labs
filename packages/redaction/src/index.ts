@@ -291,7 +291,7 @@ const redactLabelledHardwareIds = (
   counts: MutableCounts,
 ): string => {
   let redacted = input.replace(
-    /(^|[^A-Za-z0-9_-])((?:wwn|world[ \t]+wide[ \t]+name))(\s*[:=]\s*)((?:0x)?[A-Fa-f0-9][A-Fa-f0-9 :.-]{6,}[A-Fa-f0-9])/gi,
+    /(^|[^A-Za-z0-9_-])((?:(?:lu[ \t_-]+)?wwn(?:[ \t_-]+device[ \t_-]+id)?|world[ \t_-]+wide[ \t_-]+name))(\s*[:=]\s*)([^\r\n]*\S)/gi,
     (
       match: string,
       prefix: string,
@@ -299,8 +299,7 @@ const redactLabelledHardwareIds = (
       separator: string,
       rawValue: string,
     ) => {
-      const hexDigits = rawValue.replace(/[^A-Fa-f0-9]/g, "");
-      if (isPlaceholder(rawValue) || hexDigits.length < 16) {
+      if (isPlaceholder(rawValue.trim())) {
         return match;
       }
 
@@ -310,7 +309,7 @@ const redactLabelledHardwareIds = (
   );
 
   redacted = redacted.replace(
-    /(^|[^A-Za-z0-9_-])((?:serial(?:[ \t_-]+number)?|s\/n|sn))(\s*[:=]\s*)([A-Za-z0-9][A-Za-z0-9._-]{3,})/gi,
+    /(^|[^A-Za-z0-9_-])((?:(?:device[ \t_-]+)?serial(?:[ \t_-]+(?:number|no\.?))?|serialnumber|s\/n|sn))(\s*[:=]\s*)([^\r\n]*\S)/gi,
     (
       match: string,
       prefix: string,
@@ -318,7 +317,7 @@ const redactLabelledHardwareIds = (
       separator: string,
       rawValue: string,
     ) => {
-      if (isPlaceholder(rawValue)) {
+      if (isPlaceholder(rawValue.trim())) {
         return match;
       }
 
@@ -435,8 +434,27 @@ const isValidDomain = (candidate: string): boolean => {
   return labels !== undefined && labels.length >= 2;
 };
 
-const isValidLabelledHost = (candidate: string): boolean =>
-  domainLabels(candidate) !== undefined;
+const isValidLabelledHost = (candidate: string): boolean => {
+  const normalized = candidate.toLowerCase().replace(/\.$/, "");
+  if (
+    normalized.length === 0 ||
+    normalized.length > 253 ||
+    normalized.includes("..")
+  ) {
+    return false;
+  }
+
+  return normalized
+    .split(".")
+    .every(
+      (label) =>
+        label.length > 0 &&
+        label.length <= 63 &&
+        !label.startsWith("-") &&
+        !label.endsWith("-") &&
+        /^[a-z0-9_-]+$/.test(label),
+    );
+};
 
 const isLikelyDomain = (candidate: string): boolean => {
   const labels = domainLabels(candidate);
@@ -475,7 +493,7 @@ const redactDomains = (input: string, counts: MutableCounts): string => {
   );
 
   redacted = redacted.replace(
-    /(^|[^A-Za-z0-9_-])((?:domain|hostname|host|server))(\s*[:=]\s*)([A-Za-z0-9.-]+)/gi,
+    /(^|[^A-Za-z0-9_-])((?:domain|hostname|host[ \t_-]+name|computer[ \t_-]+name|node[ \t_-]+name|system[ \t_-]+name|host|server))(\s*[:=]\s*)([A-Za-z0-9][A-Za-z0-9._-]{0,252})/gi,
     (
       match: string,
       prefix: string,

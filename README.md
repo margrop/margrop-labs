@@ -13,7 +13,7 @@
 | ----------------------------------------- | ---------------------------------------------------- | ----- |
 | [Token 任务炼金炉](./labs/token-forge/)   | 把闲置 Token、仓库上下文和目标转换为可验收的开发任务 | Alpha |
 | [AI 故障侦探](./labs/incident-detective/) | 在合成事故中练习按证据排障，而不是让 AI 猜根因       | Alpha |
-| [SMART / RMA 报告机](./labs/smart-rma/)   | 本地解析硬盘信息，分离工具状态、关键指标与未知项     | Alpha |
+| [SMART / RMA 报告机](./labs/smart-rma/)   | 本地解析并遮蔽硬盘标识，分离关键指标与未知项         | Alpha |
 
 ## 产品原则
 
@@ -58,6 +58,7 @@ Web 端采用 **Astro + TypeScript + Preact Islands**，首期生成静态 HTML�
 - Incident Detective 分享卡：遵循 [Score-only 隐私 SVG](./docs/incident-detective-share-card.md)。
 - SMART / RMA 合成输入：遵循 [完全合成 Fixture 合同](./docs/smart-rma-synthetic-fixtures.md)。
 - SMART / RMA 浏览器解析：遵循 [Parse Result v1 与失败边界](./docs/smart-rma-parser-v1.md)。
+- SMART / RMA 本地脱敏：遵循 [预览、Boundary Projection 与 sink 边界](./docs/smart-rma-redaction-v1.md)。
 - 处理用户输入：先读 [隐私模型](./docs/privacy-model.md) 和 [脱敏包](./packages/redaction/README.md)。
 - 发布站点：遵循 [Cloudflare Workers 部署](./docs/cloudflare-deployment.md)。
 
@@ -91,5 +92,6 @@ Attempt v1。P2-004 已加入五维 100 分确定性评分、逐条判定和改�
 Score-only 的确定性 SVG 下载，Incident Detective MVP 六个任务全部闭环。P3-001 已建立
 7 份完全合成的 ATA、NVMe 与未知协议 `smartctl` 输入及版本化索引，覆盖健康、预警、危险、
 缺失字段、厂商扩展、SMART 不可用和冲突信号。P3-002 已上线浏览器端只读解析工作台和
-Parse Result v1：原文只在当前页面内存中处理，输出排除原文与设备标识，且明确不做健康或
-保修判断；下一步是 P3-003 完整输入脱敏。
+Parse Result v1。P3-003 已增加序列号、WWN、主机名、IP 与常见 Secret 的本地脱敏预览，
+以及不含自由文本的 Boundary Projection v1；URL、日志和 Analytics 进一步收窄为固定元数据，
+AI 与导出尚未启用。下一步是 P3-004 确定性健康分类，现有结果仍不构成厂商保修判断。
