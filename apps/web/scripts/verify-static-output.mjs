@@ -6,9 +6,17 @@ const tokenForgeUrl = new URL(
   "../dist/token-forge/index.html",
   import.meta.url,
 );
+const incidentDetectiveUrl = new URL(
+  "../dist/incident-detective/index.html",
+  import.meta.url,
+);
 const stylesUrl = new URL("../src/styles/global.css", import.meta.url);
 const html = await readFile(fileURLToPath(indexUrl), "utf8");
 const tokenForgeHtml = await readFile(fileURLToPath(tokenForgeUrl), "utf8");
+const incidentDetectiveHtml = await readFile(
+  fileURLToPath(incidentDetectiveUrl),
+  "utf8",
+);
 const styles = await readFile(fileURLToPath(stylesUrl), "utf8");
 
 const checks = [
@@ -45,6 +53,11 @@ const checks = [
     "live Token Forge route",
     html.includes('href="/token-forge/"') &&
       html.includes("打开实验 · /token-forge/"),
+  ],
+  [
+    "live Incident Detective route",
+    html.includes('href="/incident-detective/"') &&
+      html.includes("打开实验 · /incident-detective/"),
   ],
   [
     "related articles",
@@ -164,6 +177,64 @@ const checks = [
       styles.includes(".token-forge-form input") &&
       styles.includes("min-height: 46px") &&
       styles.includes(".token-forge-task-columns"),
+  ],
+  [
+    "Incident Detective indexable page",
+    incidentDetectiveHtml.includes(
+      "<title>AI 故障侦探｜Margrop Labs</title>",
+    ) &&
+      incidentDetectiveHtml.includes("别让 AI 猜根因") &&
+      incidentDetectiveHtml.includes("先把证据找齐"),
+  ],
+  [
+    "Incident Detective public scenario",
+    [
+      "结账搜索变慢：先别重启 MySQL",
+      "MySQL 与 Exporter 存活状态",
+      "结账搜索延迟趋势",
+      "结账请求的合成 Trace 日志",
+      "慢查询形态的只读 EXPLAIN",
+    ].every((label) => incidentDetectiveHtml.includes(label)),
+  ],
+  [
+    "Incident Detective native controls",
+    incidentDetectiveHtml.includes('class="incident-hypothesis"') &&
+      incidentDetectiveHtml.includes('name="hypothesis_summary"') &&
+      incidentDetectiveHtml.includes('name="suspected_services"') &&
+      incidentDetectiveHtml.includes('name="confidence"') &&
+      incidentDetectiveHtml.includes('name="next_action"') &&
+      incidentDetectiveHtml.includes('name="safety_actions"') &&
+      incidentDetectiveHtml.includes("<textarea") &&
+      incidentDetectiveHtml.includes("<select"),
+  ],
+  [
+    "Incident Detective local boundary",
+    ["完全合成", "不连接监控", "本局不调用", "不保存、不评分"].every((label) =>
+      incidentDetectiveHtml.includes(label),
+    ),
+  ],
+  [
+    "Incident Detective public-only client",
+    [
+      "answer.internal",
+      "attempt.canonical",
+      "root_cause",
+      "required_evidence_ids",
+      "evidence_weights",
+    ].every((field) => !incidentDetectiveHtml.includes(field)),
+  ],
+  [
+    "Incident Detective visible hydration",
+    incidentDetectiveHtml.includes('client="visible"') &&
+      !incidentDetectiveHtml.includes('client="load"'),
+  ],
+  [
+    "Incident Detective responsive evidence",
+    styles.includes(".incident-evidence-list") &&
+      styles.includes(".incident-table-scroll") &&
+      styles.includes(".incident-timeline") &&
+      styles.includes(".incident-choice-grid") &&
+      styles.includes(".incident-safety-grid"),
   ],
 ];
 

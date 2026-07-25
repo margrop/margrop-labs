@@ -1,6 +1,6 @@
 # MySQL Leading-Wildcard Case
 
-P2-002 的首个完整合成案例。公开 `scenario.json` 可由未来 P2-003 页面加载；
+P2-002 的首个完整合成案例。公开 `scenario.json` 由 P2-003 页面加载；
 `answer.internal.json` 只供仓库测试和后续 P2-004 评分设计参考，不得发送到客户端；
 `attempt.canonical.json` 证明在 9 点预算内存在一条完整、只读、包含反证的推理路径。
 

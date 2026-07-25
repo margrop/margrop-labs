@@ -1,0 +1,55 @@
+---
+import IncidentDetectiveWorkbench from "../../components/IncidentDetectiveWorkbench";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { validateIncidentDetectiveScenario } from "../../lib/incident-detective-contracts";
+import { loadLabManifests } from "../../lib/lab-manifests";
+import scenarioCandidate from "../../../../../labs/incident-detective/cases/mysql-leading-wildcard/scenario.json";
+
+const labs = await loadLabManifests();
+const lab = labs.find((candidate) => candidate.id === "incident-detective");
+
+if (!lab) {
+  throw new Error(
+    "Incident Detective manifest is required for its public page.",
+  );
+}
+
+const articleUrl = lab.related_articles[0];
+
+if (!articleUrl) {
+  throw new Error("Incident Detective requires a related article.");
+}
+
+const scenario = validateIncidentDetectiveScenario(scenarioCandidate);
+---
+
+<BaseLayout
+  title="AI 故障侦探｜Margrop Labs"
+  description="在完全合成的 Prometheus、Loki 与 MySQL 事故中，用有限预算逐步取证、构建时间线并提交可审计的排障假设。"
+>
+  <section class="lab-page">
+    <header class="lab-page-hero">
+      <div>
+        <p class="eyebrow">INCIDENT DETECTIVE · ALPHA</p>
+        <h1>别让 AI 猜根因。<br /><em>先把证据找齐。</em></h1>
+        <p>
+          你只有 9 点预算，无法查看全部证据。沿着 Prometheus、Loki 和只读 MySQL
+          事实逐步排查，区分相关性、反证与仍然未知的部分。
+        </p>
+      </div>
+      <dl class="lab-page-contract">
+        <div><dt>DATA</dt><dd>完全合成</dd></div>
+        <div><dt>NETWORK</dt><dd>不连接监控</dd></div>
+        <div><dt>AI</dt><dd>本局不调用</dd></div>
+        <div><dt>RESULT</dt><dd>不保存、不评分</dd></div>
+      </dl>
+    </header>
+
+    <IncidentDetectiveWorkbench
+      scenario={scenario}
+      articleUrl={articleUrl}
+      sourceUrl="https://github.com/margrop/margrop-labs/tree/main/labs/incident-detective/cases/mysql-leading-wildcard"
+      client:visible={{ rootMargin: "200px" }}
+    />
+  </section>
+</BaseLayout>
