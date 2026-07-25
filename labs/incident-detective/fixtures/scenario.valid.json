@@ -1,0 +1,159 @@
+{
+  "schema_version": "1.0",
+  "id": "synthetic-checkout-latency",
+  "title": "合成结账链路延迟",
+  "summary": "09:58 起结账接口延迟升高，错误率随后缓慢增加；当前只有用户症状和变更时间可见。",
+  "difficulty": "foundation",
+  "evidence_budget": 4,
+  "services": [
+    {
+      "id": "checkout-api",
+      "label": "Checkout API",
+      "kind": "application"
+    },
+    {
+      "id": "orders-db",
+      "label": "Orders MySQL",
+      "kind": "database"
+    },
+    {
+      "id": "observability",
+      "label": "Synthetic Observability",
+      "kind": "observability"
+    }
+  ],
+  "objectives": [
+    "先用低成本只读证据缩小故障域，再提交包含支持和反证的根因假设。",
+    "在有限证据预算内构建按时间排序的事实链，不把相关性直接写成因果。"
+  ],
+  "incident_window": {
+    "starts_at": "2026-04-18T09:50:00Z",
+    "ends_at": "2026-04-18T10:15:00Z"
+  },
+  "evidence": [
+    {
+      "id": "prometheus-latency",
+      "source": "prometheus",
+      "title": "结账延迟与数据库连接占用",
+      "purpose": "确认应用延迟是否与数据库连接占用在同一时间窗口发生变化。",
+      "acquisition_cost": 1,
+      "service_id": "checkout-api",
+      "unlocks_after": [],
+      "data": {
+        "kind": "metric",
+        "query": "synthetic_checkout_p95_seconds",
+        "unit": "seconds",
+        "series": [
+          {
+            "label": "checkout p95",
+            "labels": {
+              "service": "checkout-api",
+              "environment": "synthetic"
+            },
+            "points": [
+              {
+                "timestamp": "2026-04-18T09:55:00Z",
+                "value": 0.24
+              },
+              {
+                "timestamp": "2026-04-18T10:00:00Z",
+                "value": 1.82
+              },
+              {
+                "timestamp": "2026-04-18T10:05:00Z",
+                "value": 2.46
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "loki-timeouts",
+      "source": "loki",
+      "title": "结账超时日志样本",
+      "purpose": "检查超时发生在应用入口、下游调用还是数据库等待阶段。",
+      "acquisition_cost": 1,
+      "service_id": "checkout-api",
+      "unlocks_after": ["prometheus-latency"],
+      "data": {
+        "kind": "log",
+        "stream": "{service=\"checkout-api\", environment=\"synthetic\"}",
+        "entries": [
+          {
+            "timestamp": "2026-04-18T10:02:00Z",
+            "level": "warning",
+            "message": "synthetic request waited for an orders connection"
+          },
+          {
+            "timestamp": "2026-04-18T10:03:00Z",
+            "level": "error",
+            "message": "synthetic checkout request exceeded the local timeout"
+          }
+        ]
+      }
+    },
+    {
+      "id": "mysql-processlist",
+      "source": "mysql",
+      "title": "只读连接状态快照",
+      "purpose": "用合成只读查询检查等待类型、连接数量和持续时间，不执行终止会话等写操作。",
+      "acquisition_cost": 2,
+      "service_id": "orders-db",
+      "unlocks_after": ["prometheus-latency"],
+      "data": {
+        "kind": "table",
+        "query": "SELECT state, count, max_seconds FROM synthetic_process_summary",
+        "columns": ["state", "count", "max_seconds"],
+        "rows": [
+          ["waiting_for_lock", 18, 242],
+          ["running", 4, 3]
+        ]
+      }
+    }
+  ],
+  "timeline": [
+    {
+      "id": "config-change",
+      "occurred_at": "2026-04-18T09:55:00Z",
+      "category": "change",
+      "visibility": "initial",
+      "summary": "合成环境在事故前完成一次应用配置发布，尚无证据证明它与症状存在因果关系。"
+    },
+    {
+      "id": "latency-alert",
+      "occurred_at": "2026-04-18T09:58:00Z",
+      "category": "symptom",
+      "visibility": "initial",
+      "summary": "结账接口的合成延迟告警触发，用户侧开始观察到响应变慢。"
+    },
+    {
+      "id": "metric-correlation",
+      "occurred_at": "2026-04-18T10:00:00Z",
+      "category": "observation",
+      "visibility": "revealed",
+      "summary": "应用延迟与连接占用在同一采样窗口升高，这只是相关性证据。",
+      "evidence_id": "prometheus-latency"
+    },
+    {
+      "id": "connection-wait",
+      "occurred_at": "2026-04-18T10:02:00Z",
+      "category": "observation",
+      "visibility": "revealed",
+      "summary": "合成应用日志显示请求等待数据库连接，仍需数据库侧只读证据确认。",
+      "evidence_id": "loki-timeouts"
+    },
+    {
+      "id": "lock-wait-snapshot",
+      "occurred_at": "2026-04-18T10:04:00Z",
+      "category": "observation",
+      "visibility": "revealed",
+      "summary": "合成数据库快照显示多条连接处于锁等待，但合同不把该现象直接标记为根因。",
+      "evidence_id": "mysql-processlist"
+    }
+  ],
+  "safety_notes": [
+    "所有指标、日志、查询结果和时间均为仓库内合成数据，不连接真实监控或数据库。",
+    "证据获取默认只读；重启、写入和删除动作只能作为待评分的用户选择，不能被自动执行。"
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "schema_version": "1.0",
+  "scenario_id": "synthetic-checkout-latency",
+  "selected_evidence_ids": [
+    "prometheus-latency",
+    "loki-timeouts",
+    "mysql-processlist"
+  ],
+  "spent_budget": 4,
+  "ordered_timeline_event_ids": [
+    "config-change",
+    "latency-alert",
+    "metric-correlation",
+    "connection-wait",
+    "lock-wait-snapshot"
+  ],
+  "safety_actions": ["read_only_first", "preserve_evidence", "least_privilege"],
+  "hypothesis": {
+    "summary": "当前证据支持订单数据库的锁等待扩大了连接等待，并与结账延迟处于同一时间窗口；应用发布仍是需要排除的相关事件。",
+    "suspected_service_ids": ["orders-db"],
+    "supporting_evidence_ids": [
+      "prometheus-latency",
+      "loki-timeouts",
+      "mysql-processlist"
+    ],
+    "contradicting_evidence_ids": [],
+    "confidence": "medium",
+    "next_action": "继续使用只读事务与锁等待摘要确认阻塞链，并在任何生产变更前请求人工批准。"
+  }
+}
