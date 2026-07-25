@@ -13,6 +13,10 @@
 
 URL 不得包含用户输入、AI 输出、日志摘要、SMART 属性、仓库文件内容或任何凭据。
 
+Token Forge 已在 `/token-forge/` 建立正式文章闭环：页面顶部数据来自 Lab Manifest 的
+相关文章，结果区提供“阅读设计思路”和“查看 GitHub 源码”。博客侧 CTA 仍由 P4-005
+统一生成和落地。
+
 ## CTA 模板
 
 ```markdown
@@ -23,3 +27,5 @@ URL 不得包含用户输入、AI 输出、日志摘要、SMART 属性、仓库�
 ## 事件
 
 仅记录 `lab_open`、`sample_load`、`run_success`、`run_failure`、`export`、`blog_click`、`github_click`。事件属性只允许 Lab ID、版本和设备类别。
+
+Token Forge v1 是更窄的子集，不记录 `sample_load`；在 P4-003 前事件接收器保持关闭。

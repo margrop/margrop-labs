@@ -100,7 +100,7 @@ AI Gateway 的 Provider Request 不包含 `provider`、`model`、`system_prompt`
 ## 已知限制
 
 - 尚无真实 Provider Adapter、服务端操作注册表或 HTTP API；
-- 尚未接入 Token Forge 页面；
+- Token Forge 正式页面当前只接入确定性模板，AI 路径仍未连接；
 - 未实现用户级/每日预算、持久化限流或熔断；
 - 自然语言护栏不能替代最小权限与人工确认；
 - 导出边界由 P1-005 另行实现。

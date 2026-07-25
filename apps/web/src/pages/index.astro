@@ -96,7 +96,13 @@ const accents = ["cyan", "violet", "amber"] as const;
               <li>含合成样例</li>
             </ul>
             <div class="lab-card-links">
-              <code class="route">{lab.route}</code>
+              {["alpha", "beta", "stable"].includes(lab.status) ? (
+                <a class="route route--live" href={lab.route}>
+                  打开实验 · {lab.route}
+                </a>
+              ) : (
+                <code class="route">{lab.route}</code>
+              )}
               {lab.related_articles.length > 0 ? (
                 <ul aria-label={`${lab.title} 相关文章`}>
                   {lab.related_articles.map((article, articleIndex) => (

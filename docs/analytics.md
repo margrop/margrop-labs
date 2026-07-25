@@ -21,3 +21,16 @@
 - 输入长度等可用于推断敏感信息的高精度字段。
 
 Analytics 不是发布阻塞项；无法满足最小化要求时保持关闭。
+
+## Token Forge v1
+
+P1-006 使用独立的
+[`token-forge-event-v1.schema.json`](../schemas/token-forge-event-v1.schema.json) 收紧
+首个正式 Lab 的事件面。它只保留事件名、Lab ID、Lab 版本和粗粒度设备类别，不包含页面
+路径、状态详情、性能桶或任意自由文本。
+
+允许事件为 `lab_open`、`run_success`、`run_failure`、`export`、`blog_click` 和
+`github_click`。载入合成样例不产生事件，复制和下载共用 `export`。
+
+P4-003 完成前默认接收器为空：不发送、不存储、不记录。未来接入必须在同一 Schema 和允许
+字段映射之后进行，接收器异常不得影响 Lab 主流程。

@@ -3,7 +3,7 @@
   "id": "token-forge",
   "title": "Token 任务炼金炉",
   "summary": "把闲置 Token、目标和公开仓库上下文转换为范围清楚、可以验收的开发任务。",
-  "status": "building",
+  "status": "alpha",
   "route": "/token-forge/",
   "ai_mode": "optional",
   "input_privacy": "public",

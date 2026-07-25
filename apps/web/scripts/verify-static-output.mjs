@@ -2,8 +2,13 @@ import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 
 const indexUrl = new URL("../dist/index.html", import.meta.url);
+const tokenForgeUrl = new URL(
+  "../dist/token-forge/index.html",
+  import.meta.url,
+);
 const stylesUrl = new URL("../src/styles/global.css", import.meta.url);
 const html = await readFile(fileURLToPath(indexUrl), "utf8");
+const tokenForgeHtml = await readFile(fileURLToPath(tokenForgeUrl), "utf8");
 const styles = await readFile(fileURLToPath(stylesUrl), "utf8");
 
 const checks = [
@@ -32,9 +37,14 @@ const checks = [
   ],
   [
     "manifest labels",
-    ["建设中", "规划中", "公开输入", "本地优先", "AI 可选", "含合成样例"].every(
+    ["Alpha", "规划中", "公开输入", "本地优先", "AI 可选", "含合成样例"].every(
       (label) => html.includes(label),
     ),
+  ],
+  [
+    "live Token Forge route",
+    html.includes('href="/token-forge/"') &&
+      html.includes("打开实验 · /token-forge/"),
   ],
   [
     "related articles",
@@ -104,6 +114,57 @@ const checks = [
   ],
   ["visible hydration", html.includes('client="visible"')],
   ["no eager hydration", !html.includes('client="load"')],
+  [
+    "Token Forge indexable page",
+    tokenForgeHtml.includes("<title>Token 任务炼金炉｜Margrop Labs</title>") &&
+      tokenForgeHtml.includes("把闲置 Token") &&
+      tokenForgeHtml.includes("可以验收"),
+  ],
+  [
+    "Token Forge native form",
+    tokenForgeHtml.includes('<form class="token-forge-form"') &&
+      tokenForgeHtml.includes('name="token_budget"') &&
+      tokenForgeHtml.includes('name="expires_in_days"') &&
+      tokenForgeHtml.includes('name="available_hours"') &&
+      tokenForgeHtml.includes('name="tech_stack"') &&
+      tokenForgeHtml.includes('name="goal"') &&
+      tokenForgeHtml.includes("<textarea"),
+  ],
+  [
+    "Token Forge local actions",
+    tokenForgeHtml.includes("生成任务计划") &&
+      tokenForgeHtml.includes("载入合成样例"),
+  ],
+  [
+    "Token Forge privacy disclosure",
+    ["无需登录", "不读取仓库", "不调用 AI", "不保存输入"].every((label) =>
+      tokenForgeHtml.includes(label),
+    ),
+  ],
+  [
+    "Token Forge no repository or AI field",
+    !tokenForgeHtml.includes('name="repository') &&
+      !tokenForgeHtml.includes('name="api_key'),
+  ],
+  [
+    "Token Forge content loop",
+    tokenForgeHtml.includes("codex-four-resets-token-abundance-creativity") &&
+      tokenForgeHtml.includes(
+        "github.com/margrop/margrop-labs/tree/main/labs/token-forge",
+      ),
+  ],
+  [
+    "Token Forge visible hydration",
+    tokenForgeHtml.includes('client="visible"') &&
+      !tokenForgeHtml.includes('client="load"'),
+  ],
+  [
+    "Token Forge responsive controls",
+    styles.includes(".token-forge-field-grid") &&
+      styles.includes(".token-forge-form input") &&
+      styles.includes("min-height: 46px") &&
+      styles.includes(".token-forge-task-columns"),
+  ],
 ];
 
 const failures = checks.filter(([, passed]) => !passed);
