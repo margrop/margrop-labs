@@ -1,0 +1,236 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lab.margrop.net/schemas/incident-detective-case-proposal-v1.schema.json",
+  "title": "Incident Detective Case Proposal v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "proposal_id",
+    "base_case_id",
+    "requires_human_review",
+    "title",
+    "summary",
+    "difficulty",
+    "theme",
+    "services",
+    "evidence_budget",
+    "evidence_outline",
+    "learning_objectives",
+    "mechanism",
+    "safety_notes",
+    "known_unknowns",
+    "reviewer_questions"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "proposal_id": {
+      "$ref": "#/$defs/id"
+    },
+    "base_case_id": {
+      "$ref": "#/$defs/id"
+    },
+    "requires_human_review": {
+      "const": true
+    },
+    "title": {
+      "$ref": "#/$defs/label"
+    },
+    "summary": {
+      "$ref": "#/$defs/paragraph"
+    },
+    "difficulty": {
+      "enum": ["beginner", "intermediate", "advanced"]
+    },
+    "theme": {
+      "enum": [
+        "query-regression",
+        "dependency-latency",
+        "capacity-pressure",
+        "cache-behavior",
+        "release-regression",
+        "observability-gap"
+      ]
+    },
+    "services": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 10,
+      "items": {
+        "$ref": "#/$defs/service"
+      }
+    },
+    "evidence_budget": {
+      "type": "integer",
+      "minimum": 4,
+      "maximum": 16
+    },
+    "evidence_outline": {
+      "type": "array",
+      "minItems": 5,
+      "maxItems": 12,
+      "items": {
+        "$ref": "#/$defs/evidence"
+      }
+    },
+    "learning_objectives": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 4,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/paragraph"
+      }
+    },
+    "mechanism": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "affected_service_id",
+        "summary",
+        "trigger",
+        "recovery_signal"
+      ],
+      "properties": {
+        "affected_service_id": {
+          "$ref": "#/$defs/id"
+        },
+        "summary": {
+          "$ref": "#/$defs/paragraph"
+        },
+        "trigger": {
+          "$ref": "#/$defs/paragraph"
+        },
+        "recovery_signal": {
+          "$ref": "#/$defs/paragraph"
+        }
+      }
+    },
+    "safety_notes": {
+      "type": "array",
+      "minItems": 4,
+      "maxItems": 6,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/paragraph"
+      }
+    },
+    "known_unknowns": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 8,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/paragraph"
+      }
+    },
+    "reviewer_questions": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 8,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/paragraph"
+      }
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "maxLength": 80
+    },
+    "label": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 120,
+      "pattern": "\\S"
+    },
+    "paragraph": {
+      "type": "string",
+      "minLength": 10,
+      "maxLength": 500,
+      "pattern": "\\S"
+    },
+    "service": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "label", "kind"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "label": {
+          "$ref": "#/$defs/label"
+        },
+        "kind": {
+          "enum": [
+            "application",
+            "database",
+            "cache",
+            "observability",
+            "infrastructure",
+            "external"
+          ]
+        }
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "title",
+        "source",
+        "service_id",
+        "acquisition_cost",
+        "unlocks_after",
+        "role",
+        "access",
+        "purpose",
+        "expected_observation"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "title": {
+          "$ref": "#/$defs/label"
+        },
+        "source": {
+          "enum": ["prometheus", "loki", "mysql", "runbook", "topology"]
+        },
+        "service_id": {
+          "$ref": "#/$defs/id"
+        },
+        "acquisition_cost": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 3
+        },
+        "unlocks_after": {
+          "type": "array",
+          "maxItems": 4,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "role": {
+          "enum": ["support", "counterevidence", "context"]
+        },
+        "access": {
+          "const": "read-only"
+        },
+        "purpose": {
+          "$ref": "#/$defs/paragraph"
+        },
+        "expected_observation": {
+          "$ref": "#/$defs/paragraph"
+        }
+      }
+    }
+  }
+}

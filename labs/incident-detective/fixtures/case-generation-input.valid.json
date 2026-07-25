@@ -1,0 +1,14 @@
+{
+  "schema_version": "1.0",
+  "proposal_id": "checkout-cache-stampede",
+  "base_case_id": "mysql-leading-wildcard",
+  "difficulty": "intermediate",
+  "theme": "cache-behavior",
+  "target_sources": ["topology", "prometheus", "loki", "mysql", "runbook"],
+  "evidence_budget": 8,
+  "learning_objectives": [
+    "先用时间窗口和依赖拓扑缩小范围，再检查缓存与数据库之间的关联。",
+    "明确记录反证与未知项，避免把缓存未命中率上升直接当成根因。",
+    "所有数据库检查保持只读，并在任何生产变更前请求人工审批。"
+  ]
+}
