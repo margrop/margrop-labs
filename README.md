@@ -47,6 +47,7 @@ Web 端采用 **Astro + TypeScript + Preact Islands**，首期生成静态 HTML�
 - 新增实验：遵循 [实验规范](./docs/lab-standard.md)。
 - 接入 AI：先读 [AI 成本与安全](./docs/ai-safety-and-cost.md)。
 - 实现 AI 调用：遵循 [AI Gateway v1 合同](./docs/ai-gateway-contract-v1.md)。
+- Token Forge AI 规划：遵循 [AI 任务拆分](./docs/token-forge-ai-planning.md)。
 - 处理用户输入：先读 [隐私模型](./docs/privacy-model.md) 和 [脱敏包](./packages/redaction/README.md)。
 - 发布站点：遵循 [Cloudflare Workers 部署](./docs/cloudflare-deployment.md)。
 
@@ -63,4 +64,8 @@ npm run dev --workspace @margrop-labs/web
 
 开发者与 GitHub Actions 使用同一条根目录质量命令。检查内容和故障处理见 [质量门](./docs/quality-gates.md)。实验卡片由版本化清单生成，规则见 [实验清单加载器](./docs/lab-manifest-loader.md)。页面组件与交互必须遵循 [UI 与可访问性基线](./docs/ui-accessibility-baseline.md)。Token 任务炼金炉的稳定输入输出见 [v1 合同](./docs/token-forge-contract-v1.md)，无需 AI 的降级核心见 [确定性模板模式](./docs/token-forge-template-mode.md)，公开仓库的有界只读输入见 [GitHub 摘要适配器](./docs/github-public-repository-adapter.md)。所有未来 AI 能力必须通过 [Provider 中立的 Gateway 合同](./docs/ai-gateway-contract-v1.md)。
 
-当前项目仍处于 **pre-alpha**。P4-001/P4-002 已完成隔离的 Preview 与 Production 部署，正式站点由 Cloudflare Workers Static Assets 和 Custom Domain 提供。P0-006 已定义版本化 AI Gateway 请求/响应、Provider Adapter、硬成本边界和失败关闭执行核心；P0-007 已建立允许字段优先、Secret 默认拒绝的确定性脱敏包，浏览器不能选择 Provider、模型或系统提示词，也不接触密钥。下一步接入 P1-004 AI 任务拆分。
+当前项目仍处于 **pre-alpha**。P4-001/P4-002 已完成隔离的 Preview 与 Production 部署，
+正式站点由 Cloudflare Workers Static Assets 和 Custom Domain 提供。P1-004 已在 P0-006
+AI Gateway 和 P0-007 脱敏边界上实现 Token Forge AI 任务拆分核心：最小仓库上下文、
+确定性输出安全检查和 P1-002 完整降级均已有合成测试。它尚未接入真实 Provider、HTTP API
+或在线页面。下一步是 P1-005 Markdown/GitHub Issue 文本导出。

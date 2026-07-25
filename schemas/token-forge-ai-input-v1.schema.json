@@ -1,0 +1,154 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lab.margrop.net/schemas/token-forge-ai-input-v1.schema.json",
+  "title": "Token Forge AI Input v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "goal_summary", "constraints"],
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "goal_summary": {
+      "type": "string",
+      "minLength": 10,
+      "maxLength": 500,
+      "pattern": "\\S"
+    },
+    "constraints": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "token_budget",
+        "expires_in_days",
+        "available_hours",
+        "tech_stack"
+      ],
+      "properties": {
+        "token_budget": {
+          "type": "integer",
+          "minimum": 2000,
+          "maximum": 60000
+        },
+        "expires_in_days": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 30
+        },
+        "available_hours": {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 80,
+          "multipleOf": 0.5
+        },
+        "tech_stack": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 8,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80,
+            "pattern": "\\S"
+          }
+        }
+      }
+    },
+    "repository_context": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source", "tech_signals", "files", "coverage", "unknowns"],
+      "properties": {
+        "source": {
+          "const": "github-public-redacted"
+        },
+        "tech_signals": {
+          "type": "array",
+          "maxItems": 8,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80,
+            "pattern": "\\S"
+          }
+        },
+        "files": {
+          "type": "array",
+          "maxItems": 4,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["kind", "untrusted_excerpt"],
+            "properties": {
+              "kind": {
+                "enum": [
+                  "readme",
+                  "manifest",
+                  "documentation",
+                  "workflow",
+                  "configuration",
+                  "source"
+                ]
+              },
+              "untrusted_excerpt": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4096,
+                "pattern": "\\S"
+              }
+            }
+          }
+        },
+        "coverage": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "sampled_files",
+            "sampled_bytes",
+            "context_files",
+            "context_bytes",
+            "tree_truncated"
+          ],
+          "properties": {
+            "sampled_files": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 8
+            },
+            "sampled_bytes": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 131072
+            },
+            "context_files": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4
+            },
+            "context_bytes": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 12288
+            },
+            "tree_truncated": {
+              "type": "boolean"
+            }
+          }
+        },
+        "unknowns": {
+          "type": "array",
+          "maxItems": 8,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 5,
+            "maxLength": 300,
+            "pattern": "\\S"
+          }
+        }
+      }
+    }
+  }
+}
