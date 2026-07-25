@@ -1830,6 +1830,33 @@ a {
   margin: 0.75rem 0 0;
 }
 
+.incident-share-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem;
+  border: 1px solid rgba(169, 145, 255, 0.32);
+  border-radius: 0.8rem;
+  background: rgba(169, 145, 255, 0.06);
+}
+
+.incident-share-actions h4,
+.incident-share-actions p {
+  margin: 0;
+}
+
+.incident-share-actions p {
+  margin-top: 0.4rem;
+  color: var(--muted);
+  font-size: 0.74rem;
+  line-height: 1.55;
+}
+
+.incident-share-actions .button {
+  flex: none;
+}
+
 .incident-attempt-facts {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -2121,6 +2148,11 @@ a {
     border-right: 0;
     border-bottom: 1px solid var(--line);
   }
+
+  .incident-share-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -2154,6 +2186,7 @@ a {
   .incident-score-summary,
   .incident-score-dimensions > section,
   .incident-score-feedback > section,
+  .incident-share-actions,
   .incident-text-field textarea,
   .incident-text-field select {
     border-color: ButtonText;

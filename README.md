@@ -55,6 +55,7 @@ Web 端采用 **Astro + TypeScript + Preact Islands**，首期生成静态 HTML�
 - Incident Detective 页面：遵循 [逐步取证与时间线界面](./docs/incident-detective-page.md)。
 - Incident Detective 评分：遵循 [确定性证据评分](./docs/incident-detective-scoring.md)。
 - Incident Detective 案例生成：遵循 [受约束 Proposal 与人工审核](./docs/incident-detective-case-generation.md)。
+- Incident Detective 分享卡：遵循 [Score-only 隐私 SVG](./docs/incident-detective-share-card.md)。
 - 处理用户输入：先读 [隐私模型](./docs/privacy-model.md) 和 [脱敏包](./packages/redaction/README.md)。
 - 发布站点：遵循 [Cloudflare Workers 部署](./docs/cloudflare-deployment.md)。
 
@@ -84,5 +85,6 @@ P4-003 前发送数据。P2-001 已定义完全合成的 Incident Detective 场�
 逐步取证 Alpha 页面：用户可以管理预算与解锁、查看五类证据和时间线，并在本地生成
 Attempt v1。P2-004 已加入五维 100 分确定性评分、逐条判定和改进反馈；页面仍不加载内部
 答案，不调用 AI，不保存或上传结果。P2-005 已增加 Provider-neutral 的 Case Proposal
-生成核心与显式人工审核门：模型不能接触答案或评分，也不能自动发布候选。下一步是 P2-006
-无事故原文的分享结果卡。
+生成核心与显式人工审核门：模型不能接触答案或评分，也不能自动发布候选。P2-006 现已完成
+Score-only 的确定性 SVG 下载，Incident Detective MVP 六个任务全部闭环；下一步进入
+P3-001 合成 SMART fixture。

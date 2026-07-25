@@ -23,6 +23,11 @@ import {
   IncidentDetectiveScoringError,
   scoreIncidentDetectiveAttempt,
 } from "../lib/incident-detective-scoring";
+import {
+  createIncidentDetectiveShareCard,
+  incidentDetectiveShareCardFileName,
+  renderIncidentDetectiveShareCardSvg,
+} from "../lib/incident-detective-share-card";
 import { StatusNotice, type StatusTone } from "./ui/StatusNotice";
 
 type IncidentDetectiveWorkbenchProps = {
@@ -390,6 +395,37 @@ export default function IncidentDetectiveWorkbench({
             : error instanceof IncidentDetectiveScoringError
               ? "本地评分合同没有通过，请重新开始本局。"
               : "请检查推理表单后重试。",
+      });
+    }
+  };
+
+  const downloadShareCard = (): void => {
+    if (!score) {
+      return;
+    }
+
+    try {
+      const card = createIncidentDetectiveShareCard(score);
+      const svg = renderIncidentDetectiveShareCardSvg(card);
+      const url = URL.createObjectURL(
+        new Blob([svg], { type: "image/svg+xml;charset=utf-8" }),
+      );
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = incidentDetectiveShareCardFileName(card);
+      anchor.click();
+      URL.revokeObjectURL(url);
+      setStatus({
+        tone: "ready",
+        title: "分享卡已生成",
+        message:
+          "SVG 只包含案例 ID、总分、等级和维度分数；没有事故原文、答案、证据或你的假设。",
+      });
+    } catch {
+      setStatus({
+        tone: "error",
+        title: "无法生成分享卡",
+        message: "本地分享合同没有通过，请重新提交本局评分。",
       });
     }
   };
@@ -830,6 +866,23 @@ export default function IncidentDetectiveWorkbench({
                 <p>五个评分维度均已闭环，可以尝试更少预算的路径。</p>
               )}
             </section>
+          </div>
+
+          <div class="incident-share-actions">
+            <div>
+              <h4>分享结构化结果</h4>
+              <p>
+                下载本地 SVG；只含案例 ID
+                和分数，不含事故原文、证据、答案或你的输入。
+              </p>
+            </div>
+            <button
+              class="button button--secondary"
+              type="button"
+              onClick={downloadShareCard}
+            >
+              下载隐私分享卡
+            </button>
           </div>
 
           <dl class="incident-attempt-facts">
