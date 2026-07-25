@@ -12,6 +12,11 @@
     "build": "astro build",
     "preview": "astro preview",
     "preview:worker": "wrangler dev",
+    "deploy:check": "wrangler deploy --env=\"\" --dry-run",
+    "deploy:check:preview": "wrangler deploy --env preview --dry-run",
+    "deploy:preview": "wrangler deploy --env preview",
+    "deploy:production": "wrangler deploy --env=\"\"",
+    "smoke": "node scripts/smoke-deployment.mjs",
     "verify:static": "node scripts/verify-static-output.mjs"
   },
   "dependencies": {

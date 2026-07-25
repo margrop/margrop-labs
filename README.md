@@ -4,15 +4,16 @@
 
 `margrop-labs` 是 [blog.margrop.net](https://blog.margrop.net/) 的互动实验层。博客负责解释“为什么”，Labs 负责让读者“马上试一下”，GitHub 负责公开实现、规则和验证过程。
 
-计划部署入口：`https://lab.margrop.net`（尚未上线）。
+计划部署入口：`https://lab.margrop.net`。Preview 与 Production 的发布边界、Secret
+要求、验收和回滚流程见 [Cloudflare Workers 部署](./docs/cloudflare-deployment.md)。
 
 ## 首批实验
 
-| 实验 | 用户价值 | 状态 |
-|---|---|---|
-| [Token 任务炼金炉](./labs/token-forge/) | 把闲置 Token、仓库上下文和目标转换为可验收的开发任务 | Building |
-| [AI 故障侦探](./labs/incident-detective/) | 在合成事故中练习按证据排障，而不是让 AI 猜根因 | Proposed |
-| [SMART / RMA 报告机](./labs/smart-rma/) | 本地解析并脱敏硬盘信息，生成健康解释与售后材料 | Proposed |
+| 实验                                      | 用户价值                                             | 状态     |
+| ----------------------------------------- | ---------------------------------------------------- | -------- |
+| [Token 任务炼金炉](./labs/token-forge/)   | 把闲置 Token、仓库上下文和目标转换为可验收的开发任务 | Building |
+| [AI 故障侦探](./labs/incident-detective/) | 在合成事故中练习按证据排障，而不是让 AI 猜根因       | Proposed |
+| [SMART / RMA 报告机](./labs/smart-rma/)   | 本地解析并脱敏硬盘信息，生成健康解释与售后材料       | Proposed |
 
 ## 产品原则
 
@@ -47,6 +48,7 @@ Web 端采用 **Astro + TypeScript + Preact Islands**，首期生成静态 HTML�
 - 接入 AI：先读 [AI 成本与安全](./docs/ai-safety-and-cost.md)。
 - 实现 AI 调用：遵循 [AI Gateway v1 合同](./docs/ai-gateway-contract-v1.md)。
 - 处理用户输入：先读 [隐私模型](./docs/privacy-model.md)。
+- 发布站点：遵循 [Cloudflare Workers 部署](./docs/cloudflare-deployment.md)。
 
 ## 当前状态
 

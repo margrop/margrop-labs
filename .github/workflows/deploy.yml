@@ -1,0 +1,88 @@
+name: Deploy Cloudflare Workers
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: Deployment target
+        required: true
+        default: preview
+        type: choice
+        options:
+          - preview
+          - production
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-${{ inputs.target }}
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy ${{ inputs.target }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      ASTRO_TELEMETRY_DISABLED: "1"
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Run repository quality gate
+        run: npm run validate
+
+      - name: Verify deployment configuration
+        if: inputs.target == 'production'
+        run: npm run deploy:check --workspace @margrop-labs/web
+
+      - name: Verify preview deployment configuration
+        if: inputs.target == 'preview'
+        run: npm run deploy:check:preview --workspace @margrop-labs/web
+
+      - name: Deploy preview
+        id: deploy-preview
+        if: inputs.target == 'preview'
+        shell: bash
+        run: |
+          output="$(npm run deploy:preview --workspace @margrop-labs/web 2>&1)"
+          printf '%s\n' "$output"
+          deployment_url="$(printf '%s\n' "$output" | sed -nE 's#.*(https://[^[:space:]]+\.workers\.dev).*#\1#p' | tail -n 1)"
+          if [[ -z "$deployment_url" ]]; then
+            echo "Wrangler did not report a workers.dev deployment URL." >&2
+            exit 1
+          fi
+          echo "deployment_url=$deployment_url" >> "$GITHUB_OUTPUT"
+          echo "### Preview deployed" >> "$GITHUB_STEP_SUMMARY"
+          echo "$deployment_url" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Smoke test preview
+        if: inputs.target == 'preview'
+        run: npm run smoke --workspace @margrop-labs/web -- "${{ steps.deploy-preview.outputs.deployment_url }}"
+
+      - name: Deploy production
+        if: inputs.target == 'production'
+        run: npm run deploy:production --workspace @margrop-labs/web
+
+      - name: Smoke test production
+        if: inputs.target == 'production'
+        run: npm run smoke --workspace @margrop-labs/web -- https://lab.margrop.net
+
+      - name: Record production URL
+        if: inputs.target == 'production'
+        run: |
+          echo "### Production deployed" >> "$GITHUB_STEP_SUMMARY"
+          echo "https://lab.margrop.net" >> "$GITHUB_STEP_SUMMARY"
