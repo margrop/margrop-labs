@@ -12,7 +12,7 @@
 | 实验                                      | 用户价值                                             | 状态     |
 | ----------------------------------------- | ---------------------------------------------------- | -------- |
 | [Token 任务炼金炉](./labs/token-forge/)   | 把闲置 Token、仓库上下文和目标转换为可验收的开发任务 | Alpha    |
-| [AI 故障侦探](./labs/incident-detective/) | 在合成事故中练习按证据排障，而不是让 AI 猜根因       | Proposed |
+| [AI 故障侦探](./labs/incident-detective/) | 在合成事故中练习按证据排障，而不是让 AI 猜根因       | Alpha    |
 | [SMART / RMA 报告机](./labs/smart-rma/)   | 本地解析并脱敏硬盘信息，生成健康解释与售后材料       | Proposed |
 
 ## 产品原则
@@ -52,6 +52,7 @@ Web 端采用 **Astro + TypeScript + Preact Islands**，首期生成静态 HTML�
 - Token Forge 正式页面：遵循 [页面与事件合同](./docs/token-forge-page.md)。
 - Incident Detective 合同：遵循 [场景与单局推理 v1](./docs/incident-detective-contract-v1.md)。
 - Incident Detective 案例：参阅 [首个完整合成事故](./docs/incident-detective-first-case.md)。
+- Incident Detective 页面：遵循 [逐步取证与时间线界面](./docs/incident-detective-page.md)。
 - 处理用户输入：先读 [隐私模型](./docs/privacy-model.md) 和 [脱敏包](./packages/redaction/README.md)。
 - 发布站点：遵循 [Cloudflare Workers 部署](./docs/cloudflare-deployment.md)。
 
@@ -77,5 +78,7 @@ P1-006 已把无需登录、仓库和 AI 的模板生成、证据展示与两种
 `/token-forge/`，并将首页卡片升级为正式入口。最小转化事件已定义但保持空接收器，不会在
 P4-003 前发送数据。P2-001 已定义完全合成的 Incident Detective 场景/证据与单局推理
 合同；P2-002 已完成首个 MySQL + Prometheus + Loki 合成事故，包含 10 份证据、13/9
-点预算取舍、合理反证、按证据揭示的时间线和与公开场景分离的内部答案草稿。实验仍保持
-Proposed，下一步 P2-003 才会把公开场景接入可操作的逐步取证页面。
+点预算取舍、合理反证、按证据揭示的时间线和与公开场景分离的内部答案草稿。P2-003 已上线
+只消费公开场景的逐步取证 Alpha 页面：用户可以管理预算与解锁、查看五类证据和时间线，并
+在本地生成 Attempt v1，但不加载内部答案、不评分、不保存或上传。下一步是 P2-004
+确定性评分引擎。

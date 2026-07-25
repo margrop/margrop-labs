@@ -36,8 +36,22 @@ P2-002 已在 `cases/mysql-leading-wildcard/` 完成首个 MySQL + Prometheus + 
 - 独立内部答案草稿没有分数、权重或唯一理想顺序，且不会由 P2-003 客户端加载。
 
 完整设计、证据菜单和消费边界见
-[首个完整案例说明](../../docs/incident-detective-first-case.md)。实验状态仍为 Proposed，直到
-P2-003 提供用户可操作的逐步取证界面。
+[首个完整案例说明](../../docs/incident-detective-first-case.md)。
+
+## Alpha 页面
+
+P2-003 已提供 `/incident-detective/`：
+
+- 证据按前置条件逐步解锁，并实时计算 9 点预算；
+- 已获取证据不可退款，重新选路必须重开整局；
+- Metric、Log、Table、Document 和 Topology 都有结构化渲染；
+- 时间线只揭示初始事件和已获取证据对应事件；
+- 用户可以填写假设、怀疑服务、支持/反证、信心、下一步和安全动作；
+- 浏览器生成并重新验证 Attempt v1，不保存、不上传，也不评分。
+
+页面只导入公开 `scenario.json`，不会加载内部答案或 canonical attempt。实现与测试边界见
+[逐步取证页面](../../docs/incident-detective-page.md)。实验状态现为 Alpha；P2-004 再增加
+独立的确定性评分合同。
 
 ## AI 边界
 

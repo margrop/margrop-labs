@@ -1035,6 +1035,680 @@ a {
   padding-top: 0.5rem;
 }
 
+.incident-shell {
+  padding: clamp(1rem, 4vw, 2.5rem);
+  border: 1px solid rgba(169, 145, 255, 0.3);
+  border-radius: 1.4rem;
+  background:
+    linear-gradient(130deg, rgba(169, 145, 255, 0.075), transparent 34%),
+    var(--panel-strong);
+  box-shadow: var(--shadow);
+}
+
+.incident-briefing {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(260px, 0.65fr);
+  gap: 2rem;
+  align-items: end;
+}
+
+.incident-briefing h2,
+.incident-section-heading h3 {
+  margin: 0;
+  letter-spacing: -0.035em;
+}
+
+.incident-briefing h2 {
+  font-size: clamp(1.8rem, 4vw, 3.1rem);
+}
+
+.incident-briefing > div:first-child > p:last-child {
+  max-width: 760px;
+  margin: 1rem 0 0;
+  color: var(--muted);
+  line-height: 1.75;
+}
+
+.incident-budget {
+  display: grid;
+  gap: 0.7rem;
+  padding: 1rem;
+  border: 1px solid var(--line);
+  border-radius: 0.9rem;
+  background: rgba(8, 17, 31, 0.54);
+}
+
+.incident-budget > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  font-family: ui-monospace, monospace;
+  font-size: 0.82rem;
+}
+
+.incident-budget > div span,
+.incident-budget small {
+  color: var(--muted);
+}
+
+.incident-budget > div strong {
+  color: var(--cyan);
+}
+
+.incident-budget progress {
+  width: 100%;
+  height: 0.85rem;
+  overflow: hidden;
+  border: 0;
+  border-radius: 99px;
+  background: rgba(153, 172, 196, 0.15);
+  accent-color: var(--cyan);
+}
+
+.incident-budget progress::-webkit-progress-bar {
+  border-radius: 99px;
+  background: rgba(153, 172, 196, 0.15);
+}
+
+.incident-budget progress::-webkit-progress-value {
+  border-radius: 99px;
+  background: var(--cyan);
+}
+
+.incident-budget progress::-moz-progress-bar {
+  border-radius: 99px;
+  background: var(--cyan);
+}
+
+.incident-objectives {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.incident-objectives > div {
+  padding: 1.1rem;
+  border: 1px solid var(--line);
+  border-radius: 0.9rem;
+  background: rgba(8, 17, 31, 0.42);
+}
+
+.incident-objectives h3,
+.incident-objectives ul {
+  margin: 0;
+}
+
+.incident-objectives h3 {
+  font-size: 0.95rem;
+}
+
+.incident-objectives ul {
+  padding: 0.8rem 0 0 1.15rem;
+  color: var(--muted);
+  font-size: 0.8rem;
+  line-height: 1.65;
+}
+
+.incident-evidence-section,
+.incident-timeline-section,
+.incident-hypothesis,
+.incident-attempt-result {
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--line);
+}
+
+.incident-section-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1.5rem;
+}
+
+.incident-section-heading .section-kicker {
+  margin-bottom: 0.65rem;
+}
+
+.incident-section-heading h3 {
+  font-size: clamp(1.5rem, 3vw, 2.25rem);
+}
+
+.incident-section-heading > p {
+  margin: 0;
+  color: var(--muted);
+  font-family: ui-monospace, monospace;
+  font-size: 0.78rem;
+}
+
+.incident-evidence-list {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1.25rem;
+}
+
+.incident-evidence {
+  min-width: 0;
+  padding: 1.2rem;
+  border: 1px solid var(--line);
+  border-left-width: 4px;
+  border-radius: 1rem;
+  background: rgba(8, 17, 31, 0.52);
+}
+
+.incident-evidence--available {
+  border-left-color: var(--violet);
+}
+
+.incident-evidence--selected {
+  border-left-color: var(--cyan);
+  background:
+    linear-gradient(110deg, rgba(80, 227, 208, 0.055), transparent 38%),
+    rgba(8, 17, 31, 0.68);
+}
+
+.incident-evidence--locked,
+.incident-evidence--insufficient_budget {
+  border-left-color: var(--muted);
+}
+
+.incident-evidence > header,
+.incident-evidence > header > div,
+.incident-evidence-action {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.7rem 1rem;
+}
+
+.incident-evidence > header > div {
+  justify-content: flex-start;
+  flex-wrap: wrap;
+}
+
+.incident-evidence > header span,
+.incident-evidence > header code,
+.incident-evidence > header strong {
+  font-size: 0.72rem;
+}
+
+.incident-evidence > header span {
+  padding: 0.28rem 0.48rem;
+  border: 1px solid rgba(169, 145, 255, 0.45);
+  border-radius: 99px;
+  color: var(--violet);
+  font-weight: 700;
+}
+
+.incident-evidence > header code,
+.incident-evidence-action > span {
+  color: var(--muted);
+}
+
+.incident-evidence > header strong {
+  color: var(--cyan);
+  font-family: ui-monospace, monospace;
+}
+
+.incident-evidence > h4 {
+  margin: 1rem 0 0;
+  font-size: 1.1rem;
+}
+
+.incident-evidence > p {
+  margin: 0.55rem 0 0;
+  color: var(--muted);
+  font-size: 0.84rem;
+  line-height: 1.65;
+}
+
+.incident-evidence-action {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+}
+
+.incident-evidence-action > span {
+  font-size: 0.76rem;
+  line-height: 1.5;
+}
+
+.button:disabled {
+  cursor: not-allowed;
+  opacity: 0.52;
+}
+
+.incident-evidence-data {
+  min-width: 0;
+  margin-top: 1rem;
+  padding: 1rem;
+  border: 1px solid rgba(80, 227, 208, 0.18);
+  border-radius: 0.85rem;
+  background: rgba(4, 13, 24, 0.7);
+}
+
+.incident-evidence-data-label {
+  margin: 0 0 1rem;
+  color: var(--cyan);
+  font-family: ui-monospace, monospace;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.incident-metric-grid,
+.incident-topology {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.8rem;
+}
+
+.incident-metric-series,
+.incident-document > section,
+.incident-topology > div {
+  min-width: 0;
+  padding: 0.9rem;
+  border: 1px solid var(--line);
+  border-radius: 0.75rem;
+}
+
+.incident-metric-series h4,
+.incident-document h4,
+.incident-topology h4 {
+  margin: 0;
+  font-size: 0.84rem;
+}
+
+.incident-metric-series > p {
+  margin: 0.4rem 0 0.75rem;
+  overflow-wrap: anywhere;
+  color: var(--muted);
+  font-family: ui-monospace, monospace;
+  font-size: 0.68rem;
+}
+
+.incident-table-scroll {
+  max-width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 0.65rem;
+}
+
+.incident-table-scroll table {
+  width: 100%;
+  min-width: 360px;
+  border-collapse: collapse;
+  font-family: ui-monospace, monospace;
+  font-size: 0.72rem;
+}
+
+.incident-table-scroll th,
+.incident-table-scroll td {
+  padding: 0.6rem;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.incident-table-scroll th {
+  background: rgba(169, 145, 255, 0.1);
+  color: var(--text);
+}
+
+.incident-table-scroll td {
+  color: var(--muted);
+}
+
+.incident-table-scroll tr:last-child td {
+  border-bottom: 0;
+}
+
+.incident-log-view > p,
+.incident-query {
+  margin: 0 0 0.8rem;
+  overflow-wrap: anywhere;
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+.incident-log-view code,
+.incident-query code {
+  color: var(--text);
+}
+
+.incident-log-view ol {
+  display: grid;
+  gap: 0.55rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.incident-log-view li {
+  display: grid;
+  grid-template-columns: auto auto minmax(0, 1fr);
+  gap: 0.65rem;
+  align-items: start;
+  padding: 0.7rem;
+  border: 1px solid var(--line);
+  border-radius: 0.65rem;
+  font-size: 0.72rem;
+}
+
+.incident-log-view time,
+.incident-log-level {
+  color: var(--muted);
+  font-family: ui-monospace, monospace;
+}
+
+.incident-log-level--warning {
+  color: var(--amber);
+}
+
+.incident-log-level--error,
+.incident-log-level--critical {
+  color: #ff8b92;
+}
+
+.incident-log-view li > code {
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.incident-document {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.incident-document p,
+.incident-topology ul {
+  margin: 0.6rem 0 0;
+  color: var(--muted);
+  font-size: 0.76rem;
+  line-height: 1.6;
+}
+
+.incident-topology ul {
+  display: grid;
+  gap: 0.55rem;
+  padding-left: 1.1rem;
+}
+
+.incident-topology li {
+  overflow-wrap: anywhere;
+}
+
+.incident-topology li span {
+  display: block;
+  margin-top: 0.2rem;
+}
+
+.incident-timeline {
+  position: relative;
+  display: grid;
+  gap: 0;
+  margin: 1.25rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.incident-timeline::before {
+  position: absolute;
+  top: 0.5rem;
+  bottom: 0.5rem;
+  left: 5.2rem;
+  width: 1px;
+  background: var(--line);
+  content: "";
+}
+
+.incident-timeline li {
+  position: relative;
+  display: grid;
+  grid-template-columns: 4.2rem minmax(0, 1fr);
+  gap: 2rem;
+  padding: 0.65rem 0;
+}
+
+.incident-timeline li::before {
+  position: absolute;
+  top: 1.1rem;
+  left: 4.95rem;
+  width: 0.55rem;
+  height: 0.55rem;
+  border: 2px solid var(--panel-strong);
+  border-radius: 50%;
+  background: var(--cyan);
+  content: "";
+}
+
+.incident-timeline time {
+  padding-top: 0.15rem;
+  color: var(--cyan);
+  font-family: ui-monospace, monospace;
+  font-size: 0.72rem;
+}
+
+.incident-timeline li > div {
+  padding: 0.8rem;
+  border: 1px solid var(--line);
+  border-radius: 0.75rem;
+  background: rgba(8, 17, 31, 0.48);
+}
+
+.incident-timeline li span,
+.incident-timeline li small {
+  color: var(--muted);
+  font-size: 0.7rem;
+}
+
+.incident-timeline li p {
+  margin: 0.35rem 0;
+  font-size: 0.82rem;
+  line-height: 1.55;
+}
+
+.incident-hypothesis {
+  display: grid;
+  gap: 1.4rem;
+}
+
+.incident-hypothesis fieldset {
+  min-width: 0;
+  margin: 0;
+  padding: 1rem;
+  border: 1px solid var(--line);
+  border-radius: 0.9rem;
+}
+
+.incident-hypothesis legend {
+  padding-inline: 0.45rem;
+  font-size: 0.86rem;
+  font-weight: 700;
+}
+
+.incident-text-field {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.incident-text-field > span {
+  font-weight: 700;
+}
+
+.incident-text-field > small {
+  color: var(--muted);
+  font-size: 0.74rem;
+  line-height: 1.5;
+}
+
+.incident-text-field textarea,
+.incident-text-field select {
+  width: 100%;
+  min-height: 46px;
+  padding: 0.78rem 0.9rem;
+  border: 1px solid var(--line);
+  border-radius: 0.7rem;
+  background: rgba(8, 17, 31, 0.72);
+  color: var(--text);
+  font: inherit;
+}
+
+.incident-text-field textarea {
+  resize: vertical;
+  line-height: 1.6;
+}
+
+.incident-choice-grid,
+.incident-safety-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.7rem;
+  margin-top: 0.5rem;
+}
+
+.incident-choice-grid label,
+.incident-safety-choice {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.2rem 0.6rem;
+  align-items: start;
+  min-height: 58px;
+  padding: 0.7rem;
+  border: 1px solid var(--line);
+  border-radius: 0.7rem;
+  cursor: pointer;
+  background: rgba(8, 17, 31, 0.4);
+}
+
+.incident-choice-grid input,
+.incident-safety-choice input,
+.incident-evidence-roles input {
+  width: 1.1rem;
+  height: 1.1rem;
+  margin: 0.1rem 0 0;
+  accent-color: var(--cyan);
+}
+
+.incident-choice-grid small,
+.incident-safety-choice small {
+  grid-column: 2;
+  color: var(--muted);
+  font-size: 0.68rem;
+}
+
+.incident-safety-choice--approval {
+  border-color: rgba(244, 198, 106, 0.28);
+}
+
+.incident-safety-choice--approval small {
+  color: var(--amber);
+}
+
+.incident-evidence-roles {
+  display: grid;
+  gap: 0.6rem;
+  margin-top: 0.5rem;
+}
+
+.incident-evidence-roles > div {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 1rem;
+  align-items: center;
+  padding: 0.7rem;
+  border: 1px solid var(--line);
+  border-radius: 0.7rem;
+}
+
+.incident-evidence-roles > div > span {
+  font-size: 0.8rem;
+}
+
+.incident-evidence-roles label {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  gap: 0.45rem;
+  color: var(--muted);
+  font-size: 0.76rem;
+  cursor: pointer;
+}
+
+.incident-empty-state {
+  margin: 0.6rem 0 0;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.incident-hypothesis-grid {
+  display: grid;
+  grid-template-columns: minmax(180px, 0.42fr) minmax(0, 1fr);
+  gap: 1rem;
+}
+
+.incident-form-actions,
+.incident-next-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.incident-attempt-result {
+  display: grid;
+  gap: 1rem;
+}
+
+.incident-attempt-result dl {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.7rem;
+  margin: 0;
+}
+
+.incident-attempt-result dl > div {
+  padding: 0.8rem;
+  border: 1px solid var(--line);
+  border-radius: 0.7rem;
+}
+
+.incident-attempt-result dt {
+  color: var(--muted);
+  font-size: 0.7rem;
+}
+
+.incident-attempt-result dd {
+  margin: 0.35rem 0 0;
+  font-family: ui-monospace, monospace;
+  font-weight: 700;
+}
+
+.incident-attempt-result details {
+  padding: 0.9rem;
+  border: 1px solid var(--line);
+  border-radius: 0.75rem;
+}
+
+.incident-attempt-result summary {
+  min-height: 44px;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.incident-attempt-result pre {
+  max-height: 28rem;
+  margin: 0.8rem 0 0;
+  overflow: auto;
+  color: var(--muted);
+  font-size: 0.72rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
+.incident-next-links {
+  margin-top: 1.5rem;
+}
+
 .contract-section {
   border-bottom: 1px solid var(--line);
 }
@@ -1125,7 +1799,8 @@ a {
 
   .section-heading,
   .token-preview,
-  .lab-page-hero {
+  .lab-page-hero,
+  .incident-briefing {
     grid-template-columns: 1fr;
   }
 
@@ -1133,7 +1808,13 @@ a {
   .evidence-grid,
   .contract-grid,
   .token-forge-tasks,
-  .token-forge-export-grid {
+  .token-forge-export-grid,
+  .incident-objectives,
+  .incident-metric-grid,
+  .incident-topology,
+  .incident-choice-grid,
+  .incident-safety-grid,
+  .incident-hypothesis-grid {
     grid-template-columns: 1fr;
   }
 
@@ -1195,7 +1876,8 @@ a {
   .evidence-heading,
   .export-panel,
   .token-forge-form-heading,
-  .token-forge-result-heading {
+  .token-forge-result-heading,
+  .incident-section-heading {
     align-items: flex-start;
     flex-direction: column;
   }
@@ -1206,8 +1888,55 @@ a {
   }
 
   .token-forge-actions .button,
-  .token-forge-next-links .button {
+  .token-forge-next-links .button,
+  .incident-form-actions .button,
+  .incident-next-links .button {
     width: 100%;
+  }
+
+  .incident-evidence > header,
+  .incident-evidence-action {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .incident-evidence-action .button {
+    width: 100%;
+  }
+
+  .incident-log-view li {
+    grid-template-columns: auto 1fr;
+  }
+
+  .incident-log-view li > code {
+    grid-column: 1 / -1;
+  }
+
+  .incident-timeline::before {
+    left: 0.3rem;
+  }
+
+  .incident-timeline li {
+    grid-template-columns: 1fr;
+    gap: 0.4rem;
+    padding-left: 1.4rem;
+  }
+
+  .incident-timeline li::before {
+    left: 0;
+  }
+
+  .incident-evidence-roles > div {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.3rem 0.8rem;
+  }
+
+  .incident-evidence-roles > div > span {
+    grid-column: 1 / -1;
+  }
+
+  .incident-attempt-result dl {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
@@ -1235,7 +1964,12 @@ a {
   .token-forge-form input,
   .token-forge-form textarea,
   .token-forge-shell,
-  .token-forge-task {
+  .token-forge-task,
+  .incident-shell,
+  .incident-evidence,
+  .incident-hypothesis fieldset,
+  .incident-text-field textarea,
+  .incident-text-field select {
     border-color: ButtonText;
   }
 }

@@ -3,7 +3,7 @@
   "id": "incident-detective",
   "title": "AI 故障侦探",
   "summary": "通过合成指标、日志和数据库证据，练习有边界、可审计的故障排查。",
-  "status": "proposed",
+  "status": "alpha",
   "route": "/incident-detective/",
   "ai_mode": "optional",
   "input_privacy": "public",
