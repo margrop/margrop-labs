@@ -1,0 +1,43 @@
+{
+  "schema_version": "1.0",
+  "scenario_id": "mysql-leading-wildcard",
+  "selected_evidence_ids": [
+    "stack-topology",
+    "prometheus-mysql-health",
+    "prometheus-checkout-latency",
+    "prometheus-connection-pressure",
+    "loki-checkout-trace",
+    "mysql-query-plan"
+  ],
+  "spent_budget": 9,
+  "ordered_timeline_event_ids": [
+    "topology-scope",
+    "application-release",
+    "checkout-alert",
+    "mysql-still-up",
+    "latency-rise",
+    "connection-pressure-rise",
+    "trace-slow-query",
+    "trace-upstream-timeout",
+    "query-plan-full-scan"
+  ],
+  "safety_actions": [
+    "read_only_first",
+    "preserve_evidence",
+    "least_privilege",
+    "request_approval"
+  ],
+  "hypothesis": {
+    "summary": "MySQL 保持存活，但客户搜索查询无法有效使用普通索引；扫描时间增长后连接堆积，并在同一合成 trace 上造成结账超时。",
+    "suspected_service_ids": ["checkout-api", "orders-mysql"],
+    "supporting_evidence_ids": [
+      "prometheus-checkout-latency",
+      "prometheus-connection-pressure",
+      "loki-checkout-trace",
+      "mysql-query-plan"
+    ],
+    "contradicting_evidence_ids": ["prometheus-mysql-health"],
+    "confidence": "high",
+    "next_action": "先在合成数据上验证搜索条件改写和查询计划，再带回滚方案请求人工批准任何生产变更。"
+  }
+}

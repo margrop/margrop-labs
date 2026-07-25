@@ -29,13 +29,13 @@ P2-001 为 AI 故障侦探建立两份互相分离的公共合同：
 
 `source` 与 `data.kind` 必须严格对应：
 
-| Source | Data kind | 有界内容 |
-|---|---|---|
-| `prometheus` | `metric` | 查询、单位、最多 8 条序列，每条最多 120 个时间点 |
-| `loki` | `log` | 合成 Stream 和最多 120 条有级别日志 |
-| `mysql` | `table` | 只读合成查询、最多 12 列和 100 行标量数据 |
-| `runbook` | `document` | 最多 12 个标题/正文段落 |
-| `topology` | `topology` | 最多 20 个服务节点和 40 条有向关系 |
+| Source       | Data kind  | 有界内容                                         |
+| ------------ | ---------- | ------------------------------------------------ |
+| `prometheus` | `metric`   | 查询、单位、最多 8 条序列，每条最多 120 个时间点 |
+| `loki`       | `log`      | 合成 Stream 和最多 120 条有级别日志              |
+| `mysql`      | `table`    | 只读合成查询、最多 12 列和 100 行标量数据        |
+| `runbook`    | `document` | 最多 12 个标题/正文段落                          |
+| `topology`   | `topology` | 最多 20 个服务节点和 40 条有向关系               |
 
 Schema 负责字段、类型、数量和长度上限；TypeScript 验证器继续检查：
 
@@ -80,8 +80,8 @@ Attempt 记录：
 `example.com` 和 RFC 5737 的 `192.0.2.0/24`、`198.51.100.0/24`、
 `203.0.113.0/24`；其他域名与 IP 失败关闭。
 
-P2 首版不接受用户粘贴的真实日志、Prometheus 响应或数据库结果。P2-002 必须继续使用仓库
-内合成数据。
+P2 首版不接受用户粘贴的真实日志、Prometheus 响应或数据库结果。P2-002 完整案例也只使用
+仓库内合成数据。
 
 ## Fixture 与测试
 
@@ -94,10 +94,21 @@ P2 首版不接受用户粘贴的真实日志、Prometheus 响应或数据库结
 Payload 配对、重复/悬空/循环引用、预算可达性、时间窗口与顺序、表格列宽、推理引用、证据
 揭示、敏感内容和无副作用运行。
 
+P2-002 完整案例位于
+[`mysql-leading-wildcard`](../labs/incident-detective/cases/mysql-leading-wildcard/)：
+
+- `scenario.json` 是 P2-003 唯一可加载的公开场景；
+- `attempt.canonical.json` 证明预算、依赖、引用与安全路径闭合；
+- `answer.internal.json` 受仓库内部 Schema 约束，只供测试和 P2-004 设计输入；
+- 内部答案明确拒绝分数和权重，不是评分合同。
+
+案例设计与验收详见
+[Incident Detective 首个完整案例](./incident-detective-first-case.md)。
+
 ## 版本与后续
 
 v1 Schema 发布后保持不可变。破坏性变化必须新增版本、fixture、消费者测试和迁移说明。
 
-- P2-002 在本合同上制作首个完整 MySQL + Prometheus + Loki 合成案例；
+- P2-002 已在本合同上完成首个完整 MySQL + Prometheus + Loki 合成案例；
 - P2-003 消费公开场景和 Attempt 合同实现逐步取证与时间线界面；
 - P2-004 另行定义不向公共场景泄露答案的确定性评分合同。

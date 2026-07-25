@@ -1,0 +1,590 @@
+{
+  "schema_version": "1.0",
+  "id": "mysql-leading-wildcard",
+  "title": "结账搜索变慢：先别重启 MySQL",
+  "summary": "一次应用发布后，结账搜索接口的延迟和超时开始升高。MySQL、应用、宿主机还是缓存都有可能，值班人员需要在有限预算内先取证再判断。",
+  "difficulty": "intermediate",
+  "evidence_budget": 9,
+  "services": [
+    {
+      "id": "checkout-api",
+      "label": "Checkout API",
+      "kind": "application"
+    },
+    {
+      "id": "orders-mysql",
+      "label": "Orders MySQL",
+      "kind": "database"
+    },
+    {
+      "id": "search-cache",
+      "label": "Search Cache",
+      "kind": "cache"
+    },
+    {
+      "id": "mysql-exporter",
+      "label": "MySQL Exporter",
+      "kind": "observability"
+    },
+    {
+      "id": "loki-store",
+      "label": "Loki Store",
+      "kind": "observability"
+    },
+    {
+      "id": "grafana-cockpit",
+      "label": "Grafana Cockpit",
+      "kind": "observability"
+    }
+  ],
+  "objectives": [
+    "先区分服务不可用、宿主机饱和与查询变慢，不把发布时序直接当作根因。",
+    "用时间、服务和合成 trace 关联指标、日志与只读数据库事实。",
+    "在证据预算内保留反证与未知项，避免用重启掩盖尚未验证的机制。"
+  ],
+  "incident_window": {
+    "starts_at": "2026-07-11T10:00:00Z",
+    "ends_at": "2026-07-11T10:25:00Z"
+  },
+  "evidence": [
+    {
+      "id": "stack-topology",
+      "source": "topology",
+      "title": "合成可观测链路拓扑",
+      "purpose": "确认结账请求、数据库、缓存、指标、日志和人工驾驶舱之间的责任边界。",
+      "acquisition_cost": 1,
+      "unlocks_after": [],
+      "data": {
+        "kind": "topology",
+        "nodes": [
+          {
+            "service_id": "checkout-api",
+            "label": "Checkout API"
+          },
+          {
+            "service_id": "orders-mysql",
+            "label": "Orders MySQL"
+          },
+          {
+            "service_id": "search-cache",
+            "label": "Search Cache"
+          },
+          {
+            "service_id": "mysql-exporter",
+            "label": "MySQL Exporter"
+          },
+          {
+            "service_id": "loki-store",
+            "label": "Loki Store"
+          },
+          {
+            "service_id": "grafana-cockpit",
+            "label": "Grafana Cockpit"
+          }
+        ],
+        "edges": [
+          {
+            "from": "checkout-api",
+            "to": "orders-mysql",
+            "label": "read-only order search"
+          },
+          {
+            "from": "checkout-api",
+            "to": "search-cache",
+            "label": "bounded search cache"
+          },
+          {
+            "from": "orders-mysql",
+            "to": "mysql-exporter",
+            "label": "server status metrics"
+          },
+          {
+            "from": "checkout-api",
+            "to": "loki-store",
+            "label": "structured synthetic logs"
+          },
+          {
+            "from": "mysql-exporter",
+            "to": "grafana-cockpit",
+            "label": "Prometheus dashboard"
+          },
+          {
+            "from": "loki-store",
+            "to": "grafana-cockpit",
+            "label": "Loki dashboard"
+          }
+        ]
+      }
+    },
+    {
+      "id": "prometheus-mysql-health",
+      "source": "prometheus",
+      "title": "MySQL 与 Exporter 存活状态",
+      "purpose": "先确认数据库和采集链路是否存活，避免把查询变慢误判成整个服务下线。",
+      "acquisition_cost": 1,
+      "service_id": "orders-mysql",
+      "unlocks_after": [],
+      "data": {
+        "kind": "metric",
+        "query": "mysql_up",
+        "unit": "boolean",
+        "series": [
+          {
+            "label": "orders mysql up",
+            "labels": {
+              "service": "orders-mysql",
+              "environment": "synthetic"
+            },
+            "points": [
+              {
+                "timestamp": "2026-07-11T10:00:00Z",
+                "value": 1
+              },
+              {
+                "timestamp": "2026-07-11T10:05:00Z",
+                "value": 1
+              },
+              {
+                "timestamp": "2026-07-11T10:10:00Z",
+                "value": 1
+              },
+              {
+                "timestamp": "2026-07-11T10:15:00Z",
+                "value": 1
+              },
+              {
+                "timestamp": "2026-07-11T10:20:00Z",
+                "value": 1
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "prometheus-checkout-latency",
+      "source": "prometheus",
+      "title": "结账搜索延迟趋势",
+      "purpose": "确定症状开始时间、持续方向和影响程度，为后续日志时间窗提供依据。",
+      "acquisition_cost": 1,
+      "service_id": "checkout-api",
+      "unlocks_after": [],
+      "data": {
+        "kind": "metric",
+        "query": "synthetic_checkout_search_duration_seconds",
+        "unit": "seconds",
+        "series": [
+          {
+            "label": "checkout search p95",
+            "labels": {
+              "service": "checkout-api",
+              "quantile": "0.95",
+              "environment": "synthetic"
+            },
+            "points": [
+              {
+                "timestamp": "2026-07-11T10:00:00Z",
+                "value": 0.18
+              },
+              {
+                "timestamp": "2026-07-11T10:04:00Z",
+                "value": 0.31
+              },
+              {
+                "timestamp": "2026-07-11T10:06:00Z",
+                "value": 0.92
+              },
+              {
+                "timestamp": "2026-07-11T10:08:00Z",
+                "value": 1.46
+              },
+              {
+                "timestamp": "2026-07-11T10:12:00Z",
+                "value": 1.71
+              },
+              {
+                "timestamp": "2026-07-11T10:18:00Z",
+                "value": 1.63
+              }
+            ]
+          },
+          {
+            "label": "checkout search p99",
+            "labels": {
+              "service": "checkout-api",
+              "quantile": "0.99",
+              "environment": "synthetic"
+            },
+            "points": [
+              {
+                "timestamp": "2026-07-11T10:00:00Z",
+                "value": 0.27
+              },
+              {
+                "timestamp": "2026-07-11T10:04:00Z",
+                "value": 0.48
+              },
+              {
+                "timestamp": "2026-07-11T10:06:00Z",
+                "value": 1.33
+              },
+              {
+                "timestamp": "2026-07-11T10:08:00Z",
+                "value": 2.08
+              },
+              {
+                "timestamp": "2026-07-11T10:12:00Z",
+                "value": 2.42
+              },
+              {
+                "timestamp": "2026-07-11T10:18:00Z",
+                "value": 2.31
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "prometheus-connection-pressure",
+      "source": "prometheus",
+      "title": "MySQL 连接压力趋势",
+      "purpose": "检查延迟上升后活跃连接是否同步堆积，同时保留因果方向仍未知的边界。",
+      "acquisition_cost": 2,
+      "service_id": "orders-mysql",
+      "unlocks_after": ["prometheus-checkout-latency"],
+      "data": {
+        "kind": "metric",
+        "query": "mysql_global_status_threads_connected",
+        "unit": "connections",
+        "series": [
+          {
+            "label": "threads connected",
+            "labels": {
+              "service": "orders-mysql",
+              "environment": "synthetic"
+            },
+            "points": [
+              {
+                "timestamp": "2026-07-11T10:00:00Z",
+                "value": 18
+              },
+              {
+                "timestamp": "2026-07-11T10:04:00Z",
+                "value": 24
+              },
+              {
+                "timestamp": "2026-07-11T10:06:00Z",
+                "value": 57
+              },
+              {
+                "timestamp": "2026-07-11T10:08:00Z",
+                "value": 83
+              },
+              {
+                "timestamp": "2026-07-11T10:12:00Z",
+                "value": 91
+              },
+              {
+                "timestamp": "2026-07-11T10:18:00Z",
+                "value": 88
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "prometheus-host-cpu",
+      "source": "prometheus",
+      "title": "数据库宿主机 CPU",
+      "purpose": "验证查询变慢是否只是宿主机 CPU 饱和造成，并为基础设施假设提供反证。",
+      "acquisition_cost": 1,
+      "service_id": "orders-mysql",
+      "unlocks_after": ["prometheus-mysql-health"],
+      "data": {
+        "kind": "metric",
+        "query": "synthetic_mysql_host_cpu_percent",
+        "unit": "percent",
+        "series": [
+          {
+            "label": "mysql host cpu",
+            "labels": {
+              "service": "orders-mysql",
+              "environment": "synthetic"
+            },
+            "points": [
+              {
+                "timestamp": "2026-07-11T10:00:00Z",
+                "value": 34
+              },
+              {
+                "timestamp": "2026-07-11T10:05:00Z",
+                "value": 41
+              },
+              {
+                "timestamp": "2026-07-11T10:10:00Z",
+                "value": 46
+              },
+              {
+                "timestamp": "2026-07-11T10:15:00Z",
+                "value": 44
+              },
+              {
+                "timestamp": "2026-07-11T10:20:00Z",
+                "value": 39
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "loki-checkout-trace",
+      "source": "loki",
+      "title": "结账请求的合成 Trace 日志",
+      "purpose": "在延迟窗口内关联慢查询形态、持续时间和上游超时，不记录真实参数。",
+      "acquisition_cost": 2,
+      "service_id": "checkout-api",
+      "unlocks_after": ["prometheus-checkout-latency"],
+      "data": {
+        "kind": "log",
+        "stream": "{service=\"checkout-api\", environment=\"synthetic\"}",
+        "entries": [
+          {
+            "timestamp": "2026-07-11T10:06:40Z",
+            "level": "info",
+            "message": "event=search_started trace_id=demo-trace-7f3a search_mode=customer_lookup"
+          },
+          {
+            "timestamp": "2026-07-11T10:07:00Z",
+            "level": "warning",
+            "message": "event=slow_query trace_id=demo-trace-7f3a duration_ms=842 sql_shape=SELECT COUNT(*) FROM orders WHERE customer_email LIKE ?"
+          },
+          {
+            "timestamp": "2026-07-11T10:08:00Z",
+            "level": "error",
+            "message": "event=upstream_timeout trace_id=demo-trace-7f3a dependency=orders-mysql timeout_ms=1200"
+          },
+          {
+            "timestamp": "2026-07-11T10:09:00Z",
+            "level": "warning",
+            "message": "event=pool_wait trace_id=demo-trace-7f3a wait_ms=376 active_connections=83"
+          }
+        ]
+      }
+    },
+    {
+      "id": "mysql-query-plan",
+      "source": "mysql",
+      "title": "慢查询形态的只读 EXPLAIN",
+      "purpose": "验证合成查询能否使用普通索引，以及预计扫描行数是否足以解释持续时间。",
+      "acquisition_cost": 2,
+      "service_id": "orders-mysql",
+      "unlocks_after": ["loki-checkout-trace"],
+      "data": {
+        "kind": "table",
+        "query": "EXPLAIN SELECT COUNT(*) FROM orders WHERE customer_email LIKE ?",
+        "columns": [
+          "select_type",
+          "table_name",
+          "access_type",
+          "possible_keys",
+          "chosen_key",
+          "rows_examined",
+          "extra"
+        ],
+        "rows": [
+          [
+            "SIMPLE",
+            "orders",
+            "ALL",
+            "idx_customer_email",
+            null,
+            1248000,
+            "Using where"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "mysql-order-state",
+      "source": "mysql",
+      "title": "订单业务状态只读摘要",
+      "purpose": "确认延迟期间是否出现订单状态丢失或写入失败，并区分性能问题与数据损坏。",
+      "acquisition_cost": 1,
+      "service_id": "orders-mysql",
+      "unlocks_after": ["loki-checkout-trace"],
+      "data": {
+        "kind": "table",
+        "query": "SELECT status, count FROM synthetic_order_state GROUP BY status",
+        "columns": ["status", "count"],
+        "rows": [
+          ["completed", 1842],
+          ["pending", 37],
+          ["failed", 0]
+        ]
+      }
+    },
+    {
+      "id": "loki-release-events",
+      "source": "loki",
+      "title": "发布窗口事件",
+      "purpose": "检查事故前发布是否伴随启动失败、配置错误或回滚，避免仅凭时间接近断言因果。",
+      "acquisition_cost": 1,
+      "service_id": "checkout-api",
+      "unlocks_after": [],
+      "data": {
+        "kind": "log",
+        "stream": "{service=\"checkout-api\", event=\"deployment\", environment=\"synthetic\"}",
+        "entries": [
+          {
+            "timestamp": "2026-07-11T10:01:00Z",
+            "level": "info",
+            "message": "event=deployment_completed release=synthetic-2026-07 search_feature=enabled"
+          },
+          {
+            "timestamp": "2026-07-11T10:03:00Z",
+            "level": "info",
+            "message": "event=readiness_passed release=synthetic-2026-07 replicas_ready=3"
+          }
+        ]
+      }
+    },
+    {
+      "id": "runbook-slow-search",
+      "source": "runbook",
+      "title": "慢搜索只读排查手册",
+      "purpose": "比较先取证、立即重启和直接加索引三种路径的风险与审批边界。",
+      "acquisition_cost": 1,
+      "unlocks_after": ["stack-topology"],
+      "data": {
+        "kind": "document",
+        "sections": [
+          {
+            "heading": "先确认可用性",
+            "body": "先检查数据库存活、指标采集和查询时间窗；服务存活不代表每种查询都健康。"
+          },
+          {
+            "heading": "只读验证",
+            "body": "使用有行数和超时限制的只读查询或 EXPLAIN，禁止在证据不足时终止会话或重启服务。"
+          },
+          {
+            "heading": "变更审批",
+            "body": "查询改写、索引或专用搜索方案都要先在合成环境验证，并由人工批准生产写操作。"
+          }
+        ]
+      }
+    }
+  ],
+  "timeline": [
+    {
+      "id": "topology-scope",
+      "occurred_at": "2026-07-11T10:00:00Z",
+      "category": "observation",
+      "visibility": "revealed",
+      "summary": "拓扑显示应用、MySQL、缓存、指标与日志链路彼此独立，单一现象不能代表整条链路故障。",
+      "evidence_id": "stack-topology"
+    },
+    {
+      "id": "application-release",
+      "occurred_at": "2026-07-11T10:01:00Z",
+      "category": "change",
+      "visibility": "initial",
+      "summary": "结账应用完成一次合成发布并开启客户搜索功能，但初始简报没有证明发布就是根因。"
+    },
+    {
+      "id": "checkout-alert",
+      "occurred_at": "2026-07-11T10:04:00Z",
+      "category": "symptom",
+      "visibility": "initial",
+      "summary": "结账搜索 p95 延迟告警触发，随后出现少量上游超时。"
+    },
+    {
+      "id": "mysql-still-up",
+      "occurred_at": "2026-07-11T10:04:30Z",
+      "category": "observation",
+      "visibility": "revealed",
+      "summary": "MySQL 与采集链路在整个窗口保持存活，数据库完全下线的假设不受支持。",
+      "evidence_id": "prometheus-mysql-health"
+    },
+    {
+      "id": "latency-rise",
+      "occurred_at": "2026-07-11T10:05:00Z",
+      "category": "observation",
+      "visibility": "revealed",
+      "summary": "结账搜索 p95 与 p99 延迟持续上升，确定了后续日志查询的合成时间窗。",
+      "evidence_id": "prometheus-checkout-latency"
+    },
+    {
+      "id": "connection-pressure-rise",
+      "occurred_at": "2026-07-11T10:06:00Z",
+      "category": "observation",
+      "visibility": "revealed",
+      "summary": "MySQL 活跃连接数与应用延迟同窗上升，但当前仍不能判断连接堆积是原因还是结果。",
+      "evidence_id": "prometheus-connection-pressure"
+    },
+    {
+      "id": "host-cpu-normal",
+      "occurred_at": "2026-07-11T10:06:30Z",
+      "category": "observation",
+      "visibility": "revealed",
+      "summary": "数据库宿主机 CPU 保持在合成正常区间，基础设施 CPU 饱和的解释缺少支持。",
+      "evidence_id": "prometheus-host-cpu"
+    },
+    {
+      "id": "trace-slow-query",
+      "occurred_at": "2026-07-11T10:07:00Z",
+      "category": "observation",
+      "visibility": "revealed",
+      "summary": "共享合成 trace 显示客户搜索查询耗时 842 毫秒，日志只保留查询形态而没有真实参数。",
+      "evidence_id": "loki-checkout-trace"
+    },
+    {
+      "id": "trace-upstream-timeout",
+      "occurred_at": "2026-07-11T10:08:00Z",
+      "category": "symptom",
+      "visibility": "revealed",
+      "summary": "同一合成 trace 随后出现 MySQL 上游超时，把慢查询与用户症状连接到同一证据链。",
+      "evidence_id": "loki-checkout-trace"
+    },
+    {
+      "id": "query-plan-full-scan",
+      "occurred_at": "2026-07-11T10:09:00Z",
+      "category": "observation",
+      "visibility": "revealed",
+      "summary": "只读 EXPLAIN 显示查询未选择普通邮箱索引，并预计扫描大量合成订单行。",
+      "evidence_id": "mysql-query-plan"
+    },
+    {
+      "id": "order-state-intact",
+      "occurred_at": "2026-07-11T10:10:00Z",
+      "category": "observation",
+      "visibility": "revealed",
+      "summary": "合成订单摘要没有写入失败，数据损坏或订单丢失的假设缺少支持。",
+      "evidence_id": "mysql-order-state"
+    },
+    {
+      "id": "release-readiness-passed",
+      "occurred_at": "2026-07-11T10:11:00Z",
+      "category": "observation",
+      "visibility": "revealed",
+      "summary": "发布副本全部通过就绪检查且没有启动错误，发布仍可能改变流量形态，但不是服务崩溃证据。",
+      "evidence_id": "loki-release-events"
+    },
+    {
+      "id": "runbook-safety-boundary",
+      "occurred_at": "2026-07-11T10:12:00Z",
+      "category": "observation",
+      "visibility": "revealed",
+      "summary": "手册要求先用只读证据验证查询机制，重启和生产索引都必须等待明确理由与人工审批。",
+      "evidence_id": "runbook-slow-search"
+    }
+  ],
+  "safety_notes": [
+    "全部指标、日志、查询、时间、服务和 trace 均为仓库内合成数据，不连接真实 MySQL、Prometheus、Loki 或 Grafana。",
+    "Loki Stream 只使用低基数的服务和环境标签；合成 trace 只出现在日志正文，不成为标签。",
+    "MySQL 证据只包含 SELECT 与 EXPLAIN 结果；重启、终止会话、DDL、DML 和删除动作不会执行。",
+    "查询改写、索引与专用搜索机制只是候选建议，任何生产写操作都需要独立验证、回滚方案和人工批准。"
+  ]
+}
