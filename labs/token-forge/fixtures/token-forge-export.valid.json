@@ -1,0 +1,23 @@
+{
+  "schema_version": "1.0",
+  "markdown": {
+    "file_name": "token-forge-plan.md",
+    "mime_type": "text/markdown;charset=utf-8",
+    "content": "# Token Forge 任务计划\n\n合成导出夹具。",
+    "content_bytes": 49
+  },
+  "github_issues": {
+    "file_name": "token-forge-github-issues.md",
+    "mime_type": "text/markdown;charset=utf-8",
+    "content": "# GitHub Issue 草稿\n\n合成导出夹具。",
+    "content_bytes": 44,
+    "issues": [
+      {
+        "task_id": "synthetic-contract",
+        "title": "[Token Forge][S] 定义合成合同",
+        "body": "## 任务\n\n这是不包含真实仓库或凭据的合成 Issue。",
+        "body_bytes": 65
+      }
+    ]
+  }
+}

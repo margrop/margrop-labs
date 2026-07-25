@@ -1,0 +1,104 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lab.margrop.net/schemas/token-forge-export-v1.schema.json",
+  "title": "Token Forge Export v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "markdown", "github_issues"],
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "markdown": {
+      "$ref": "#/$defs/markdownArtifact"
+    },
+    "github_issues": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "file_name",
+        "mime_type",
+        "content",
+        "content_bytes",
+        "issues"
+      ],
+      "properties": {
+        "file_name": {
+          "const": "token-forge-github-issues.md"
+        },
+        "mime_type": {
+          "const": "text/markdown;charset=utf-8"
+        },
+        "content": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 131072
+        },
+        "content_bytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 131072
+        },
+        "issues": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 6,
+          "items": {
+            "$ref": "#/$defs/issueDraft"
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "markdownArtifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["file_name", "mime_type", "content", "content_bytes"],
+      "properties": {
+        "file_name": {
+          "const": "token-forge-plan.md"
+        },
+        "mime_type": {
+          "const": "text/markdown;charset=utf-8"
+        },
+        "content": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 131072
+        },
+        "content_bytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 131072
+        }
+      }
+    },
+    "issueDraft": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["task_id", "title", "body", "body_bytes"],
+      "properties": {
+        "task_id": {
+          "type": "string",
+          "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "body": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 65536
+        },
+        "body_bytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 65536
+        }
+      }
+    }
+  }
+}
