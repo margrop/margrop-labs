@@ -249,7 +249,8 @@ const checks = [
       styles.includes(".incident-choice-grid") &&
       styles.includes(".incident-safety-grid") &&
       styles.includes(".incident-score-dimensions") &&
-      styles.includes(".incident-score-feedback"),
+      styles.includes(".incident-score-feedback") &&
+      styles.includes(".incident-share-actions"),
   ],
 ];
 

@@ -109,6 +109,7 @@ P2-003 将 P2-002 的公开 `mysql-leading-wildcard` 场景接入
 - Attempt 持久化或分享；
 - 真实 Prometheus、Loki、MySQL 接入。
 
-P2-005 已在页面之外提供受约束的 Case Proposal 与人工审核核心，但当前工作台不会调用它；
-分享留给 P2-006。P2 首版继续只使用仓库内合成数据。评分设计详见
-[确定性证据评分](./incident-detective-scoring.md)。
+P2-005 已在页面之外提供受约束的 Case Proposal 与人工审核核心，但当前工作台不会调用它。
+P2-006 已提供只消费 Score v1 的本地 SVG 分享卡。P2 首版继续只使用仓库内合成数据。评分与
+分享设计详见[确定性证据评分](./incident-detective-scoring.md)和
+[隐私分享结果卡](./incident-detective-share-card.md)。

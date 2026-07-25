@@ -56,6 +56,10 @@ P2-003 已提供 `/incident-detective/`：
 实现与测试边界见[逐步取证页面](../../docs/incident-detective-page.md)和
 [确定性证据评分](../../docs/incident-detective-scoring.md)。实验状态现为 Alpha。
 
+P2-006 还允许在评分后下载本地 SVG。分享对象只投影案例 ID、总分、等级和维度分数，不读取
+事故原文、Attempt、证据 Payload、答案或逐条反馈。详见
+[隐私分享结果卡](../../docs/incident-detective-share-card.md)。
+
 ## AI 边界
 
 评分、证据解锁和事实由代码决定；AI 不得修改事实或评分，只能解释和生成待审核变体。
