@@ -50,6 +50,7 @@ Web 端采用 **Astro + TypeScript + Preact Islands**，首期生成静态 HTML�
 - Token Forge AI 规划：遵循 [AI 任务拆分](./docs/token-forge-ai-planning.md)。
 - Token Forge 本地导出：遵循 [Markdown / GitHub Issue 导出](./docs/token-forge-export.md)。
 - Token Forge 正式页面：遵循 [页面与事件合同](./docs/token-forge-page.md)。
+- Incident Detective 合同：遵循 [场景与单局推理 v1](./docs/incident-detective-contract-v1.md)。
 - 处理用户输入：先读 [隐私模型](./docs/privacy-model.md) 和 [脱敏包](./packages/redaction/README.md)。
 - 发布站点：遵循 [Cloudflare Workers 部署](./docs/cloudflare-deployment.md)。
 
@@ -73,4 +74,6 @@ AI Gateway 和 P0-007 脱敏边界上实现 Token Forge AI 任务拆分核心：
 Markdown 和逐任务 GitHub Issue 草稿，包含脱敏、Markdown 安全、固定文件名和大小上限。
 P1-006 已把无需登录、仓库和 AI 的模板生成、证据展示与两种本地导出接到
 `/token-forge/`，并将首页卡片升级为正式入口。最小转化事件已定义但保持空接收器，不会在
-P4-003 前发送数据。下一步是 P2-001 事故场景与证据合同。
+P4-003 前发送数据。P2-001 已定义完全合成的 Incident Detective 场景/证据与单局推理
+合同，包含证据解锁、预算、时间线、引用和隐私不变量，但不把根因答案或评分规则混入公开
+场景。下一步是 P2-002 首个完整 MySQL + Prometheus + Loki 合成案例。

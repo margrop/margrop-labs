@@ -1,0 +1,609 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lab.margrop.net/schemas/incident-detective-scenario-v1.schema.json",
+  "title": "Incident Detective Scenario v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "id",
+    "title",
+    "summary",
+    "difficulty",
+    "evidence_budget",
+    "services",
+    "objectives",
+    "incident_window",
+    "evidence",
+    "timeline",
+    "safety_notes"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "id": {
+      "$ref": "#/$defs/id"
+    },
+    "title": {
+      "$ref": "#/$defs/title"
+    },
+    "summary": {
+      "$ref": "#/$defs/paragraph"
+    },
+    "difficulty": {
+      "enum": ["foundation", "intermediate", "advanced"]
+    },
+    "evidence_budget": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 24
+    },
+    "services": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 12,
+      "items": {
+        "$ref": "#/$defs/service"
+      }
+    },
+    "objectives": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 6,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/paragraph"
+      }
+    },
+    "incident_window": {
+      "$ref": "#/$defs/incidentWindow"
+    },
+    "evidence": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 12,
+      "items": {
+        "$ref": "#/$defs/evidence"
+      }
+    },
+    "timeline": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 40,
+      "items": {
+        "$ref": "#/$defs/timelineEvent"
+      }
+    },
+    "safety_notes": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 8,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/paragraph"
+      }
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "maxLength": 80
+    },
+    "title": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 120,
+      "pattern": "\\S"
+    },
+    "paragraph": {
+      "type": "string",
+      "minLength": 10,
+      "maxLength": 800,
+      "pattern": "\\S"
+    },
+    "service": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "label", "kind"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "label": {
+          "$ref": "#/$defs/title"
+        },
+        "kind": {
+          "enum": [
+            "application",
+            "database",
+            "cache",
+            "observability",
+            "infrastructure",
+            "external"
+          ]
+        }
+      }
+    },
+    "incidentWindow": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["starts_at", "ends_at"],
+      "properties": {
+        "starts_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "ends_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "source",
+        "title",
+        "purpose",
+        "acquisition_cost",
+        "unlocks_after",
+        "data"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "source": {
+          "enum": ["prometheus", "loki", "mysql", "runbook", "topology"]
+        },
+        "title": {
+          "$ref": "#/$defs/title"
+        },
+        "purpose": {
+          "$ref": "#/$defs/paragraph"
+        },
+        "acquisition_cost": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 5
+        },
+        "service_id": {
+          "$ref": "#/$defs/id"
+        },
+        "unlocks_after": {
+          "type": "array",
+          "maxItems": 4,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "data": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/metricData"
+            },
+            {
+              "$ref": "#/$defs/logData"
+            },
+            {
+              "$ref": "#/$defs/tableData"
+            },
+            {
+              "$ref": "#/$defs/documentData"
+            },
+            {
+              "$ref": "#/$defs/topologyData"
+            }
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "source": {
+                "const": "prometheus"
+              }
+            },
+            "required": ["source"]
+          },
+          "then": {
+            "properties": {
+              "data": {
+                "$ref": "#/$defs/metricData"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "source": {
+                "const": "loki"
+              }
+            },
+            "required": ["source"]
+          },
+          "then": {
+            "properties": {
+              "data": {
+                "$ref": "#/$defs/logData"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "source": {
+                "const": "mysql"
+              }
+            },
+            "required": ["source"]
+          },
+          "then": {
+            "properties": {
+              "data": {
+                "$ref": "#/$defs/tableData"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "source": {
+                "const": "runbook"
+              }
+            },
+            "required": ["source"]
+          },
+          "then": {
+            "properties": {
+              "data": {
+                "$ref": "#/$defs/documentData"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "source": {
+                "const": "topology"
+              }
+            },
+            "required": ["source"]
+          },
+          "then": {
+            "properties": {
+              "data": {
+                "$ref": "#/$defs/topologyData"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "metricData": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "query", "unit", "series"],
+      "properties": {
+        "kind": {
+          "const": "metric"
+        },
+        "query": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 300,
+          "pattern": "\\S"
+        },
+        "unit": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 40,
+          "pattern": "\\S"
+        },
+        "series": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 8,
+          "items": {
+            "$ref": "#/$defs/metricSeries"
+          }
+        }
+      }
+    },
+    "metricSeries": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["label", "labels", "points"],
+      "properties": {
+        "label": {
+          "$ref": "#/$defs/title"
+        },
+        "labels": {
+          "type": "object",
+          "maxProperties": 8,
+          "additionalProperties": {
+            "type": "string",
+            "maxLength": 80
+          }
+        },
+        "points": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 120,
+          "items": {
+            "$ref": "#/$defs/metricPoint"
+          }
+        }
+      }
+    },
+    "metricPoint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["timestamp", "value"],
+      "properties": {
+        "timestamp": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "value": {
+          "type": "number"
+        }
+      }
+    },
+    "logData": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "stream", "entries"],
+      "properties": {
+        "kind": {
+          "const": "log"
+        },
+        "stream": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120,
+          "pattern": "\\S"
+        },
+        "entries": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 120,
+          "items": {
+            "$ref": "#/$defs/logEntry"
+          }
+        }
+      }
+    },
+    "logEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["timestamp", "level", "message"],
+      "properties": {
+        "timestamp": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "level": {
+          "enum": ["debug", "info", "warning", "error", "critical"]
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500,
+          "pattern": "\\S"
+        }
+      }
+    },
+    "tableData": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "query", "columns", "rows"],
+      "properties": {
+        "kind": {
+          "const": "table"
+        },
+        "query": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500,
+          "pattern": "\\S"
+        },
+        "columns": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 12,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80,
+            "pattern": "\\S"
+          }
+        },
+        "rows": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 100,
+          "items": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 12,
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 500
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "documentData": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "sections"],
+      "properties": {
+        "kind": {
+          "const": "document"
+        },
+        "sections": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 12,
+          "items": {
+            "$ref": "#/$defs/documentSection"
+          }
+        }
+      }
+    },
+    "documentSection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["heading", "body"],
+      "properties": {
+        "heading": {
+          "$ref": "#/$defs/title"
+        },
+        "body": {
+          "$ref": "#/$defs/paragraph"
+        }
+      }
+    },
+    "topologyData": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "nodes", "edges"],
+      "properties": {
+        "kind": {
+          "const": "topology"
+        },
+        "nodes": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 20,
+          "items": {
+            "$ref": "#/$defs/topologyNode"
+          }
+        },
+        "edges": {
+          "type": "array",
+          "maxItems": 40,
+          "items": {
+            "$ref": "#/$defs/topologyEdge"
+          }
+        }
+      }
+    },
+    "topologyNode": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["service_id", "label"],
+      "properties": {
+        "service_id": {
+          "$ref": "#/$defs/id"
+        },
+        "label": {
+          "$ref": "#/$defs/title"
+        }
+      }
+    },
+    "topologyEdge": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["from", "to", "label"],
+      "properties": {
+        "from": {
+          "$ref": "#/$defs/id"
+        },
+        "to": {
+          "$ref": "#/$defs/id"
+        },
+        "label": {
+          "$ref": "#/$defs/title"
+        }
+      }
+    },
+    "timelineEvent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "occurred_at", "category", "visibility", "summary"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "occurred_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "category": {
+          "enum": ["change", "symptom", "observation", "recovery"]
+        },
+        "visibility": {
+          "enum": ["initial", "revealed"]
+        },
+        "summary": {
+          "$ref": "#/$defs/paragraph"
+        },
+        "evidence_id": {
+          "$ref": "#/$defs/id"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "visibility": {
+                "const": "revealed"
+              }
+            },
+            "required": ["visibility"]
+          },
+          "then": {
+            "required": ["evidence_id"],
+            "properties": {
+              "evidence_id": {
+                "$ref": "#/$defs/id"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "visibility": {
+                "const": "initial"
+              }
+            },
+            "required": ["visibility"]
+          },
+          "then": {
+            "properties": {
+              "evidence_id": false
+            }
+          }
+        }
+      ]
+    }
+  }
+}

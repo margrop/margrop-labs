@@ -1,0 +1,127 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lab.margrop.net/schemas/incident-detective-attempt-v1.schema.json",
+  "title": "Incident Detective Attempt v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "scenario_id",
+    "selected_evidence_ids",
+    "spent_budget",
+    "ordered_timeline_event_ids",
+    "safety_actions",
+    "hypothesis"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "scenario_id": {
+      "$ref": "#/$defs/id"
+    },
+    "selected_evidence_ids": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 12,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/id"
+      }
+    },
+    "spent_budget": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 24
+    },
+    "ordered_timeline_event_ids": {
+      "type": "array",
+      "maxItems": 40,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/id"
+      }
+    },
+    "safety_actions": {
+      "type": "array",
+      "maxItems": 7,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "read_only_first",
+          "preserve_evidence",
+          "least_privilege",
+          "request_approval",
+          "production_write",
+          "restart_service",
+          "delete_data"
+        ]
+      }
+    },
+    "hypothesis": {
+      "$ref": "#/$defs/hypothesis"
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "maxLength": 80
+    },
+    "hypothesis": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "summary",
+        "suspected_service_ids",
+        "supporting_evidence_ids",
+        "contradicting_evidence_ids",
+        "confidence",
+        "next_action"
+      ],
+      "properties": {
+        "summary": {
+          "type": "string",
+          "minLength": 20,
+          "maxLength": 1000,
+          "pattern": "\\S"
+        },
+        "suspected_service_ids": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 4,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "supporting_evidence_ids": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 12,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "contradicting_evidence_ids": {
+          "type": "array",
+          "maxItems": 12,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "confidence": {
+          "enum": ["low", "medium", "high"]
+        },
+        "next_action": {
+          "type": "string",
+          "minLength": 10,
+          "maxLength": 500,
+          "pattern": "\\S"
+        }
+      }
+    }
+  }
+}
