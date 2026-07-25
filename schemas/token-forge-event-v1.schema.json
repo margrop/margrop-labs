@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lab.margrop.net/schemas/token-forge-event-v1.schema.json",
+  "title": "Token Forge Event v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "event_name",
+    "lab_id",
+    "lab_version",
+    "device_category"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "event_name": {
+      "enum": [
+        "lab_open",
+        "run_success",
+        "run_failure",
+        "export",
+        "blog_click",
+        "github_click"
+      ]
+    },
+    "lab_id": {
+      "const": "token-forge"
+    },
+    "lab_version": {
+      "const": "1.0"
+    },
+    "device_category": {
+      "enum": ["mobile", "tablet", "desktop", "unknown"]
+    }
+  }
+}

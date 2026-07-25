@@ -11,7 +11,7 @@
 
 | 实验                                      | 用户价值                                             | 状态     |
 | ----------------------------------------- | ---------------------------------------------------- | -------- |
-| [Token 任务炼金炉](./labs/token-forge/)   | 把闲置 Token、仓库上下文和目标转换为可验收的开发任务 | Building |
+| [Token 任务炼金炉](./labs/token-forge/)   | 把闲置 Token、仓库上下文和目标转换为可验收的开发任务 | Alpha    |
 | [AI 故障侦探](./labs/incident-detective/) | 在合成事故中练习按证据排障，而不是让 AI 猜根因       | Proposed |
 | [SMART / RMA 报告机](./labs/smart-rma/)   | 本地解析并脱敏硬盘信息，生成健康解释与售后材料       | Proposed |
 
@@ -49,6 +49,7 @@ Web 端采用 **Astro + TypeScript + Preact Islands**，首期生成静态 HTML�
 - 实现 AI 调用：遵循 [AI Gateway v1 合同](./docs/ai-gateway-contract-v1.md)。
 - Token Forge AI 规划：遵循 [AI 任务拆分](./docs/token-forge-ai-planning.md)。
 - Token Forge 本地导出：遵循 [Markdown / GitHub Issue 导出](./docs/token-forge-export.md)。
+- Token Forge 正式页面：遵循 [页面与事件合同](./docs/token-forge-page.md)。
 - 处理用户输入：先读 [隐私模型](./docs/privacy-model.md) 和 [脱敏包](./packages/redaction/README.md)。
 - 发布站点：遵循 [Cloudflare Workers 部署](./docs/cloudflare-deployment.md)。
 
@@ -65,10 +66,11 @@ npm run dev --workspace @margrop-labs/web
 
 开发者与 GitHub Actions 使用同一条根目录质量命令。检查内容和故障处理见 [质量门](./docs/quality-gates.md)。实验卡片由版本化清单生成，规则见 [实验清单加载器](./docs/lab-manifest-loader.md)。页面组件与交互必须遵循 [UI 与可访问性基线](./docs/ui-accessibility-baseline.md)。Token 任务炼金炉的稳定输入输出见 [v1 合同](./docs/token-forge-contract-v1.md)，无需 AI 的降级核心见 [确定性模板模式](./docs/token-forge-template-mode.md)，公开仓库的有界只读输入见 [GitHub 摘要适配器](./docs/github-public-repository-adapter.md)。所有未来 AI 能力必须通过 [Provider 中立的 Gateway 合同](./docs/ai-gateway-contract-v1.md)。
 
-当前项目仍处于 **pre-alpha**。P4-001/P4-002 已完成隔离的 Preview 与 Production 部署，
+当前站点进入 **alpha**。P4-001/P4-002 已完成隔离的 Preview 与 Production 部署，
 正式站点由 Cloudflare Workers Static Assets 和 Custom Domain 提供。P1-004 已在 P0-006
 AI Gateway 和 P0-007 脱敏边界上实现 Token Forge AI 任务拆分核心：最小仓库上下文、
 确定性输出安全检查和 P1-002 完整降级均已有合成测试。P1-005 已增加验证计划的本地
 Markdown 和逐任务 GitHub Issue 草稿，包含脱敏、Markdown 安全、固定文件名和大小上限。
-这些核心尚未接入真实 Provider、HTTP API 或 Token Forge 正式页面。下一步是 P1-006
-正式页面、博客入口和最小转化事件合同。
+P1-006 已把无需登录、仓库和 AI 的模板生成、证据展示与两种本地导出接到
+`/token-forge/`，并将首页卡片升级为正式入口。最小转化事件已定义但保持空接收器，不会在
+P4-003 前发送数据。下一步是 P2-001 事故场景与证据合同。

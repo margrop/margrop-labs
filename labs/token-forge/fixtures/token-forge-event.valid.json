@@ -1,0 +1,7 @@
+{
+  "schema_version": "1.0",
+  "event_name": "run_success",
+  "lab_id": "token-forge",
+  "lab_version": "1.0",
+  "device_category": "desktop"
+}

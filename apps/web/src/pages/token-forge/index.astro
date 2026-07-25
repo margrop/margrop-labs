@@ -1,0 +1,48 @@
+---
+import TokenForgeWorkbench from "../../components/TokenForgeWorkbench";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { loadLabManifests } from "../../lib/lab-manifests";
+
+const labs = await loadLabManifests();
+const lab = labs.find((candidate) => candidate.id === "token-forge");
+
+if (!lab) {
+  throw new Error("Token Forge manifest is required for its public page.");
+}
+
+const articleUrl = lab.related_articles[0];
+
+if (!articleUrl) {
+  throw new Error("Token Forge requires a related article.");
+}
+---
+
+<BaseLayout
+  title="Token 任务炼金炉｜Margrop Labs"
+  description="把闲置 Coding Token、可投入时间与技术目标转换成范围清楚、预算受限、可直接导出的任务计划。"
+>
+  <section class="lab-page">
+    <header class="lab-page-hero">
+      <div>
+        <p class="eyebrow">TOKEN FORGE · ALPHA</p>
+        <h1>把闲置 Token，锻造成<br /><em>可以验收</em>的任务。</h1>
+        <p>
+          输入剩余额度、到期时间和一个可公开的目标。浏览器会用确定性模板生成开发计划，并导出
+          Markdown 与 GitHub Issue 草稿。
+        </p>
+      </div>
+      <dl class="lab-page-contract">
+        <div><dt>LOGIN</dt><dd>无需登录</dd></div>
+        <div><dt>REPOSITORY</dt><dd>不读取仓库</dd></div>
+        <div><dt>AI</dt><dd>不调用 AI</dd></div>
+        <div><dt>STORAGE</dt><dd>不保存输入</dd></div>
+      </dl>
+    </header>
+
+    <TokenForgeWorkbench
+      articleUrl={articleUrl}
+      sourceUrl="https://github.com/margrop/margrop-labs/tree/main/labs/token-forge"
+      client:visible={{ rootMargin: "200px" }}
+    />
+  </section>
+</BaseLayout>

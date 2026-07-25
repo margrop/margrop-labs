@@ -12,6 +12,10 @@
 4. AI 在受限仓库摘要上补充 S/M/L 任务；
 5. 导出 Markdown 或 GitHub Issue 文本。
 
+当前 [`/token-forge/`](https://lab.margrop.net/token-forge/) Alpha 页面先开放完整的本地
+模板路径：无需登录、仓库和 AI 即可完成第 1、3、5 步。公开仓库与 AI 能力继续作为受限
+核心保留，尚未接入正式页面。
+
 ## v1 合同
 
 - [输入 Schema](../../schemas/token-forge-input-v1.schema.json)
@@ -56,9 +60,17 @@ WWN 和文件路径会脱敏；Secret、未知字段、无效计划和超大产�
 仓库 URL 和仓库上下文不属于导出输入。Issue 草稿只供复制和下载，不会调用 GitHub API 或
 自动写入仓库。
 
+## 正式页面与事件
+
+[P1-006 页面](../../docs/token-forge-page.md) 把模板输入、任务证据和两种导出接成浏览器内
+工作台。首页卡片链接到正式路由，结果区回到相关文章和 GitHub 源码。
+
+最小事件只允许打开、运行、导出、文章和 GitHub 点击的固定枚举，以及 Lab ID、版本和粗
+粒度设备类别。P4-003 完成前默认接收器为空，不产生网络、存储或日志副作用。
+
 ## 隐私
 
-只读取公开仓库；不得要求 GitHub 私有 Token。导出不包含原始文件正文或隐藏系统 Prompt。Analytics 不记录仓库 URL和表单内容。
+只读取公开仓库；不得要求 GitHub 私有 Token。导出不包含原始文件正文或隐藏系统 Prompt。Analytics 不记录仓库 URL 和表单内容。
 
 模板模式不读取仓库；P1-003 适配器只读取有界的公开样本；P1-004 只把进一步压缩和脱敏后的
 最小上下文交给注入的 Adapter；P1-005 只接收验证后的计划并在本地生成脱敏文本。各阶段
@@ -67,4 +79,5 @@ WWN 和文件路径会脱敏；Secret、未知字段、无效计划和超大产�
 ## MVP 验收
 
 无需仓库、无需 AI 的样例可以完成一次任务生成；AI 失败时保留模板结果；验证后的计划可以
-生成 Markdown 和 Issue 草稿。当前在线页面尚未接入完整 Token Forge 流程。
+生成 Markdown 和 Issue 草稿。Alpha 页面已接入完整模板流程；公开仓库与 AI 路径仍保持
+未连接状态。
