@@ -1,17 +1,10 @@
 import { useState } from "preact/hooks";
 
+import { normalizeMarkdownFileName } from "../../lib/export-safety";
+
 type ExportActionsProps = {
   content: string;
   fileName: string;
-};
-
-const normalizeFileName = (fileName: string): string => {
-  const normalized = fileName
-    .replace(/[^a-zA-Z0-9._-]/g, "-")
-    .replace(/-+/g, "-")
-    .slice(0, 80);
-
-  return normalized || "margrop-labs-export.md";
 };
 
 export function ExportActions({ content, fileName }: ExportActionsProps) {
@@ -37,7 +30,7 @@ export function ExportActions({ content, fileName }: ExportActionsProps) {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = normalizeFileName(fileName);
+    link.download = normalizeMarkdownFileName(fileName);
     link.click();
     URL.revokeObjectURL(url);
     setMessage("Markdown 已生成并交给浏览器下载。");

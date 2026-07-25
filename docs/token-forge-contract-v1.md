@@ -54,6 +54,10 @@ JSON Schema 负责字段形态和单项范围；`token-forge-contracts.ts` 在 S
 
 模板输出、AI 输出、fixture 和未来导入的数据都必须经过相同验证。AI 不能绕过或放宽这些规则。
 
+验证后的计划可以交给 [P1-005 Markdown / GitHub Issue 导出](./token-forge-export.md)。
+导出拥有独立 v1 Schema、脱敏、文件路径移除、Markdown 安全和字节上限，不改变本计划
+合同。
+
 ## 失败与隐私
 
 - 未知字段默认拒绝，不透传到后续消费者；
@@ -69,6 +73,7 @@ JSON Schema 负责字段形态和单项范围；`token-forge-contracts.ts` 在 S
 - [`template-small.input.json`](../labs/token-forge/fixtures/template-small.input.json)
 - [`template-medium.input.json`](../labs/token-forge/fixtures/template-medium.input.json)
 - [`template-large.input.json`](../labs/token-forge/fixtures/template-large.input.json)
+- [`token-forge-export.valid.json`](../labs/token-forge/fixtures/token-forge-export.valid.json)
 
 单元测试覆盖有效 fixture、非 GitHub URL、未知字段、规模/Token 不匹配、重复任务、超 Token、超工时、悬空依赖和循环依赖，以及模板模式的稳定输出和预算边界。
 

@@ -48,6 +48,7 @@ Web 端采用 **Astro + TypeScript + Preact Islands**，首期生成静态 HTML�
 - 接入 AI：先读 [AI 成本与安全](./docs/ai-safety-and-cost.md)。
 - 实现 AI 调用：遵循 [AI Gateway v1 合同](./docs/ai-gateway-contract-v1.md)。
 - Token Forge AI 规划：遵循 [AI 任务拆分](./docs/token-forge-ai-planning.md)。
+- Token Forge 本地导出：遵循 [Markdown / GitHub Issue 导出](./docs/token-forge-export.md)。
 - 处理用户输入：先读 [隐私模型](./docs/privacy-model.md) 和 [脱敏包](./packages/redaction/README.md)。
 - 发布站点：遵循 [Cloudflare Workers 部署](./docs/cloudflare-deployment.md)。
 
@@ -67,5 +68,7 @@ npm run dev --workspace @margrop-labs/web
 当前项目仍处于 **pre-alpha**。P4-001/P4-002 已完成隔离的 Preview 与 Production 部署，
 正式站点由 Cloudflare Workers Static Assets 和 Custom Domain 提供。P1-004 已在 P0-006
 AI Gateway 和 P0-007 脱敏边界上实现 Token Forge AI 任务拆分核心：最小仓库上下文、
-确定性输出安全检查和 P1-002 完整降级均已有合成测试。它尚未接入真实 Provider、HTTP API
-或在线页面。下一步是 P1-005 Markdown/GitHub Issue 文本导出。
+确定性输出安全检查和 P1-002 完整降级均已有合成测试。P1-005 已增加验证计划的本地
+Markdown 和逐任务 GitHub Issue 草稿，包含脱敏、Markdown 安全、固定文件名和大小上限。
+这些核心尚未接入真实 Provider、HTTP API 或 Token Forge 正式页面。下一步是 P1-006
+正式页面、博客入口和最小转化事件合同。

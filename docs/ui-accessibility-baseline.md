@@ -10,7 +10,7 @@ P0-005 在现有 Astro 页面壳和 Hello Lab 中建立可复用组件，不新�
 | `FormField.tsx` | 可见 Label、当前值、操作提示与 `aria-describedby` |
 | `StatusNotice.tsx` | 文字、符号、颜色和 `status`/`alert` 语义共同表达状态 |
 | `EvidenceCard.tsx` | 明确区分输入证据、规则依据、AI 解释和未知项 |
-| `ExportActions.tsx` | 复制或下载调用方提供的 Markdown，并通过状态消息反馈结果 |
+| `ExportActions.tsx` | 复制或下载调用方提供的 Markdown，净化下载文件名，并通过状态消息反馈结果 |
 
 ## 键盘与辅助技术
 
@@ -32,6 +32,10 @@ P0-005 在现有 Astro 页面壳和 Hello Lab 中建立可复用组件，不新�
 ## 导出边界
 
 Hello Lab 的 Markdown 只包含用户当前可见的 Token、天数、规则档位、建议和数据边界。它不包含隐藏 Prompt、仓库内容、浏览器信息或持久标识。
+
+通用下载文件名通过 `normalizeMarkdownFileName` 移除路径、控制字符、非安全扩展名和 Windows
+保留名。P1-005 Token Forge 导出在进入该组件前，还会完成计划合同、正文脱敏、Markdown
+安全和固定文件名验证。
 
 ## 自动验证
 
