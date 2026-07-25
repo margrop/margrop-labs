@@ -1,0 +1,106 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:margrop-labs:incident-detective:answer-draft:v1",
+  "title": "Incident Detective Internal Answer Draft v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "scenario_id",
+    "root_cause",
+    "required_evidence_ids",
+    "supporting_evidence_ids",
+    "counterevidence_ids",
+    "unsafe_without_approval",
+    "recommended_next_actions",
+    "known_unknowns"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "draft-1"
+    },
+    "scenario_id": {
+      "$ref": "#/$defs/id"
+    },
+    "root_cause": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["service_ids", "summary", "mechanism"],
+      "properties": {
+        "service_ids": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 4,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "summary": {
+          "$ref": "#/$defs/paragraph"
+        },
+        "mechanism": {
+          "$ref": "#/$defs/paragraph"
+        }
+      }
+    },
+    "required_evidence_ids": {
+      "$ref": "#/$defs/evidenceIds"
+    },
+    "supporting_evidence_ids": {
+      "$ref": "#/$defs/evidenceIds"
+    },
+    "counterevidence_ids": {
+      "$ref": "#/$defs/evidenceIds"
+    },
+    "unsafe_without_approval": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 3,
+      "uniqueItems": true,
+      "items": {
+        "enum": ["production_write", "restart_service", "delete_data"]
+      }
+    },
+    "recommended_next_actions": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 6,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/paragraph"
+      }
+    },
+    "known_unknowns": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 8,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/paragraph"
+      }
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "maxLength": 80
+    },
+    "paragraph": {
+      "type": "string",
+      "minLength": 10,
+      "maxLength": 800,
+      "pattern": "\\S"
+    },
+    "evidenceIds": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 12,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/id"
+      }
+    }
+  }
+}

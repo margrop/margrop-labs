@@ -189,7 +189,9 @@ const allowedExampleDomain = /\b(?:[a-z0-9-]+\.)*example\.com\b/giu;
 const allowedExampleIpv4 =
   /\b(?:192\.0\.2|198\.51\.100|203\.0\.113)\.(?:25[0-5]|2[0-4]\d|1?\d?\d)\b/gu;
 
-const assertSyntheticPrivacy = (candidate: unknown): void => {
+export const validateIncidentDetectiveSyntheticPrivacy = (
+  candidate: unknown,
+): void => {
   const serialized = JSON.stringify(candidate);
   const originalReport = redactTextWithReport(serialized).report;
 
@@ -413,7 +415,7 @@ export const validateIncidentDetectiveScenario = (
     "incident-detective-scenario-v1",
     validateScenarioSchema,
   );
-  assertSyntheticPrivacy(scenario);
+  validateIncidentDetectiveSyntheticPrivacy(scenario);
   assertUniqueIds(scenario.services, "Scenario service");
   assertUniqueIds(scenario.evidence, "Scenario evidence");
   assertUniqueIds(scenario.timeline, "Scenario timeline");
@@ -468,7 +470,7 @@ export const validateIncidentDetectiveAttempt = (
     "incident-detective-attempt-v1",
     validateAttemptSchema,
   );
-  assertSyntheticPrivacy(attempt);
+  validateIncidentDetectiveSyntheticPrivacy(attempt);
 
   if (attempt.scenario_id !== scenario.id) {
     throw new IncidentDetectiveContractError(

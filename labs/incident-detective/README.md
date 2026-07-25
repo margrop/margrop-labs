@@ -22,8 +22,22 @@ P2-001 已定义[公开场景与单局推理合同](../../docs/incident-detectiv
 - TypeScript 不变量验证证据解锁 DAG、跨对象引用、预算、时间窗口、表格和拓扑；
 - 根因答案、评分规则和 AI 解释被明确排除，分别留给 P2-004 和 P2-005。
 
-`fixtures/` 中的 P2-001 场景只是最小合同样例，不是可玩的完整事故。P2-002 将在同一合同上
-制作首个 MySQL + Prometheus + Loki 合成案例。
+`fixtures/` 中的 P2-001 场景只是最小合同样例，不是可玩的完整事故。
+
+## 首个完整案例
+
+P2-002 已在 `cases/mysql-leading-wildcard/` 完成首个 MySQL + Prometheus + Loki 合成
+事故：
+
+- 公开场景有 10 份证据，总成本 13，单局预算 9；
+- Prometheus 确定窗口，Loki 正文 trace 关联事件，只读 MySQL 事实验证机制；
+- MySQL 存活、宿主机 CPU 正常、订单状态完整和发布 readiness 提供反证；
+- canonical attempt 证明必要证据链可正好放进预算；
+- 独立内部答案草稿没有分数、权重或唯一理想顺序，且不会由 P2-003 客户端加载。
+
+完整设计、证据菜单和消费边界见
+[首个完整案例说明](../../docs/incident-detective-first-case.md)。实验状态仍为 Proposed，直到
+P2-003 提供用户可操作的逐步取证界面。
 
 ## AI 边界
 

@@ -1,0 +1,42 @@
+{
+  "schema_version": "draft-1",
+  "scenario_id": "mysql-leading-wildcard",
+  "root_cause": {
+    "service_ids": ["orders-mysql"],
+    "summary": "客户搜索使用前置通配符形态，普通邮箱索引没有被选择，合成订单表扫描扩大并拖慢结账请求。",
+    "mechanism": "搜索功能带来更多无法有效利用普通索引的查询；单次扫描时间上升后连接开始堆积，最终在同一合成 trace 上形成上游超时。"
+  },
+  "required_evidence_ids": [
+    "prometheus-checkout-latency",
+    "loki-checkout-trace",
+    "mysql-query-plan"
+  ],
+  "supporting_evidence_ids": [
+    "prometheus-checkout-latency",
+    "prometheus-connection-pressure",
+    "loki-checkout-trace",
+    "mysql-query-plan"
+  ],
+  "counterevidence_ids": [
+    "prometheus-mysql-health",
+    "prometheus-host-cpu",
+    "mysql-order-state",
+    "loki-release-events"
+  ],
+  "unsafe_without_approval": [
+    "production_write",
+    "restart_service",
+    "delete_data"
+  ],
+  "recommended_next_actions": [
+    "先在合成数据上改写搜索条件，避免无界前置通配符，并重新验证查询计划和延迟。",
+    "根据真实谓词和选择性评估合适索引；若仍不适合关系库索引，评估受限的专用搜索机制。",
+    "任何索引、查询发布或生产配置变更都要有回滚方案、人工批准和变更后指标验证。",
+    "保留原始合成证据链，不用重启 MySQL 代替根因修复。"
+  ],
+  "known_unknowns": [
+    "当前合成案例没有给出真实数据分布、字段选择性或查询并发分布。",
+    "缓存命中率和搜索功能的真实业务必要性仍需在实施前确认。",
+    "查询改写、索引或专用搜索方案的最终收益必须通过独立负载测试验证。"
+  ]
+}
