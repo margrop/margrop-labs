@@ -209,9 +209,22 @@ const checks = [
   ],
   [
     "Incident Detective local boundary",
-    ["完全合成", "不连接监控", "本局不调用", "不保存、不评分"].every((label) =>
+    ["完全合成", "不连接监控", "本局不调用", "本地规则评分"].every((label) =>
       incidentDetectiveHtml.includes(label),
     ),
+  ],
+  [
+    "Incident Detective deterministic scoring",
+    [
+      "确定性规则评分",
+      "验证并评分",
+      "证据覆盖",
+      "取证顺序",
+      "结论覆盖",
+      "反证意识",
+      "安全边界",
+    ].every((label) => incidentDetectiveHtml.includes(label)) &&
+      !incidentDetectiveHtml.includes("调用 AI 评分"),
   ],
   [
     "Incident Detective public-only client",
@@ -234,7 +247,9 @@ const checks = [
       styles.includes(".incident-table-scroll") &&
       styles.includes(".incident-timeline") &&
       styles.includes(".incident-choice-grid") &&
-      styles.includes(".incident-safety-grid"),
+      styles.includes(".incident-safety-grid") &&
+      styles.includes(".incident-score-dimensions") &&
+      styles.includes(".incident-score-feedback"),
   ],
 ];
 

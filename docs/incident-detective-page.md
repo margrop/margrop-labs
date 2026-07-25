@@ -11,9 +11,11 @@ P2-003 将 P2-002 的公开 `mysql-leading-wildcard` 场景接入
 4. 页面只展示初始事件和已获取证据对应的 `revealed` 时间线事件；
 5. 用户选择怀疑服务，将已获取证据标记为支持或反证，并填写机制、信心和下一步；
 6. 用户明确选择安全动作后，浏览器生成并重新验证 Attempt v1；
-7. 页面展示验证后的 Attempt JSON，但不保存、不上传，也不评分。
+7. 独立的确定性规则为 Attempt 评分并生成五个维度的逐条反馈；
+8. 页面展示评分与 Attempt JSON，但不保存、不上传，也不调用 AI。
 
-重新开始本局会同时清空证据、预算、假设和验证结果。
+重新开始本局会同时清空证据、预算、假设、Attempt 和评分结果；修改已提交内容也会清除旧分数，
+避免结果与当前表单不一致。
 
 ## 确定性状态机
 
@@ -63,29 +65,32 @@ P2-003 将 P2-002 的公开 `mysql-leading-wildcard` 场景接入
 `validateIncidentDetectiveAttempt`，因此未知引用、预算不一致、敏感文本、重叠证据角色和
 越过解锁顺序都会失败关闭。
 
-P2-003 不阻止用户在合成游戏中选择“重启、生产写入、删除”等高风险动作，因为这些选择要由
-P2-004 评分；页面会明确标注其生产风险和审批要求，且不会执行任何真实操作。
+页面不阻止用户在合成游戏中选择“重启、生产写入、删除”等高风险动作。P2-004 会在安全维度
+扣分；页面明确标注其生产风险和审批要求，但不会执行任何真实操作。
 
 ## 客户端数据边界
 
-页面只导入：
+页面导入并分别验证：
 
-`labs/incident-detective/cases/mysql-leading-wildcard/scenario.json`
+- `labs/incident-detective/cases/mysql-leading-wildcard/scenario.json`；
+- `labs/incident-detective/cases/mysql-leading-wildcard/score-rules.internal.json`。
 
 以下文件不会进入页面源码或静态构建：
 
 - `answer.internal.json`；
 - `attempt.canonical.json`；
-- 内部答案 Schema；
-- 未来 P2-004 的评分规则。
+- 内部答案 Schema。
 
-测试同时扫描页面、组件、状态机和静态 HTML，拒绝内部答案路径与字段。浏览器端没有
-`fetch`、Local Storage、Analytics、AI Provider 或数据库连接。
+评分规则与公开 Scenario 分离，避免向场景加入答案、权重或 rubric；它会随静态客户端发布，
+因此是可检查的游戏规则而不是保密材料。规则只引用证据、服务、顺序和动作，不包含
+`answer.internal.json` 的根因正文。测试同时扫描页面、组件、状态机和静态 HTML，拒绝内部
+答案路径与字段。浏览器端没有 `fetch`、Local Storage、Analytics、AI Provider 或数据库连接。
 
 ## 可访问性与移动端
 
 - 所有操作使用原生按钮、表单、`progress`、`details`、列表和表格；
 - 动态结果使用现有 `StatusNotice` 的 `status` / `alert` 语义；
+- 总分、等级、维度进度和每条判定都有文字，不只依赖颜色；
 - 锁定原因和按钮通过 `aria-describedby` 关联；
 - 表格容器可获得键盘焦点并横向滚动；
 - 支持 320px 宽度，证据、选项、时间线和结果摘要在窄屏重排；
@@ -94,15 +99,15 @@ P2-004 评分；页面会明确标注其生产风险和审批要求，且不会�
 
 ## 测试与已知限制
 
-自动化覆盖证据解锁、不可退款、预算耗尽、时间线揭示、Attempt 生成、敏感文本、无副作用、
-内部答案隔离、静态页面内容、原生控件与响应式 CSS。
+自动化覆盖证据解锁、不可退款、预算耗尽、时间线揭示、Attempt 生成、评分规则与结果校验、
+敏感文本、无副作用、内部答案隔离、静态页面内容、原生控件与响应式 CSS。
 
 当前不包含：
 
-- 根因或取证顺序评分；
 - 标准答案展示；
 - AI 解释与案例变体；
 - Attempt 持久化或分享；
 - 真实 Prometheus、Loki、MySQL 接入。
 
-这些能力分别留给 P2-004、P2-005 和 P2-006；P2 首版继续只使用仓库内合成数据。
+AI 解释/变体和分享分别留给 P2-005 与 P2-006；P2 首版继续只使用仓库内合成数据。评分设计
+详见[确定性证据评分](./incident-detective-scoring.md)。

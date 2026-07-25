@@ -7,8 +7,9 @@ P2-001 为 AI 故障侦探建立两份互相分离的公共合同：
 - [`incident-detective-attempt-v1`](../schemas/incident-detective-attempt-v1.schema.json)：
   一局中的取证顺序、预算、安全动作、时间线排序和用户假设。
 
-根因答案、评分权重、理想取证顺序和 AI 解释都不属于这两份合同。P2-004 必须使用独立评分
-合同，不能向场景输入补入 `answer`、`ground_truth` 或 `rubric`。
+根因答案、评分权重、理想取证顺序和 AI 解释都不属于这两份合同。P2-004 使用独立的内部
+规则 Schema 和公开 Score v1 结果合同，不能向场景输入补入 `answer`、`ground_truth` 或
+`rubric`。
 
 ## 场景合同
 
@@ -97,9 +98,9 @@ Payload 配对、重复/悬空/循环引用、预算可达性、时间窗口与�
 P2-002 完整案例位于
 [`mysql-leading-wildcard`](../labs/incident-detective/cases/mysql-leading-wildcard/)：
 
-- `scenario.json` 是 P2-003 唯一可加载的公开场景；
+- `scenario.json` 是页面加载的公开场景；
 - `attempt.canonical.json` 证明预算、依赖、引用与安全路径闭合；
-- `answer.internal.json` 受仓库内部 Schema 约束，只供测试和 P2-004 设计输入；
+- `answer.internal.json` 受仓库内部 Schema 约束，只供测试和案例审核；
 - 内部答案明确拒绝分数和权重，不是评分合同。
 
 案例设计与验收详见
@@ -111,4 +112,5 @@ v1 Schema 发布后保持不可变。破坏性变化必须新增版本、fixture
 
 - P2-002 已在本合同上完成首个完整 MySQL + Prometheus + Loki 合成案例；
 - P2-003 已消费公开场景和 Attempt 合同，实现逐步取证与时间线界面；
-- P2-004 另行定义不向公共场景泄露答案的确定性评分合同。
+- P2-004 已另行定义不向公共场景写入答案的确定性评分合同，详见
+  [确定性证据评分](./incident-detective-scoring.md)。

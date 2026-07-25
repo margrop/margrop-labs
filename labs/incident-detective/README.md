@@ -20,7 +20,8 @@ P2-001 已定义[公开场景与单局推理合同](../../docs/incident-detectiv
   证据和逐步揭示时间线；
 - Attempt 包含取证顺序、实际花费、安全动作、用户时间线与包含支持/反证的假设；
 - TypeScript 不变量验证证据解锁 DAG、跨对象引用、预算、时间窗口、表格和拓扑；
-- 根因答案、评分规则和 AI 解释被明确排除，分别留给 P2-004 和 P2-005。
+- 根因答案、评分规则和 AI 解释不进入 Scenario/Attempt；P2-004 另行定义评分规则与结果合同，
+  P2-005 再处理 AI 解释。
 
 `fixtures/` 中的 P2-001 场景只是最小合同样例，不是可玩的完整事故。
 
@@ -47,11 +48,13 @@ P2-003 已提供 `/incident-detective/`：
 - Metric、Log、Table、Document 和 Topology 都有结构化渲染；
 - 时间线只揭示初始事件和已获取证据对应事件；
 - 用户可以填写假设、怀疑服务、支持/反证、信心、下一步和安全动作；
-- 浏览器生成并重新验证 Attempt v1，不保存、不上传，也不评分。
+- 浏览器生成并重新验证 Attempt v1，再按固定规则给出五维 100 分结果；
+- 总分、维度和逐条反馈可审计，不判断自由文本语义，不展示标准答案；
+- Attempt 与评分均不保存、不上传，也不调用 AI。
 
-页面只导入公开 `scenario.json`，不会加载内部答案或 canonical attempt。实现与测试边界见
-[逐步取证页面](../../docs/incident-detective-page.md)。实验状态现为 Alpha；P2-004 再增加
-独立的确定性评分合同。
+页面导入公开 `scenario.json` 与独立评分规则，但不会加载内部答案或 canonical attempt。
+实现与测试边界见[逐步取证页面](../../docs/incident-detective-page.md)和
+[确定性证据评分](../../docs/incident-detective-scoring.md)。实验状态现为 Alpha。
 
 ## AI 边界
 

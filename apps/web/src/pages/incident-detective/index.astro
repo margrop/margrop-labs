@@ -2,8 +2,10 @@
 import IncidentDetectiveWorkbench from "../../components/IncidentDetectiveWorkbench";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { validateIncidentDetectiveScenario } from "../../lib/incident-detective-contracts";
+import { validateIncidentDetectiveScoringRules } from "../../lib/incident-detective-scoring";
 import { loadLabManifests } from "../../lib/lab-manifests";
 import scenarioCandidate from "../../../../../labs/incident-detective/cases/mysql-leading-wildcard/scenario.json";
+import scoringRulesCandidate from "../../../../../labs/incident-detective/cases/mysql-leading-wildcard/score-rules.internal.json";
 
 const labs = await loadLabManifests();
 const lab = labs.find((candidate) => candidate.id === "incident-detective");
@@ -21,6 +23,10 @@ if (!articleUrl) {
 }
 
 const scenario = validateIncidentDetectiveScenario(scenarioCandidate);
+const scoringRules = validateIncidentDetectiveScoringRules(
+  scenario,
+  scoringRulesCandidate,
+);
 ---
 
 <BaseLayout
@@ -41,12 +47,13 @@ const scenario = validateIncidentDetectiveScenario(scenarioCandidate);
         <div><dt>DATA</dt><dd>完全合成</dd></div>
         <div><dt>NETWORK</dt><dd>不连接监控</dd></div>
         <div><dt>AI</dt><dd>本局不调用</dd></div>
-        <div><dt>RESULT</dt><dd>不保存、不评分</dd></div>
+        <div><dt>RESULT</dt><dd>本地规则评分</dd></div>
       </dl>
     </header>
 
     <IncidentDetectiveWorkbench
       scenario={scenario}
+      scoringRules={scoringRules}
       articleUrl={articleUrl}
       sourceUrl="https://github.com/margrop/margrop-labs/tree/main/labs/incident-detective/cases/mysql-leading-wildcard"
       client:visible={{ rootMargin: "200px" }}
