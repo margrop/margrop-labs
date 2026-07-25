@@ -1,0 +1,8 @@
+smartctl 7.4 2023-08-01 r5530 [x86_64-linux-synthetic] (local build)
+Copyright (C) 2002-23, smartmontools developers
+
+SYNTHETIC USB-SAT BRIDGE TEST CASE
+Read Device Identity failed: scsi error unsupported field in scsi command
+
+If this is a USB connected device, look at the various --device=TYPE variants
+A mandatory SMART command failed: exiting.

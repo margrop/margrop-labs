@@ -1,0 +1,102 @@
+{
+  "schema_version": "1.0",
+  "lab_id": "smart-rma",
+  "synthetic_only": true,
+  "fixtures": [
+    {
+      "id": "ata-healthy-7-4",
+      "file": "ata-healthy-7-4.txt",
+      "protocol": "ata",
+      "smartctl_version": "7.4",
+      "expected_state": "healthy",
+      "coverage": ["healthy"],
+      "missing_fields": [],
+      "expected_signals": ["smart-overall-passed"]
+    },
+    {
+      "id": "ata-warning-7-4",
+      "file": "ata-warning-7-4.txt",
+      "protocol": "ata",
+      "smartctl_version": "7.4",
+      "expected_state": "warning",
+      "coverage": ["warning", "conflicting-signals"],
+      "missing_fields": [],
+      "expected_signals": [
+        "smart-overall-passed",
+        "ata-reallocated-sectors",
+        "ata-pending-sectors",
+        "ata-uncorrectable-sectors",
+        "ata-error-log"
+      ]
+    },
+    {
+      "id": "ata-vendor-extension-7-3",
+      "file": "ata-vendor-extension-7-3.txt",
+      "protocol": "ata",
+      "smartctl_version": "7.3",
+      "expected_state": "healthy",
+      "coverage": ["healthy", "vendor-extension"],
+      "missing_fields": [],
+      "expected_signals": ["smart-overall-passed", "vendor-extension"]
+    },
+    {
+      "id": "nvme-healthy-7-4",
+      "file": "nvme-healthy-7-4.txt",
+      "protocol": "nvme",
+      "smartctl_version": "7.4",
+      "expected_state": "healthy",
+      "coverage": ["healthy"],
+      "missing_fields": [],
+      "expected_signals": ["smart-overall-passed", "nvme-percentage-used"]
+    },
+    {
+      "id": "nvme-critical-7-4",
+      "file": "nvme-critical-7-4.txt",
+      "protocol": "nvme",
+      "smartctl_version": "7.4",
+      "expected_state": "critical",
+      "coverage": ["critical"],
+      "missing_fields": [],
+      "expected_signals": [
+        "smart-overall-failed",
+        "nvme-critical-warning",
+        "nvme-spare-below-threshold",
+        "nvme-percentage-used",
+        "nvme-media-errors"
+      ]
+    },
+    {
+      "id": "sat-smart-unavailable-7-4",
+      "file": "sat-smart-unavailable-7-4.txt",
+      "protocol": "unknown",
+      "smartctl_version": "7.4",
+      "expected_state": "unknown",
+      "coverage": ["unknown", "missing-fields", "smart-unavailable"],
+      "missing_fields": [
+        "model",
+        "serial_number",
+        "firmware_version",
+        "overall_health",
+        "temperature",
+        "power_on_hours"
+      ],
+      "expected_signals": ["smart-unavailable"]
+    },
+    {
+      "id": "ata-incomplete-6-5",
+      "file": "ata-incomplete-6-5.txt",
+      "protocol": "ata",
+      "smartctl_version": "6.5",
+      "expected_state": "unknown",
+      "coverage": ["unknown", "missing-fields"],
+      "missing_fields": [
+        "serial_number",
+        "firmware_version",
+        "overall_health",
+        "temperature",
+        "power_on_hours"
+      ],
+      "expected_signals": ["incomplete-identification"]
+    }
+  ]
+}

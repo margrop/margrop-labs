@@ -1,0 +1,12 @@
+smartctl 6.5 2016-05-07 r4318 [x86_64-linux-synthetic] (local build)
+Copyright (C) 2002-16, smartmontools developers
+
+=== START OF INFORMATION SECTION ===
+Device Model:     MARGROP LABS SYNTHETIC LEGACY ATA
+ATA Version is:   ATA8-ACS revision 4
+Local Time is:    Sat Jul 25 12:25:00 2026 UTC
+SMART support is: Ambiguous - ATA IDENTIFY DEVICE words 82-83 do not show if SMART is supported.
+SMART support is: Unknown - try enabling SMART to continue this synthetic test.
+
+=== START OF READ SMART DATA SECTION ===
+SMART Status not supported: incomplete synthetic identify response
