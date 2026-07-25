@@ -1,0 +1,125 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lab.margrop.net/schemas/smart-rma-fixture-index-v1.schema.json",
+  "title": "SMART / RMA Synthetic Fixture Index v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "lab_id", "synthetic_only", "fixtures"],
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "lab_id": {
+      "const": "smart-rma"
+    },
+    "synthetic_only": {
+      "const": true
+    },
+    "fixtures": {
+      "type": "array",
+      "minItems": 6,
+      "maxItems": 16,
+      "items": {
+        "$ref": "#/$defs/fixture"
+      }
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "maxLength": 80
+    },
+    "fixture": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "file",
+        "protocol",
+        "smartctl_version",
+        "expected_state",
+        "coverage",
+        "missing_fields",
+        "expected_signals"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "file": {
+          "type": "string",
+          "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*\\.txt$",
+          "maxLength": 100
+        },
+        "protocol": {
+          "enum": ["ata", "nvme", "unknown"]
+        },
+        "smartctl_version": {
+          "type": "string",
+          "pattern": "^[0-9]+\\.[0-9]+$",
+          "maxLength": 12
+        },
+        "expected_state": {
+          "enum": ["healthy", "warning", "critical", "unknown"]
+        },
+        "coverage": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 8,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "healthy",
+              "warning",
+              "critical",
+              "unknown",
+              "missing-fields",
+              "vendor-extension",
+              "smart-unavailable",
+              "conflicting-signals"
+            ]
+          }
+        },
+        "missing_fields": {
+          "type": "array",
+          "maxItems": 8,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "model",
+              "serial_number",
+              "firmware_version",
+              "overall_health",
+              "temperature",
+              "power_on_hours"
+            ]
+          }
+        },
+        "expected_signals": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 12,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "smart-overall-passed",
+              "smart-overall-failed",
+              "ata-reallocated-sectors",
+              "ata-pending-sectors",
+              "ata-uncorrectable-sectors",
+              "ata-error-log",
+              "nvme-critical-warning",
+              "nvme-spare-below-threshold",
+              "nvme-percentage-used",
+              "nvme-media-errors",
+              "vendor-extension",
+              "smart-unavailable",
+              "incomplete-identification"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

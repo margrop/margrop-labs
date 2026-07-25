@@ -1,0 +1,48 @@
+smartctl 7.4 2023-08-01 r5530 [x86_64-linux-synthetic] (local build)
+Copyright (C) 2002-23, smartmontools developers
+
+=== START OF INFORMATION SECTION ===
+Model Number:                       MARGROP LABS SYNTHETIC NVME 2TB
+Serial Number:                      SYNTHETIC-NVME-CRITICAL-0005
+Firmware Version:                   NVC1
+PCI Vendor/Subsystem ID:            0x0000
+IEEE OUI Identifier:                0x000000
+Total NVM Capacity:                 2,000,398,934,016 [2.00 TB]
+Unallocated NVM Capacity:           0
+Controller ID:                      1
+NVMe Version:                       1.4
+Number of Namespaces:               1
+Namespace 1 Size/Capacity:          2,000,398,934,016 [2.00 TB]
+Namespace 1 Formatted LBA Size:     512
+Local Time is:                      Sat Jul 25 12:20:00 2026 UTC
+Warning  Comp. Temp. Threshold:     82 Celsius
+Critical Comp. Temp. Threshold:     86 Celsius
+
+=== START OF SMART DATA SECTION ===
+SMART overall-health self-assessment test result: FAILED!
+- available spare has fallen below threshold
+- NVM subsystem reliability has been degraded
+
+SMART/Health Information (NVMe Log 0x02)
+Critical Warning:                   0x09
+Temperature:                        71 Celsius
+Available Spare:                    4%
+Available Spare Threshold:          10%
+Percentage Used:                    103%
+Data Units Read:                    98,765,432 [50.5 TB]
+Data Units Written:                 123,456,789 [63.2 TB]
+Host Read Commands:                 456,789,012
+Host Write Commands:                567,890,123
+Controller Busy Time:               39,500
+Power Cycles:                       94
+Power On Hours:                     28,400
+Unsafe Shutdowns:                   18
+Media and Data Integrity Errors:    27
+Error Information Log Entries:      41
+Warning  Comp. Temperature Time:    320
+Critical Comp. Temperature Time:    12
+
+Error Information (NVMe Log 0x01, 16 of 256 entries)
+Num   ErrCount  SQId   CmdId  Status  PELoc          LBA  NSID    VS
+  0         41     3  0x0042  0x0281  0x000            1     1     -
+  1         40     2  0x0031  0x0281  0x000            2     1     -

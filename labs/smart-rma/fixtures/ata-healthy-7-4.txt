@@ -1,0 +1,45 @@
+smartctl 7.4 2023-08-01 r5530 [x86_64-linux-synthetic] (local build)
+Copyright (C) 2002-23, smartmontools developers
+
+=== START OF INFORMATION SECTION ===
+Device Model:     MARGROP LABS SYNTHETIC SATA 1TB
+Serial Number:    SYNTHETIC-ATA-HEALTHY-0001
+LU WWN Device Id: 0 000000 000000000
+Firmware Version: SYN1
+User Capacity:    1,000,204,886,016 bytes [1.00 TB]
+Sector Sizes:     512 bytes logical, 4096 bytes physical
+Rotation Rate:    Solid State Device
+Form Factor:      2.5 inches
+Device is:        Not in smartctl database 7.3/5528
+ATA Version is:   ACS-4 T13/BSR INCITS 529 revision 5
+SATA Version is:  SATA 3.4, 6.0 Gb/s
+Local Time is:    Sat Jul 25 12:00:00 2026 UTC
+SMART support is: Available - device has SMART capability.
+SMART support is: Enabled
+
+=== START OF READ SMART DATA SECTION ===
+SMART overall-health self-assessment test result: PASSED
+
+General SMART Values:
+Offline data collection status:  (0x82) Offline data collection activity
+                                        was completed without error.
+Self-test execution status:      (   0) The previous self-test routine completed
+                                        without error or no self-test has ever run.
+Total time to complete Offline
+data collection:                (  120) seconds.
+
+SMART Attributes Data Structure revision number: 16
+Vendor Specific SMART Attributes with Thresholds:
+ID# ATTRIBUTE_NAME          FLAG     VALUE WORST THRESH TYPE      UPDATED  WHEN_FAILED RAW_VALUE
+  5 Reallocated_Sector_Ct   0x0033   100   100   010    Pre-fail  Always       -       0
+  9 Power_On_Hours          0x0032   099   099   000    Old_age   Always       -       720
+194 Temperature_Celsius     0x0022   068   060   000    Old_age   Always       -       32
+197 Current_Pending_Sector  0x0012   100   100   000    Old_age   Always       -       0
+198 Offline_Uncorrectable   0x0010   100   100   000    Old_age   Offline      -       0
+
+SMART Error Log Version: 1
+No Errors Logged
+
+SMART Self-test log structure revision number 1
+Num  Test_Description    Status                  Remaining  LifeTime(hours)  LBA_of_first_error
+# 1  Short offline       Completed without error       00%       700         -
