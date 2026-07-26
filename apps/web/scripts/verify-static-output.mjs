@@ -147,6 +147,7 @@ const checks = [
       tokenForgeHtml.includes('name="expires_in_days"') &&
       tokenForgeHtml.includes('name="available_hours"') &&
       tokenForgeHtml.includes('name="tech_stack"') &&
+      tokenForgeHtml.includes('name="repository_url"') &&
       tokenForgeHtml.includes('name="goal"') &&
       tokenForgeHtml.includes("<textarea"),
   ],
@@ -157,13 +158,18 @@ const checks = [
   ],
   [
     "Token Forge privacy disclosure",
-    ["无需登录", "不读取仓库", "不调用 AI", "不保存输入"].every((label) =>
-      tokenForgeHtml.includes(label),
-    ),
+    [
+      "无需登录",
+      "公开只读",
+      "不发送 GitHub Token",
+      "不调用 AI",
+      "不保存输入",
+    ].every((label) => tokenForgeHtml.includes(label)),
   ],
   [
-    "Token Forge no repository or AI field",
-    !tokenForgeHtml.includes('name="repository') &&
+    "Token Forge optional repository and no AI key field",
+    tokenForgeHtml.includes('name="repository_url"') &&
+      tokenForgeHtml.includes("https://github.com/owner/repository") &&
       !tokenForgeHtml.includes('name="api_key'),
   ],
   [

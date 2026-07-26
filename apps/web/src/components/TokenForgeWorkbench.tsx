@@ -1,23 +1,17 @@
-import { useEffect, useState } from "preact/hooks";
+import { useEffect, useRef, useState } from "preact/hooks";
 
-import type {
-  TokenForgeInput,
-  TokenForgePlan,
-} from "../lib/token-forge-contracts";
-import {
-  type TokenForgeExportBundle,
-  buildTokenForgeExports,
-} from "../lib/token-forge-exports";
 import {
   type TokenForgeEventName,
   type TokenForgeFormValues,
   TokenForgeFormError,
-  buildTokenForgeInputFromForm,
   classifyTokenForgeDevice,
   emitTokenForgeEvent,
   tokenForgeSyntheticFormValues,
 } from "../lib/token-forge-page";
-import { generateTokenForgeTemplatePlan } from "../lib/token-forge-templates";
+import {
+  type TokenForgeRepositoryPageResult,
+  generateTokenForgeRepositoryPageResult,
+} from "../lib/token-forge-repository-page";
 import { EvidenceCard } from "./ui/EvidenceCard";
 import { ExportActions } from "./ui/ExportActions";
 import { FormField } from "./ui/FormField";
@@ -28,12 +22,6 @@ type TokenForgeWorkbenchProps = {
   sourceUrl: string;
 };
 
-type TokenForgeResult = {
-  input: TokenForgeInput;
-  plan: TokenForgePlan;
-  exports: TokenForgeExportBundle;
-};
-
 type WorkbenchStatus = {
   tone: StatusTone;
   title: string;
@@ -42,9 +30,9 @@ type WorkbenchStatus = {
 
 const initialStatus: WorkbenchStatus = {
   tone: "info",
-  title: "本地模式已就绪",
+  title: "模板模式已就绪",
   message:
-    "表单只在当前浏览器标签页中处理；生成计划不登录、不读取仓库，也不调用 AI。",
+    "仓库地址留空时完全本地运行；填写后只读取有硬上限的公开 GitHub 样本，失败仍保留模板计划。",
 };
 
 const freshSyntheticValues = (): TokenForgeFormValues => ({
@@ -61,8 +49,12 @@ export default function TokenForgeWorkbench({
   sourceUrl,
 }: TokenForgeWorkbenchProps) {
   const [form, setForm] = useState<TokenForgeFormValues>(freshSyntheticValues);
-  const [result, setResult] = useState<TokenForgeResult | null>(null);
+  const [result, setResult] = useState<TokenForgeRepositoryPageResult | null>(
+    null,
+  );
   const [status, setStatus] = useState<WorkbenchStatus>(initialStatus);
+  const [isLoading, setIsLoading] = useState(false);
+  const runVersion = useRef(0);
 
   useEffect(() => {
     track("lab_open");
@@ -72,38 +64,84 @@ export default function TokenForgeWorkbench({
     field: keyof TokenForgeFormValues,
     value: string,
   ): void => {
+    runVersion.current += 1;
     setForm((current) => ({ ...current, [field]: value }));
     setResult(null);
+    setIsLoading(false);
     setStatus(initialStatus);
   };
 
   const loadSyntheticExample = (): void => {
+    runVersion.current += 1;
     setForm(freshSyntheticValues());
     setResult(null);
+    setIsLoading(false);
     setStatus({
       tone: "info",
       title: "合成样例已载入",
-      message: "这些是公开的演示值；你可以直接生成，也可以继续修改。",
+      message:
+        "这些是公开的演示值，仓库地址保持留空；你可以直接生成，也可以继续修改。",
     });
   };
 
-  const generatePlan = (event: SubmitEvent): void => {
+  const generatePlan = async (event: SubmitEvent): Promise<void> => {
     event.preventDefault();
+    const currentRun = runVersion.current + 1;
+    runVersion.current = currentRun;
+    const repositoryRequested = form.repository_url.trim().length > 0;
+
+    setResult(null);
+    setIsLoading(true);
+    setStatus(
+      repositoryRequested
+        ? {
+            tone: "info",
+            title: "正在读取公开仓库摘要",
+            message:
+              "只向固定 GitHub API 发出受限 GET 请求；最多读取 8 个文本文件，每次请求最多等待 5 秒。",
+          }
+        : {
+            tone: "info",
+            title: "正在验证本地模板",
+            message: "仓库地址为空，不会发生网络请求。",
+          },
+    );
 
     try {
-      const input = buildTokenForgeInputFromForm(form);
-      const plan = generateTokenForgeTemplatePlan(input);
-      const exports = buildTokenForgeExports(input, plan);
+      const nextResult = await generateTokenForgeRepositoryPageResult(form);
 
-      setResult({ input, plan, exports });
-      setStatus({
-        tone: "ready",
-        title: "模板计划已生成",
-        message:
-          "计划已通过输入、预算、工时和导出合同校验；没有发生网络请求或 AI 调用。",
-      });
+      if (runVersion.current !== currentRun) {
+        return;
+      }
+
+      setResult(nextResult);
+      if (nextResult.repository.status === "fallback") {
+        setStatus({
+          tone: "warning",
+          title: "仓库摘要已降级，模板计划可用",
+          message: `${nextResult.repository.message} 本地计划与两种导出仍已通过验证。`,
+        });
+      } else if (nextResult.repository.status === "summarized") {
+        setStatus({
+          tone: "ready",
+          title: "模板计划与仓库证据已就绪",
+          message:
+            "受限公开仓库摘要已完成；本阶段只展示覆盖证据，尚未让仓库正文改写模板任务。",
+        });
+      } else {
+        setStatus({
+          tone: "ready",
+          title: "本地模板计划已生成",
+          message:
+            "计划已通过输入、预算、工时和导出合同校验；没有发生网络请求或 AI 调用。",
+        });
+      }
       track("run_success");
     } catch (error) {
+      if (runVersion.current !== currentRun) {
+        return;
+      }
+
       setResult(null);
       setStatus({
         tone: "error",
@@ -114,6 +152,10 @@ export default function TokenForgeWorkbench({
             : "本地合同校验没有通过，请检查字段后重试。",
       });
       track("run_failure");
+    } finally {
+      if (runVersion.current === currentRun) {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -130,7 +172,11 @@ export default function TokenForgeWorkbench({
 
   return (
     <div class="token-forge-shell">
-      <form class="token-forge-form" onSubmit={generatePlan}>
+      <form
+        class="token-forge-form"
+        onSubmit={generatePlan}
+        aria-busy={isLoading}
+      >
         <div class="token-forge-form-heading">
           <div>
             <p class="section-kicker">LOCAL TEMPLATE ENGINE</p>
@@ -228,6 +274,33 @@ export default function TokenForgeWorkbench({
         </div>
 
         <FormField
+          id="repository-url"
+          label="公开 GitHub 仓库（可选）"
+          value={
+            form.repository_url.trim().length > 0
+              ? "将读取受限公开样本"
+              : "留空即完全本地"
+          }
+          hint="只接受 https://github.com/owner/repository；不支持私有仓库，不要提供 Token。"
+        >
+          <input
+            id="repository-url"
+            name="repository_url"
+            type="text"
+            inputMode="url"
+            maxLength={200}
+            autoComplete="off"
+            spellcheck={false}
+            placeholder="https://github.com/owner/repository"
+            value={form.repository_url}
+            aria-describedby="repository-url-hint"
+            onInput={(event) =>
+              updateField("repository_url", event.currentTarget.value)
+            }
+          />
+        </FormField>
+
+        <FormField
           id="token-goal"
           label="想完成的目标"
           value={`${form.goal.length}/500`}
@@ -246,12 +319,17 @@ export default function TokenForgeWorkbench({
         </FormField>
 
         <div class="token-forge-actions">
-          <button class="button button--primary" type="submit">
-            生成任务计划
+          <button
+            class="button button--primary"
+            type="submit"
+            disabled={isLoading}
+          >
+            {isLoading ? "正在生成…" : "生成任务计划"}
           </button>
           <button
             class="button button--secondary"
             type="button"
+            disabled={isLoading}
             onClick={loadSyntheticExample}
           >
             载入合成样例
@@ -260,7 +338,12 @@ export default function TokenForgeWorkbench({
 
         <div class="token-forge-privacy">
           <strong>本页不保存表单。</strong>
-          <span>无需登录 · 不读取仓库 · 不调用 AI · 不上传目标正文</span>
+          <span>
+            无需登录 · 仓库可选且仅限公开只读 · 不发送 GitHub Token · 不调用 AI
+          </span>
+          <span>
+            文件路径与正文不展示、不导出、不进入事件；目标正文不上传。
+          </span>
         </div>
       </form>
 
@@ -336,6 +419,82 @@ export default function TokenForgeWorkbench({
               value="template · deterministic"
             >
               <p>使用 P1-002 固定模板，并重新通过 Token Forge v1 合同。</p>
+            </EvidenceCard>
+            <EvidenceCard
+              kind={
+                result.repository.status === "fallback" ? "unknown" : "input"
+              }
+              title="公开仓库覆盖"
+              value={
+                result.repository.status === "summarized"
+                  ? `${result.repository.coverage.read_files} 读取 · ${result.repository.coverage.ignored_files} 忽略 · ${result.repository.coverage.truncated_sections} 截断 · ${result.repository.unknowns.length} 未知`
+                  : result.repository.status === "fallback"
+                    ? "已降级到模板"
+                    : "未提供 · 未读取"
+              }
+            >
+              {result.repository.status === "summarized" ? (
+                <>
+                  <ul
+                    class="token-forge-coverage"
+                    aria-label="公开仓库摘要覆盖计数"
+                  >
+                    <li>
+                      <strong>
+                        {result.repository.coverage.tree_entries_seen}
+                      </strong>
+                      <span>检查目录项</span>
+                    </li>
+                    <li>
+                      <strong>{result.repository.coverage.read_files}</strong>
+                      <span>读取文件</span>
+                    </li>
+                    <li>
+                      <strong>
+                        {result.repository.coverage.ignored_files}
+                      </strong>
+                      <span>忽略文件</span>
+                    </li>
+                    <li>
+                      <strong>
+                        {result.repository.coverage.truncated_sections}
+                      </strong>
+                      <span>截断标记</span>
+                    </li>
+                  </ul>
+                  <p>
+                    技术信号：
+                    {result.repository.tech_signals.join("、") || "未识别"}。
+                    读取上限 {result.repository.limits.max_files} 个文件 /{" "}
+                    {Math.round(
+                      result.repository.limits.max_total_bytes / 1024,
+                    )}{" "}
+                    KiB。
+                  </p>
+                  <p>
+                    跳过明细：疑似秘密{" "}
+                    {result.repository.coverage.skipped_secret}
+                    ，二进制或生成文件{" "}
+                    {result.repository.coverage.skipped_binary_or_generated}
+                    ，过大 {result.repository.coverage.skipped_too_large}
+                    ，读取失败 {result.repository.coverage.skipped_fetch_errors}
+                    ，采样上限{" "}
+                    {result.repository.coverage.skipped_by_sampling_limit}。
+                  </p>
+                  <ul class="token-forge-unknowns">
+                    {result.repository.unknowns.map((unknown) => (
+                      <li key={unknown}>{unknown}</li>
+                    ))}
+                  </ul>
+                </>
+              ) : result.repository.status === "fallback" ? (
+                <p>
+                  {result.repository.message}
+                  仓库内容没有进入结果，模板计划与导出保持可用。
+                </p>
+              ) : (
+                <p>仓库地址留空，本次只依据表单生成模板，没有网络请求。</p>
+              )}
             </EvidenceCard>
             <EvidenceCard kind="ai" title="模型调用" value="未调用">
               <p>当前正式页面不需要 API Key，也不会把表单交给模型。</p>

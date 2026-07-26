@@ -11,6 +11,10 @@ import {
   type TokenForgeInput,
   validateTokenForgeInput,
 } from "./token-forge-contracts";
+import {
+  GitHubPublicRepositoryError,
+  parsePublicGitHubRepositoryUrl,
+} from "./github-public-repository";
 
 export type TokenForgeFormValues = {
   token_budget: string;
@@ -18,6 +22,7 @@ export type TokenForgeFormValues = {
   available_hours: string;
   tech_stack: string;
   goal: string;
+  repository_url: string;
 };
 
 export const tokenForgeSyntheticFormValues: Readonly<TokenForgeFormValues> =
@@ -27,6 +32,7 @@ export const tokenForgeSyntheticFormValues: Readonly<TokenForgeFormValues> =
     available_hours: "12",
     tech_stack: "TypeScript, Astro, Vitest",
     goal: "为一篇技术文章实现一个无需登录、无需 AI、可以本地导出的互动工具",
+    repository_url: "",
   });
 
 export type TokenForgeFormErrorCode =
@@ -35,6 +41,7 @@ export type TokenForgeFormErrorCode =
   | "invalid_hours"
   | "invalid_stack"
   | "invalid_goal"
+  | "invalid_repository_url"
   | "sensitive_input";
 
 export const tokenForgeFormErrorMessages: Record<
@@ -46,6 +53,8 @@ export const tokenForgeFormErrorMessages: Record<
   invalid_hours: "可投入时间必须是 1–80 小时，并以 0.5 小时为步长。",
   invalid_stack: "请提供 1–8 个技术栈，用逗号或换行分隔。",
   invalid_goal: "目标需要包含 10–500 个字符。",
+  invalid_repository_url:
+    "仓库地址必须是规范的公开 GitHub HTTPS 地址，例如 https://github.com/owner/repository。",
   sensitive_input: "检测到 Token、Cookie 或 Authorization，请移除后重试。",
 };
 
@@ -171,6 +180,24 @@ export const buildTokenForgeInputFromForm = (
     throw new TokenForgeFormError("invalid_goal");
   }
 
+  const repositoryUrl = candidate.repository_url.trim();
+  let normalizedRepositoryUrl: string | undefined;
+  if (repositoryUrl.length > 0) {
+    if (repositoryUrl.length > 200) {
+      throw new TokenForgeFormError("invalid_repository_url");
+    }
+
+    try {
+      const { owner, name } = parsePublicGitHubRepositoryUrl(repositoryUrl);
+      normalizedRepositoryUrl = `https://github.com/${owner}/${name}`;
+    } catch (error) {
+      if (error instanceof GitHubPublicRepositoryError) {
+        throw new TokenForgeFormError("invalid_repository_url");
+      }
+      throw error;
+    }
+  }
+
   let sanitized: unknown;
   try {
     sanitized = sanitizeAllowedFields(
@@ -195,7 +222,12 @@ export const buildTokenForgeInputFromForm = (
   }
 
   try {
-    return validateTokenForgeInput(sanitized);
+    return validateTokenForgeInput({
+      ...(sanitized as Record<string, unknown>),
+      ...(normalizedRepositoryUrl === undefined
+        ? {}
+        : { repository_url: normalizedRepositoryUrl }),
+    });
   } catch {
     throw new TokenForgeFormError("invalid_goal");
   }
