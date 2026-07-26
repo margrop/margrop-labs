@@ -3,7 +3,6 @@
   "name": "margrop-labs",
   "main": "./src/worker.ts",
   "compatibility_date": "2026-07-24",
-  "compatibility_flags": ["allow_custom_ports"],
   "workers_dev": false,
   "routes": [
     {
