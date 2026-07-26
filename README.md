@@ -89,9 +89,10 @@ npm run dev --workspace @margrop-labs/web
 AI Gateway 和 P0-007 脱敏边界上实现 Token Forge AI 任务拆分核心：最小仓库上下文、
 确定性输出安全检查和 P1-002 完整降级均已有合成测试。P1-005 已增加验证计划的本地
 Markdown 和逐任务 GitHub Issue 草稿，包含脱敏、Markdown 安全、固定文件名和大小上限。
-P1-006 已把无需登录、仓库和 AI 的模板生成、证据展示与两种本地导出接到
-`/token-forge/`，并将首页卡片升级为正式入口。最小转化事件已定义但保持空接收器，不会在
-P4-003 前发送数据。P2-001 已定义完全合成的 Incident Detective 场景/证据与单局推理
+P1-006 已把无需登录、仓库和 AI 的模板生成与两种本地导出接到 `/token-forge/`；P1-007
+又接入可选的受限公开 GitHub 摘要，只展示固定技术标签、覆盖计数和安全未知项，任何仓库
+失败都保留模板与导出。最小转化事件已定义但保持空接收器，不会在 P4-003 前发送数据。
+P2-001 已定义完全合成的 Incident Detective 场景/证据与单局推理
 合同；P2-002 已完成首个 MySQL + Prometheus + Loki 合成事故，包含 10 份证据、13/9
 点预算取舍、合理反证、按证据揭示的时间线和与公开场景分离的内部答案草稿。P2-003 已上线
 逐步取证 Alpha 页面：用户可以管理预算与解锁、查看五类证据和时间线，并在本地生成
@@ -103,5 +104,5 @@ Score-only 的确定性 SVG 下载，Incident Detective MVP 六个任务全部�
 缺失字段、厂商扩展、SMART 不可用和冲突信号。P3-002 已上线浏览器端只读解析工作台和
 Parse Result v1。P3-003 已增加序列号、WWN、主机名、IP 与常见 Secret 的本地脱敏预览，
 以及不含自由文本的 Boundary Projection v1；URL、日志和 Analytics 进一步收窄为固定元数据，
-AI 与导出尚未启用，现有结果仍不构成厂商保修判断。下一步改为 P1-007，把已有公开 GitHub
-仓库摘要适配器接入 Token Forge 页面；完整顺序以 Token Forge 优先路线图为准。
+AI 与导出尚未启用，现有结果仍不构成厂商保修判断。Token Forge 下一步是 P4-004，为生产
+AI 建立预算、限流和熔断边界；完整顺序以 Token Forge 优先路线图为准。

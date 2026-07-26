@@ -898,6 +898,11 @@ a {
   border-color: rgba(80, 227, 208, 0.48);
 }
 
+.token-forge-form button:disabled {
+  cursor: wait;
+  opacity: 0.68;
+}
+
 .token-forge-actions,
 .token-forge-next-links {
   display: flex;
@@ -999,6 +1004,42 @@ a {
 
 .token-forge-evidence {
   margin-top: 0;
+}
+
+.token-forge-coverage {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.55rem;
+  margin: 0 0 0.9rem;
+  padding: 0;
+  list-style: none;
+}
+
+.token-forge-coverage li {
+  display: grid;
+  gap: 0.12rem;
+  padding: 0.55rem;
+  border: 1px solid var(--line);
+  border-radius: 0.55rem;
+  background: rgba(8, 17, 31, 0.46);
+}
+
+.token-forge-coverage strong {
+  color: var(--cyan);
+  font-family: ui-monospace, monospace;
+  font-size: 1rem;
+}
+
+.token-forge-coverage span,
+.token-forge-unknowns {
+  color: var(--muted);
+  font-size: 0.72rem;
+}
+
+.token-forge-unknowns {
+  margin: 0.8rem 0 0;
+  padding-left: 1.1rem;
+  line-height: 1.55;
 }
 
 .token-forge-export-grid {
@@ -2419,7 +2460,8 @@ a {
   }
 
   .token-forge-field-grid,
-  .token-forge-task-columns {
+  .token-forge-task-columns,
+  .token-forge-coverage {
     grid-template-columns: 1fr;
   }
 

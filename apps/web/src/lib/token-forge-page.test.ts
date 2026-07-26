@@ -37,6 +37,17 @@ describe("Token Forge page input", () => {
     expect(input.tech_stack).toEqual(["TypeScript", "Astro", "Vitest"]);
   });
 
+  it("normalizes an optional canonical public repository URL", () => {
+    const input = buildTokenForgeInputFromForm({
+      ...tokenForgeSyntheticFormValues,
+      repository_url: "  https://github.com/acme/synthetic-repository.git  ",
+    });
+
+    expect(input.repository_url).toBe(
+      "https://github.com/acme/synthetic-repository",
+    );
+  });
+
   it("redacts identifiers before they enter a plan", () => {
     const rawEmail = "operator@example.com";
     const rawIp = "192.0.2.42";
@@ -74,6 +85,13 @@ describe("Token Forge page input", () => {
     [{ available_hours: "1.2" }, "invalid_hours"],
     [{ tech_stack: "" }, "invalid_stack"],
     [{ goal: "太短" }, "invalid_goal"],
+    [
+      {
+        repository_url:
+          "https://github.com/acme/synthetic-repository/tree/main",
+      },
+      "invalid_repository_url",
+    ],
   ])("returns a stable error for invalid form values", (override, code) => {
     expect(() =>
       buildTokenForgeInputFromForm({
