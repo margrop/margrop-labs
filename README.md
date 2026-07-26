@@ -105,8 +105,7 @@ Score-only 的确定性 SVG 下载，Incident Detective MVP 六个任务全部�
 缺失字段、厂商扩展、SMART 不可用和冲突信号。P3-002 已上线浏览器端只读解析工作台和
 Parse Result v1。P3-003 已增加序列号、WWN、主机名、IP 与常见 Secret 的本地脱敏预览，
 以及不含自由文本的 Boundary Projection v1；URL、日志和 Analytics 进一步收窄为固定元数据，
-AI 与导出尚未启用，现有结果仍不构成厂商保修判断。P4-004 已为 Token Forge 建立按最坏
-两次 Provider 尝试预留的 Token/微美元预算、匿名用户与全局限流、并发和熔断状态机，
-快照不含输入正文；它目前仍是 Provider-neutral 的离线核心。Token Forge 下一步是 P1-008，
-为该状态机接入原子持久化、真实 Provider 与页面模板降级；完整顺序以 Token Forge 优先
-路线图为准。
+AI 与导出尚未启用，现有结果仍不构成厂商保修判断。P1-008 已为 Token Forge 增加固定
+OpenAI-compatible 服务端 Adapter、HMAC 匿名限流、SQLite Durable Object 原子状态和显式
+AI 增强入口；浏览器无密钥，任一失败保留模板。代码仍需配置 Preview Secrets、验证真实
+接口并由人工决定 Production，之后才进入 P1-009；完整顺序以 Token Forge 优先路线图为准。

@@ -1,15 +1,14 @@
 # Token Forge AI 任务拆分
 
-P1-004 在 P1-002 确定性模板之上增加 Provider-neutral 的 AI 规划核心。它定义
-`token-forge.plan-v1` 操作、最小输入、确定性输出后处理和完整降级行为；当前不包含真实
-Provider、HTTP 路由或页面交互。
+P1-004 在 P1-002 确定性模板之上增加 Provider-neutral 的 AI 规划核心。P1-008 已把它接到
+固定服务端 Provider、HTTP 路由和显式页面入口，同时保留完整模板降级。
 
 ## 执行顺序
 
 1. Token Forge v1 输入先通过业务合同；
 2. 立即生成一份经过本地脱敏的 P1-002 模板计划；
 3. 可选的 P1-003 公开仓库摘要被压缩、允许字段映射和脱敏；
-4. AI Gateway 在硬上限、超时和最多两次尝试内调用注入的 Provider Adapter；
+4. 生产 AI Gateway 在 22,000 输入、2,000 输出、15 秒和 1 次尝试内调用固定 Adapter；
 5. AI 输出重新通过 Token Forge Plan v1 合同和确定性安全规则；
 6. 任一步失败都丢弃 AI 输出并返回第 2 步的完整模板计划。
 
@@ -31,11 +30,11 @@ Provider、HTTP 路由或页面交互。
 
 ### 上下文硬上限
 
-| 项目 | 上限 |
-|---|---:|
-| 仓库片段 | 4 个 |
-| 单个片段 | 3 KiB UTF-8 |
-| 仓库正文合计 | 10 KiB UTF-8 |
+| 项目          |         上限 |
+| ------------- | -----------: |
+| 仓库片段      |         4 个 |
+| 单个片段      |  3 KiB UTF-8 |
+| 仓库正文合计  | 10 KiB UTF-8 |
 | 操作输入 JSON | 20 KiB UTF-8 |
 
 这些限制比 AI Gateway 通用上限更严格。允许字段映射会先丢弃未知字段，再替换邮箱、IP、
@@ -44,8 +43,8 @@ Provider、HTTP 路由或页面交互。
 
 ## 服务端指令
 
-`tokenForgeAiServerInstructions` 是未来 Provider 注册表使用的固定服务端配置，不能由
-Web 请求覆盖。它要求模型：
+`token-forge-ai-prompt.ts` 是只进入 Worker bundle 的固定服务端配置，不能由 Web 请求
+覆盖。它要求模型：
 
 - 只返回 `mode: "ai-assisted"` 的 Token Forge Plan v1 JSON；
 - 遵守 Token 与工时预算；
@@ -54,7 +53,9 @@ Web 请求覆盖。它要求模型：
 - 显式说明仓库覆盖范围和执行状态未知。
 
 AI Gateway 的 Provider Request 不包含 `provider`、`model`、`system_prompt` 或密钥。
-具体 Provider、模型和上述指令的注入仍属于未来服务端 Adapter 配置。
+生产 Adapter 在服务端固定 OpenAI-compatible
+`https://api-gpt.speedtest.margrop.net:16666/v1/chat/completions` 与
+`qwen-latest`；上述配置、Secret 和系统指令都不能由 Web 覆盖。
 
 ## 确定性后处理
 
@@ -87,13 +88,11 @@ AI Gateway 的 Provider Request 不包含 `provider`、`model`、`system_prompt`
 ## 生产流量边界
 
 P4-004 已提供 `token-forge.plan-v1` 专属的日 Token/微美元预算、匿名用户滑动限流、并发
-预留与熔断状态机。每次生产调用必须在 Provider 前预留最多两次尝试的最坏成本；成功后按
-所有尝试的可信汇总用量结算，任意失败或预留超时则保留全额预留。准入拒绝映射为现有
-Gateway 错误码，P1-004 继续返回完整模板计划。
+预留与熔断状态机。P1-008 用 HMAC 匿名键和 SQLite Durable Object 原子保存快照，并在
+Provider 前预留单次最坏 24,000 Token。成功按标准 usage 结算；失败或预留超时保留全额
+预留。自建上游网关负责真实货币预算，因此金额只保留最小合同占位。
 
-策略核心不包含 Provider、端点、匿名身份派生或持久化。P1-008 必须按
-[AI 流量与成本策略](./token-forge-ai-traffic-policy.md) 接入原子状态存储后，才能把本
-模块连接到正式页面。
+详细固定参数见 [AI 流量与成本策略](./token-forge-ai-traffic-policy.md)。
 
 ## 测试范围
 
@@ -106,12 +105,13 @@ Gateway 错误码，P1-004 继续返回完整模板计划。
 - Secret 预检、Provider 超时、暂时不可用和有界重试；
 - 所有失败路径回退到仍符合 v1 合同的模板计划。
 
-没有测试或实现使用真实仓库正文、真实 Provider 或真实凭据。
+测试不使用真实仓库正文、真实 Provider 或真实凭据。
 
 ## 已知限制
 
-- 尚无真实 Provider Adapter、服务端操作注册表或 HTTP API；
-- Token Forge 正式页面当前只接入确定性模板，AI 路径仍未连接；
-- 用户级/每日预算、限流和熔断已有离线状态机，但尚无生产端点与原子持久化；
+- 上游必须支持标准 Chat Completions 字符串内容与 prompt/completion usage；
+- 自定义 `16666` 端口要求上游域名保持 DNS-only，或迁移到支持的 HTTPS 端口；
+- 共享 NAT 用户共用匿名限额；匿名键轮换会创建新的匿名桶；
+- 代码完成不等于真实流量已激活，仍需 Secrets、Preview 验收和人工 Production 决定；
 - 自然语言护栏不能替代最小权限与人工确认；
 - 导出边界由 P1-005 另行实现。

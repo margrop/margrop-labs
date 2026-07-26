@@ -1,7 +1,9 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "margrop-labs",
+  "main": "./src/worker.ts",
   "compatibility_date": "2026-07-24",
+  "compatibility_flags": ["allow_custom_ports"],
   "workers_dev": false,
   "routes": [
     {
@@ -11,13 +13,57 @@
   ],
   "assets": {
     "directory": "./dist",
+    "binding": "ASSETS",
     "not_found_handling": "404-page",
+    "run_worker_first": ["/api/*"],
+  },
+  "vars": {
+    "TOKEN_FORGE_AI_BASE_URL": "https://api-gpt.speedtest.margrop.net:16666/v1",
+    "TOKEN_FORGE_AI_MODEL": "qwen-latest",
+  },
+  "secrets": {
+    "required": ["TOKEN_FORGE_AI_API_KEY", "TOKEN_FORGE_ACTOR_KEY_SECRET"],
+  },
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "TOKEN_FORGE_AI_POLICY",
+        "class_name": "TokenForgeAiPolicyObject",
+      },
+    ],
+  },
+  "exports": {
+    "TokenForgeAiPolicyObject": {
+      "type": "durable-object",
+      "storage": "sqlite",
+    },
   },
   "env": {
     "preview": {
       "name": "margrop-labs-preview",
       "workers_dev": true,
       "routes": [],
+      "vars": {
+        "TOKEN_FORGE_AI_BASE_URL": "https://api-gpt.speedtest.margrop.net:16666/v1",
+        "TOKEN_FORGE_AI_MODEL": "qwen-latest",
+      },
+      "secrets": {
+        "required": ["TOKEN_FORGE_AI_API_KEY", "TOKEN_FORGE_ACTOR_KEY_SECRET"],
+      },
+      "durable_objects": {
+        "bindings": [
+          {
+            "name": "TOKEN_FORGE_AI_POLICY",
+            "class_name": "TokenForgeAiPolicyObject",
+          },
+        ],
+      },
+      "exports": {
+        "TokenForgeAiPolicyObject": {
+          "type": "durable-object",
+          "storage": "sqlite",
+        },
+      },
     },
   },
 }
