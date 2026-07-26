@@ -9,6 +9,7 @@ import {
   type GitHubPublicRepositorySummary,
   summarizePublicGitHubRepository,
 } from "./github-public-repository";
+import type { TokenForgeAiPlanningResult } from "./token-forge-ai";
 import {
   type TokenForgeFormValues,
   TokenForgeFormError,
@@ -75,6 +76,11 @@ export type TokenForgeRepositoryPageResult = {
   plan: TokenForgePlan;
   exports: TokenForgeExportBundle;
   repository: TokenForgeRepositoryEvidence;
+  ai:
+    | {
+        status: "not-requested";
+      }
+    | TokenForgeAiPlanningResult;
 };
 
 export type TokenForgeRepositorySummaryLoader = (
@@ -83,6 +89,10 @@ export type TokenForgeRepositorySummaryLoader = (
 
 type TokenForgeRepositoryPageOptions = {
   summarizeRepository?: TokenForgeRepositorySummaryLoader;
+  enhancePlan?: (
+    input: TokenForgeInput,
+    repositorySummary?: GitHubPublicRepositorySummary,
+  ) => Promise<TokenForgeAiPlanningResult>;
 };
 
 const safeTechSignals = new Set([
@@ -176,6 +186,38 @@ const buildTemplateResult = (
     plan,
     exports,
     repository,
+    ai: { status: "not-requested" },
+  };
+};
+
+const enhanceTemplateResult = async (
+  result: TokenForgeRepositoryPageResult,
+  enhancePlan: TokenForgeRepositoryPageOptions["enhancePlan"] | undefined,
+  repositorySummary?: GitHubPublicRepositorySummary,
+): Promise<TokenForgeRepositoryPageResult> => {
+  if (enhancePlan === undefined) {
+    return result;
+  }
+
+  let ai: TokenForgeAiPlanningResult;
+  try {
+    ai = await enhancePlan(result.input, repositorySummary);
+  } catch {
+    ai = {
+      status: "template-fallback",
+      plan: result.plan,
+      fallback_reason: "gateway_provider_unavailable",
+      gateway: {
+        attempt_count: 0,
+      },
+    };
+  }
+
+  return {
+    ...result,
+    plan: ai.plan,
+    exports: buildTokenForgeExports(result.input, ai.plan),
+    ai,
   };
 };
 
@@ -204,16 +246,22 @@ export const generateTokenForgeRepositoryPageResult = async (
         ...form,
         repository_url: "",
       });
-      return buildTemplateResult(
-        templateInput,
-        fallbackEvidence("invalid_repository_url"),
+      return enhanceTemplateResult(
+        buildTemplateResult(
+          templateInput,
+          fallbackEvidence("invalid_repository_url"),
+        ),
+        options.enhancePlan,
       );
     }
     throw error;
   }
 
   if (input.repository_url === undefined) {
-    return buildTemplateResult(input, { status: "not-requested" });
+    return enhanceTemplateResult(
+      buildTemplateResult(input, { status: "not-requested" }),
+      options.enhancePlan,
+    );
   }
 
   const templateResult = buildTemplateResult(input, {
@@ -224,18 +272,25 @@ export const generateTokenForgeRepositoryPageResult = async (
 
   try {
     const summary = await summarizeRepository(input.repository_url);
-    return {
-      ...templateResult,
-      repository: projectSafeEvidence(summary),
-    };
+    return enhanceTemplateResult(
+      {
+        ...templateResult,
+        repository: projectSafeEvidence(summary),
+      },
+      options.enhancePlan,
+      summary,
+    );
   } catch (error) {
     const code =
       error instanceof GitHubPublicRepositoryError
         ? error.code
         : "network_error";
-    return {
-      ...templateResult,
-      repository: fallbackEvidence(code),
-    };
+    return enhanceTemplateResult(
+      {
+        ...templateResult,
+        repository: fallbackEvidence(code),
+      },
+      options.enhancePlan,
+    );
   }
 };

@@ -12,9 +12,9 @@
 4. AI 在受限仓库摘要上补充 S/M/L 任务；
 5. 导出 Markdown 或 GitHub Issue 文本。
 
-当前 [`/token-forge/`](https://lab.margrop.net/token-forge/) Alpha 页面已开放完整的本地
-模板路径，并接入可选的受限公开仓库摘要，可完成第 1、2、3、5 步。仓库失败不阻断模板与
-导出；AI 核心仍保持 Provider-neutral，尚未接入正式页面。
+当前 [`/token-forge/`](https://lab.margrop.net/token-forge/) Alpha 页面代码已开放完整的
+本地模板、受限公开仓库摘要、显式 AI 增强和两种导出。仓库或 AI 失败不阻断模板与导出；
+真实 AI 流量等待 Secrets、Preview 与人工 Production 验收。
 
 Token Forge 现为仓库唯一产品开发主线。公开仓库接入、生产 AI 成本边界、计划质量、
 本地编辑、Coding Agent 执行包、可靠性基准和上线验证将按
@@ -49,19 +49,19 @@ Token Forge 现为仓库唯一产品开发主线。公开仓库接入、生产 A
 代码负责输入验证、仓库读取上限、任务 Schema、去重基础和安全规则；AI 负责语义拆分、优先级解释和 Prompt 草拟。
 
 [P1-004 AI 任务拆分](../../docs/token-forge-ai-planning.md) 已实现
-`token-forge.plan-v1` 的 Provider-neutral 离线核心。Web 只能发送操作专属的最小结构化
+`token-forge.plan-v1` 的 Provider-neutral 核心。Web 只能发送操作专属的最小结构化
 数据，不能指定 Provider、模型、系统提示词或密钥。AI 只接收目标、预算约束和可选的最多
 4 个无路径脱敏片段；操作输入不超过 20 KiB。
 
 模型输出必须重新通过 Token Forge v1 合同、预算/工时、生产写操作、仓库原文回显和相似
 任务去重规则。Secret 输入、超时、不可用或无效输出都会整体丢弃，并返回 P1-002 模板计划。
-P1-004 仍不接真实 Provider、HTTP API 或页面。
+P1-008 已把核心接到固定 OpenAI-compatible Provider、服务端 HTTP API 和显式页面入口。
 
 [P4-004 AI 流量与成本策略](../../docs/token-forge-ai-traffic-policy.md) 已增加匿名用户、
 Token Forge 与全站三层日 Token/微美元预算、60 秒滑动限流、并发预留和熔断状态机。它
-按最多两次 Provider 尝试预留最坏成本，成功后退款，失败或预留超时全额计费；快照不含
-目标、Prompt、仓库 URL、路径或正文。当前仍没有生产 Provider、端点和原子持久化，
-P1-008 完成前页面保持模板模式。
+的生产配置按一次尝试预留 24,000 Token，成功后按 usage 退款，失败或预留超时全额保留；
+快照不含目标、Prompt、仓库 URL、路径或正文。SQLite Durable Object 提供原子持久化，
+真实货币预算由自建上游网关负责；实际流量仍需 Secrets、Preview 与人工 Production 验收。
 
 ## Markdown / GitHub Issue 导出
 
@@ -93,8 +93,8 @@ Adapter；P1-005 只接收验证后的计划并在本地生成脱敏文本。各
 ## MVP 验收
 
 无需仓库、无需 AI 的样例可以完成一次任务生成；AI 失败时保留模板结果；验证后的计划可以
-生成 Markdown 和 Issue 草稿。Alpha 页面已接入完整模板与公开仓库证据流程；AI 路径仍
-保持未连接状态。
+生成 Markdown 和 Issue 草稿。Alpha 页面代码已接入模板、公开仓库证据和受控 AI 路径；
+真实流量仍需完成激活清单。
 
 MVP 验收只代表基础内核成立，不代表当前战略完成。是否达到“特别完善”必须以优先路线图的
 完整闭环、计划质量、隐私成本、产品体验和至少 14 天上线证据五类门槛共同判断。

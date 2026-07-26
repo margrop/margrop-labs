@@ -1,6 +1,8 @@
 # AI Gateway v1 合同
 
-P0-006 定义 Margrop Labs Web、服务端 Gateway 和 AI Provider Adapter 之间的稳定边界。实现位于 `packages/ai-gateway`，当前只提供离线合同与执行核心，不创建真实 API 端点。
+P0-006 定义 Margrop Labs Web、服务端 Gateway 和 AI Provider Adapter 之间的稳定边界。
+通用合同与执行核心位于 `packages/ai-gateway`；P1-008 已为
+`token-forge.plan-v1` 增加固定服务端端点和 Adapter。
 
 架构决策见 [ADR-0004](./adr/0004-provider-neutral-ai-gateway.md)。
 
@@ -62,7 +64,8 @@ interface AiGatewayProviderAdapter {
 
 多余字段、原始 Provider 错误、usage 不一致、未知 finish reason 或操作输出 Schema 失败都视为无效响应。无效响应最多重试一次，仍无效则返回 `invalid_provider_response`。
 
-Adapter 的初始化和密钥注入属于未来服务端运行时；公共接口没有密钥参数。Provider Request 也没有模型和提示词字段，这些配置由服务端操作注册表持有。
+Adapter 的初始化和密钥注入属于服务端运行时；公共接口没有密钥参数。Provider Request
+也没有模型和提示词字段，这些配置由服务端操作注册表持有。
 
 ## 上限
 
@@ -115,6 +118,10 @@ P4-004 为 `token-forge.plan-v1` 增加 Provider-neutral 的准入状态机。�
 固定数值、快照隐私和 P1-008 接入要求见
 [Token Forge AI 流量与成本策略](./token-forge-ai-traffic-policy.md)。
 
+P1-008 在不放宽通用硬上限的前提下，把 Token Forge 收紧为 22,000 输入、2,000 输出、
+15 秒和 1 次尝试，并用 SQLite Durable Object 原子保存准入与结算快照。自建上游网关负责
+真实货币预算，因此 Labs 的金额字段只作最小合同占位。
+
 ## Fixture 与验证
 
 - `ai-gateway-request.valid.json`
@@ -125,8 +132,8 @@ P4-004 为 `token-forge.plan-v1` 增加 Provider-neutral 的准入状态机。�
 
 ## 已知限制
 
-- 没有 HTTP 路由、匿名身份派生、策略快照的原子持久化和部署配置；
-- 没有具体 Provider Adapter、模型选择、SDK 或精确 Tokenizer；
+- 通用 Gateway 没有自动路由注册表；当前只有 Token Forge 具备生产 HTTP 适配；
+- Token Forge 使用上游标准 usage，没有本地精确 Tokenizer；
 - 通用请求 Schema 不能替代每个操作的输入 Schema；
 - Gateway 自身的最小秘密检测不能替代 P0-007 和各操作的允许字段脱敏；
 - 通用 Gateway 的 `request_id` 仍没有响应缓存；Token Forge 策略只提供 24 小时有限去重；

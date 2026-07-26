@@ -10,6 +10,7 @@ import {
   TokenForgeFormError,
 } from "./token-forge-page";
 import { generateTokenForgeRepositoryPageResult } from "./token-forge-repository-page";
+import { generateTokenForgeTemplatePlan } from "./token-forge-templates";
 
 const repositoryUrl = "https://github.com/acme/synthetic-repository";
 const rawPath = "private/context.ts";
@@ -227,5 +228,67 @@ describe("Token Forge repository page orchestration", () => {
       code: "network_error",
     });
     expect(JSON.stringify(result.repository)).not.toContain(rawContent);
+  });
+
+  it("uses a transient sanitized summary for AI and rebuilds exports from the final plan", async () => {
+    const summary = syntheticSummary({
+      tree_truncated: false,
+      skipped_secret_paths: 0,
+      skipped_secret_content: 0,
+    });
+    const enhancePlan = vi.fn(async (input) => ({
+      status: "ai-assisted" as const,
+      plan: {
+        ...generateTokenForgeTemplatePlan(input),
+        mode: "ai-assisted" as const,
+      },
+      gateway: {
+        usage: {
+          input_tokens: 500,
+          output_tokens: 400,
+          total_tokens: 900,
+        },
+        attempt_count: 1,
+      },
+    }));
+
+    const result = await generateTokenForgeRepositoryPageResult(
+      {
+        ...tokenForgeSyntheticFormValues,
+        repository_url: repositoryUrl,
+      },
+      {
+        summarizeRepository: vi.fn().mockResolvedValue(summary),
+        enhancePlan,
+      },
+    );
+
+    expect(enhancePlan).toHaveBeenCalledWith(result.input, summary);
+    expect(result.ai.status).toBe("ai-assisted");
+    expect(result.plan.mode).toBe("ai-assisted");
+    expect(result.exports.markdown.content).toContain("AI 辅助（已重新验证）");
+    expect(JSON.stringify(result.repository)).not.toContain(rawPath);
+    expect(JSON.stringify(result.repository)).not.toContain(rawContent);
+  });
+
+  it("fails closed to the existing template when an enhancer throws", async () => {
+    const result = await generateTokenForgeRepositoryPageResult(
+      { ...tokenForgeSyntheticFormValues },
+      {
+        enhancePlan: vi
+          .fn()
+          .mockRejectedValue(new Error(`unsafe ${rawContent}`)),
+      },
+    );
+
+    expect(result.ai).toMatchObject({
+      status: "template-fallback",
+      fallback_reason: "gateway_provider_unavailable",
+      gateway: {
+        attempt_count: 0,
+      },
+    });
+    expect(result.plan.mode).toBe("template");
+    expect(JSON.stringify(result)).not.toContain(rawContent);
   });
 });

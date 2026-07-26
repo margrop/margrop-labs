@@ -7,8 +7,10 @@ Margrop Labs 使用同一份静态产物部署到两个彼此隔离的 Cloudflar
 | Preview    | `margrop-labs-preview` | `https://margrop-labs-preview.margrop.workers.dev` | 上线前验收 |
 | Production | `margrop-labs`         | `https://lab.margrop.net`                          | 正式流量   |
 
-`apps/web/wrangler.jsonc` 是路由和静态资源配置的唯一事实来源。Production 关闭稳定的
-`workers.dev` 入口并使用 Custom Domain；Preview 不绑定 `margrop.net` 的任何域名。
+`apps/web/wrangler.jsonc` 是路由、静态资源、AI 服务端变量和 Durable Object binding
+配置的唯一事实来源。Production 关闭稳定的 `workers.dev` 入口并使用 Custom Domain；
+Preview 不绑定 `margrop.net` 的任何域名。静态路径仍由 Assets 直接提供，只有 `/api/*`
+先进入 Worker。
 
 ## GitHub 配置
 
@@ -20,6 +22,35 @@ Margrop Labs 使用同一份静态产物部署到两个彼此隔离的 Cloudflar
 不要把值写进代码、Workflow 输出、Issue 或日志。Token 至少需要 Workers Scripts 写权限；
 Custom Domain 发布还必须能访问 `margrop.net` 所在的活动 Zone。Cloudflare 会为 Custom
 Domain 创建 DNS 记录并签发证书；若 `lab.margrop.net` 已有冲突的 CNAME，必须先移除。
+
+## Token Forge AI Secrets
+
+Token Forge AI 使用两个只存在于 Cloudflare 的 Secret，Preview 与 Production 必须分别
+设置：
+
+```bash
+npx wrangler secret put TOKEN_FORGE_AI_API_KEY --env preview
+npx wrangler secret put TOKEN_FORGE_ACTOR_KEY_SECRET --env preview
+
+npx wrangler secret put TOKEN_FORGE_AI_API_KEY
+npx wrangler secret put TOKEN_FORGE_ACTOR_KEY_SECRET
+```
+
+命令会交互式读取值；不要把值写进命令行、仓库、GitHub 输出或聊天。API Key 使用上游网关
+分配的值；匿名键 Secret 使用独立、随机且至少 32 字符的值。两套环境建议使用不同的匿名键
+Secret。
+
+固定上游是
+`https://api-gpt.speedtest.margrop.net:16666/v1/chat/completions`，模型为
+`qwen-latest`。由于使用自定义端口，`api-gpt.speedtest.margrop.net` 必须保持
+Cloudflare DNS-only（灰云）；若启用橙云，应先把服务迁移到 443 或受支持的 HTTPS 端口。
+Worker 的 `allow_custom_ports` compatibility flag 已在配置中固定。
+
+Bindings、变量和 Secrets 是按环境隔离的，见
+[Wrangler environments](https://developers.cloudflare.com/workers/wrangler/environments/)；
+自定义端口与代理端口限制见
+[compatibility flag](https://developers.cloudflare.com/workers/configuration/compatibility-flags/#allow-specifying-a-custom-port-when-making-a-subrequest-with-the-fetch-api)
+和 [Network ports](https://developers.cloudflare.com/fundamentals/reference/network-ports/)。
 
 ## 发布流程
 
@@ -50,6 +81,9 @@ npm run deploy:production --workspace @margrop-labs/web
 - 320px 宽度无横向滚动；导航、卡片和按钮不重叠。
 - 键盘可以聚焦并操作交互控件。
 - `/robots.txt` 返回 HTTP 200。
+- `/api/token-forge/plan` 对无效同源请求返回安全的 Gateway 400，不返回 HTML 或上游正文。
+- 点击“仅生成模板”不调用 AI；点击“AI 增强生成”成功时显示 usage，失败时仍能导出模板。
+- 连续快速请求会安全限流；浏览器源码、Network 响应和导出中都没有 API Key。
 - Preview 不响应正式域名；Production 只把正式入口指向
   `lab.margrop.net`。
 

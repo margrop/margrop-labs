@@ -12,6 +12,7 @@ import {
   type TokenForgeRepositoryPageResult,
   generateTokenForgeRepositoryPageResult,
 } from "../lib/token-forge-repository-page";
+import { requestTokenForgeAiPlan } from "../lib/token-forge-ai-client";
 import { EvidenceCard } from "./ui/EvidenceCard";
 import { ExportActions } from "./ui/ExportActions";
 import { FormField } from "./ui/FormField";
@@ -30,9 +31,9 @@ type WorkbenchStatus = {
 
 const initialStatus: WorkbenchStatus = {
   tone: "info",
-  title: "模板模式已就绪",
+  title: "双路径已就绪",
   message:
-    "仓库地址留空时完全本地运行；填写后只读取有硬上限的公开 GitHub 样本，失败仍保留模板计划。",
+    "可显式选择 AI 增强，或始终使用本地模板；任何 AI、网络或合同失败都保留可导出的模板计划。",
 };
 
 const freshSyntheticValues = (): TokenForgeFormValues => ({
@@ -84,8 +85,7 @@ export default function TokenForgeWorkbench({
     });
   };
 
-  const generatePlan = async (event: SubmitEvent): Promise<void> => {
-    event.preventDefault();
+  const generatePlan = async (useAi: boolean): Promise<void> => {
     const currentRun = runVersion.current + 1;
     runVersion.current = currentRun;
     const repositoryRequested = form.repository_url.trim().length > 0;
@@ -93,29 +93,51 @@ export default function TokenForgeWorkbench({
     setResult(null);
     setIsLoading(true);
     setStatus(
-      repositoryRequested
+      useAi
         ? {
             tone: "info",
-            title: "正在读取公开仓库摘要",
+            title: repositoryRequested
+              ? "正在准备公开摘要并请求 AI 增强"
+              : "正在请求 AI 增强",
             message:
-              "只向固定 GitHub API 发出受限 GET 请求；最多读取 8 个文本文件，每次请求最多等待 5 秒。",
+              "只发送版本化目标、约束和脱敏后的有界公开片段；服务端最多尝试 1 次，15 秒后自动降级。",
           }
         : {
             tone: "info",
-            title: "正在验证本地模板",
-            message: "仓库地址为空，不会发生网络请求。",
+            title: repositoryRequested
+              ? "正在读取公开仓库摘要"
+              : "正在验证本地模板",
+            message: repositoryRequested
+              ? "只向固定 GitHub API 发出受限 GET 请求；不会调用 AI。"
+              : "仓库地址为空，不会发生网络请求或 AI 调用。",
           },
     );
 
     try {
-      const nextResult = await generateTokenForgeRepositoryPageResult(form);
+      const nextResult = await generateTokenForgeRepositoryPageResult(form, {
+        ...(useAi ? { enhancePlan: requestTokenForgeAiPlan } : {}),
+      });
 
       if (runVersion.current !== currentRun) {
         return;
       }
 
       setResult(nextResult);
-      if (nextResult.repository.status === "fallback") {
+      if (nextResult.ai.status === "ai-assisted") {
+        setStatus({
+          tone: "ready",
+          title: "AI 增强计划已通过确定性校验",
+          message:
+            "模型结果已重新通过任务 Schema、依赖、预算、工时、脱敏和生产写入边界；导出已按最终计划重建。",
+        });
+      } else if (nextResult.ai.status === "template-fallback") {
+        setStatus({
+          tone: "warning",
+          title: "AI 已安全降级，模板计划可用",
+          message:
+            "模型、限流、超时或输出校验没有完成增强；本地模板与两种导出仍已通过验证。",
+        });
+      } else if (nextResult.repository.status === "fallback") {
         setStatus({
           tone: "warning",
           title: "仓库摘要已降级，模板计划可用",
@@ -124,9 +146,9 @@ export default function TokenForgeWorkbench({
       } else if (nextResult.repository.status === "summarized") {
         setStatus({
           tone: "ready",
-          title: "模板计划与仓库证据已就绪",
+          title: "模板计划与仓库证据已就绪（未调用 AI）",
           message:
-            "受限公开仓库摘要已完成；本阶段只展示覆盖证据，尚未让仓库正文改写模板任务。",
+            "受限公开仓库摘要已完成；当前选择只生成模板，仓库正文没有改写模板任务。",
         });
       } else {
         setStatus({
@@ -159,6 +181,11 @@ export default function TokenForgeWorkbench({
     }
   };
 
+  const handleSubmit = (event: SubmitEvent): void => {
+    event.preventDefault();
+    void generatePlan(true);
+  };
+
   const totalTokens =
     result?.plan.tasks.reduce(
       (total, task) => total + task.estimated_tokens,
@@ -174,15 +201,15 @@ export default function TokenForgeWorkbench({
     <div class="token-forge-shell">
       <form
         class="token-forge-form"
-        onSubmit={generatePlan}
+        onSubmit={handleSubmit}
         aria-busy={isLoading}
       >
         <div class="token-forge-form-heading">
           <div>
-            <p class="section-kicker">LOCAL TEMPLATE ENGINE</p>
+            <p class="section-kicker">AI-ASSISTED · TEMPLATE-SAFE</p>
             <h2>定义这次 Token 冲刺</h2>
           </div>
-          <span>v1.0 · Template</span>
+          <span>v1.0 · AI 可选</span>
         </div>
 
         <div class="token-forge-field-grid">
@@ -324,7 +351,15 @@ export default function TokenForgeWorkbench({
             type="submit"
             disabled={isLoading}
           >
-            {isLoading ? "正在生成…" : "生成任务计划"}
+            {isLoading ? "正在生成…" : "AI 增强生成"}
+          </button>
+          <button
+            class="button button--secondary"
+            type="button"
+            disabled={isLoading}
+            onClick={() => void generatePlan(false)}
+          >
+            仅生成模板
           </button>
           <button
             class="button button--secondary"
@@ -339,10 +374,14 @@ export default function TokenForgeWorkbench({
         <div class="token-forge-privacy">
           <strong>本页不保存表单。</strong>
           <span>
-            无需登录 · 仓库可选且仅限公开只读 · 不发送 GitHub Token · 不调用 AI
+            {
+              "无需登录 · 仓库可选且仅限公开只读 · 不发送 GitHub Token · 浏览器不含 API Key"
+            }
           </span>
           <span>
-            文件路径与正文不展示、不导出、不进入事件；目标正文不上传。
+            {
+              "仅点击“AI 增强生成”时，目标、约束与脱敏后的有界公开片段会发送给服务端模型；不保存、不写日志。"
+            }
           </span>
         </div>
       </form>
@@ -359,7 +398,11 @@ export default function TokenForgeWorkbench({
           <div class="token-forge-result-heading">
             <div>
               <p class="section-kicker">VALIDATED PLAN</p>
-              <h2 id="forge-result-title">可执行的模板任务</h2>
+              <h2 id="forge-result-title">
+                {result.ai.status === "ai-assisted"
+                  ? "可执行的 AI 增强任务"
+                  : "可执行的模板任务"}
+              </h2>
             </div>
             <p>
               {result.plan.tasks.length} 项任务 · {totalTokens.toLocaleString()}
@@ -416,9 +459,17 @@ export default function TokenForgeWorkbench({
             <EvidenceCard
               kind="rule"
               title="生成路径"
-              value="template · deterministic"
+              value={
+                result.ai.status === "ai-assisted"
+                  ? "ai-assisted · revalidated"
+                  : "template · deterministic"
+              }
             >
-              <p>使用 P1-002 固定模板，并重新通过 Token Forge v1 合同。</p>
+              <p>
+                {result.ai.status === "ai-assisted"
+                  ? "AI 只负责候选计划；最终结果由本地规则重新验证和安全后处理。"
+                  : "使用 P1-002 固定模板，并重新通过 Token Forge v1 合同。"}
+              </p>
             </EvidenceCard>
             <EvidenceCard
               kind={
@@ -496,8 +547,24 @@ export default function TokenForgeWorkbench({
                 <p>仓库地址留空，本次只依据表单生成模板，没有网络请求。</p>
               )}
             </EvidenceCard>
-            <EvidenceCard kind="ai" title="模型调用" value="未调用">
-              <p>当前正式页面不需要 API Key，也不会把表单交给模型。</p>
+            <EvidenceCard
+              kind="ai"
+              title="模型调用"
+              value={
+                result.ai.status === "ai-assisted"
+                  ? `${result.ai.gateway.usage.total_tokens.toLocaleString()} Token · ${result.ai.gateway.attempt_count} 次`
+                  : result.ai.status === "template-fallback"
+                    ? `已降级 · ${result.ai.gateway.attempt_count} 次`
+                    : "未调用"
+              }
+            >
+              <p>
+                {result.ai.status === "ai-assisted"
+                  ? "服务端固定模型已返回有效结构；API Key、模型配置和原始 Provider 错误均未进入浏览器。"
+                  : result.ai.status === "template-fallback"
+                    ? "AI 增强未通过完整边界，页面没有采用模型候选结果。"
+                    : "你选择了本地模板路径，没有把目标或仓库摘要发送给模型。"}
+              </p>
             </EvidenceCard>
             <EvidenceCard
               kind="unknown"

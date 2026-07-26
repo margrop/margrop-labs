@@ -1,4 +1,4 @@
-import { readFile } from "node:fs/promises";
+import { readdir, readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 
 const indexUrl = new URL("../dist/index.html", import.meta.url);
@@ -12,6 +12,7 @@ const incidentDetectiveUrl = new URL(
 );
 const smartRmaUrl = new URL("../dist/smart-rma/index.html", import.meta.url);
 const stylesUrl = new URL("../src/styles/global.css", import.meta.url);
+const assetsUrl = new URL("../dist/_astro/", import.meta.url);
 const html = await readFile(fileURLToPath(indexUrl), "utf8");
 const tokenForgeHtml = await readFile(fileURLToPath(tokenForgeUrl), "utf8");
 const incidentDetectiveHtml = await readFile(
@@ -20,6 +21,14 @@ const incidentDetectiveHtml = await readFile(
 );
 const smartRmaHtml = await readFile(fileURLToPath(smartRmaUrl), "utf8");
 const styles = await readFile(fileURLToPath(stylesUrl), "utf8");
+const assetNames = await readdir(fileURLToPath(assetsUrl));
+const clientJavaScript = (
+  await Promise.all(
+    assetNames
+      .filter((name) => name.endsWith(".js"))
+      .map((name) => readFile(fileURLToPath(new URL(name, assetsUrl)), "utf8")),
+  )
+).join("\n");
 
 const checks = [
   ["Chinese language", html.includes('lang="zh-CN"')],
@@ -152,8 +161,9 @@ const checks = [
       tokenForgeHtml.includes("<textarea"),
   ],
   [
-    "Token Forge local actions",
-    tokenForgeHtml.includes("生成任务计划") &&
+    "Token Forge dual planning actions",
+    tokenForgeHtml.includes("AI 增强生成") &&
+      tokenForgeHtml.includes("仅生成模板") &&
       tokenForgeHtml.includes("载入合成样例"),
   ],
   [
@@ -162,7 +172,8 @@ const checks = [
       "无需登录",
       "公开只读",
       "不发送 GitHub Token",
-      "不调用 AI",
+      "浏览器不含 API Key",
+      "仅点击“AI 增强生成”",
       "不保存输入",
     ].every((label) => tokenForgeHtml.includes(label)),
   ],
@@ -171,6 +182,16 @@ const checks = [
     tokenForgeHtml.includes('name="repository_url"') &&
       tokenForgeHtml.includes("https://github.com/owner/repository") &&
       !tokenForgeHtml.includes('name="api_key'),
+  ],
+  [
+    "Token Forge server configuration excluded from browser bundle",
+    [
+      "api-gpt.speedtest.margrop.net",
+      "qwen-latest",
+      "TOKEN_FORGE_AI_API_KEY",
+      "TOKEN_FORGE_ACTOR_KEY_SECRET",
+      "Return only a Token Forge Plan v1 JSON object",
+    ].every((value) => !clientJavaScript.includes(value)),
   ],
   [
     "Token Forge content loop",

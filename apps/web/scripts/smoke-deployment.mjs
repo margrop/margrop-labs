@@ -58,4 +58,34 @@ await fetchTextWithRetry(robotsUrl, (robots) => {
   assert.match(robots, /User-agent:\s*\*/);
 });
 
+const apiUrl = new URL("/api/token-forge/plan", baseUrl);
+const apiResponse = await fetch(apiUrl, {
+  method: "POST",
+  cache: "no-store",
+  redirect: "error",
+  headers: {
+    "content-type": "application/json",
+    origin: baseUrl.origin,
+    "user-agent": "margrop-labs-deployment-smoke/1.0",
+  },
+  body: "{}",
+});
+assert.equal(apiResponse.status, 400);
+assert.equal(apiResponse.headers.get("cache-control"), "no-store");
+assert.match(
+  apiResponse.headers.get("content-type") ?? "",
+  /application\/json/,
+);
+assert.deepEqual(await apiResponse.json(), {
+  schema_version: "1.0",
+  status: "error",
+  error: {
+    code: "invalid_request",
+    retryable: false,
+  },
+  meta: {
+    attempt_count: 0,
+  },
+});
+
 console.log(`Deployment smoke check passed: ${baseUrl.origin}`);
