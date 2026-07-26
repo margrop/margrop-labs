@@ -1,6 +1,9 @@
 name: Deploy Cloudflare Workers
 
 on:
+  push:
+    branches:
+      - main
   workflow_dispatch:
     inputs:
       target:
@@ -16,12 +19,12 @@ permissions:
   contents: read
 
 concurrency:
-  group: deploy-${{ inputs.target }}
+  group: deploy-cloudflare-workers
   cancel-in-progress: false
 
 jobs:
   deploy:
-    name: Deploy ${{ inputs.target }}
+    name: Deploy Worker
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
@@ -46,16 +49,16 @@ jobs:
         run: npm run validate
 
       - name: Verify deployment configuration
-        if: inputs.target == 'production'
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.target == 'production'
         run: npm run deploy:check --workspace @margrop-labs/web
 
       - name: Verify preview deployment configuration
-        if: inputs.target == 'preview'
+        if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.event.inputs.target == 'preview')
         run: npm run deploy:check:preview --workspace @margrop-labs/web
 
       - name: Deploy preview
         id: deploy-preview
-        if: inputs.target == 'preview'
+        if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.event.inputs.target == 'preview')
         shell: bash
         run: |
           set +e
@@ -76,19 +79,19 @@ jobs:
           echo "$deployment_url" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Smoke test preview
-        if: inputs.target == 'preview'
+        if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.event.inputs.target == 'preview')
         run: npm run smoke --workspace @margrop-labs/web -- "${{ steps.deploy-preview.outputs.deployment_url }}"
 
       - name: Deploy production
-        if: inputs.target == 'production'
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.target == 'production'
         run: npm run deploy:production --workspace @margrop-labs/web
 
       - name: Smoke test production
-        if: inputs.target == 'production'
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.target == 'production'
         run: npm run smoke --workspace @margrop-labs/web -- https://lab.margrop.net
 
       - name: Record production URL
-        if: inputs.target == 'production'
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.target == 'production'
         run: |
           echo "### Production deployed" >> "$GITHUB_STEP_SUMMARY"
           echo "https://lab.margrop.net" >> "$GITHUB_STEP_SUMMARY"
