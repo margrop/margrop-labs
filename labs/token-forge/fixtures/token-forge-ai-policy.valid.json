@@ -1,0 +1,35 @@
+{
+  "schema_version": "1.0",
+  "lab_id": "token-forge",
+  "operation": "token-forge.plan-v1",
+  "max_request_billable_tokens": 56000,
+  "max_request_cost_microusd": 100000,
+  "daily_budgets": {
+    "actor_tokens": 224000,
+    "lab_tokens": 2240000,
+    "site_tokens": 5600000,
+    "actor_cost_microusd": 250000,
+    "lab_cost_microusd": 5000000,
+    "site_cost_microusd": 10000000,
+    "actor_requests": 12,
+    "lab_requests": 200,
+    "site_requests": 400
+  },
+  "rate_limit": {
+    "window_seconds": 60,
+    "actor_requests": 2,
+    "lab_requests": 20,
+    "site_requests": 40
+  },
+  "concurrency": {
+    "actor_in_flight": 1,
+    "lab_in_flight": 4,
+    "site_in_flight": 6
+  },
+  "circuit_breaker": {
+    "consecutive_failures": 5,
+    "open_seconds": 60,
+    "half_open_requests": 1
+  },
+  "reservation_ttl_seconds": 60
+}

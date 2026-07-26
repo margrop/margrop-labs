@@ -4,7 +4,8 @@
   "private": true,
   "type": "module",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./token-forge-policy": "./src/token-forge-policy.ts"
   },
   "engines": {
     "node": ">=22.12.0"

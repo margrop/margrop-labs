@@ -57,6 +57,12 @@ Token Forge 现为仓库唯一产品开发主线。公开仓库接入、生产 A
 任务去重规则。Secret 输入、超时、不可用或无效输出都会整体丢弃，并返回 P1-002 模板计划。
 P1-004 仍不接真实 Provider、HTTP API 或页面。
 
+[P4-004 AI 流量与成本策略](../../docs/token-forge-ai-traffic-policy.md) 已增加匿名用户、
+Token Forge 与全站三层日 Token/微美元预算、60 秒滑动限流、并发预留和熔断状态机。它
+按最多两次 Provider 尝试预留最坏成本，成功后退款，失败或预留超时全额计费；快照不含
+目标、Prompt、仓库 URL、路径或正文。当前仍没有生产 Provider、端点和原子持久化，
+P1-008 完成前页面保持模板模式。
+
 ## Markdown / GitHub Issue 导出
 
 [P1-005 导出核心](../../docs/token-forge-export.md) 只接收通过 v1 合同的结构化计划，生成

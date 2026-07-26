@@ -55,6 +55,7 @@ Web 端采用 **Astro + TypeScript + Preact Islands**，首期生成静态 HTML�
 - 接入 AI：先读 [AI 成本与安全](./docs/ai-safety-and-cost.md)。
 - 实现 AI 调用：遵循 [AI Gateway v1 合同](./docs/ai-gateway-contract-v1.md)。
 - Token Forge AI 规划：遵循 [AI 任务拆分](./docs/token-forge-ai-planning.md)。
+- Token Forge AI 成本边界：遵循 [流量与成本策略](./docs/token-forge-ai-traffic-policy.md)。
 - Token Forge 本地导出：遵循 [Markdown / GitHub Issue 导出](./docs/token-forge-export.md)。
 - Token Forge 正式页面：遵循 [页面与事件合同](./docs/token-forge-page.md)。
 - Token Forge 当前顺序与 Beta 门槛：遵循 [优先路线图](./docs/token-forge-roadmap.md)。
@@ -104,5 +105,8 @@ Score-only 的确定性 SVG 下载，Incident Detective MVP 六个任务全部�
 缺失字段、厂商扩展、SMART 不可用和冲突信号。P3-002 已上线浏览器端只读解析工作台和
 Parse Result v1。P3-003 已增加序列号、WWN、主机名、IP 与常见 Secret 的本地脱敏预览，
 以及不含自由文本的 Boundary Projection v1；URL、日志和 Analytics 进一步收窄为固定元数据，
-AI 与导出尚未启用，现有结果仍不构成厂商保修判断。Token Forge 下一步是 P4-004，为生产
-AI 建立预算、限流和熔断边界；完整顺序以 Token Forge 优先路线图为准。
+AI 与导出尚未启用，现有结果仍不构成厂商保修判断。P4-004 已为 Token Forge 建立按最坏
+两次 Provider 尝试预留的 Token/微美元预算、匿名用户与全局限流、并发和熔断状态机，
+快照不含输入正文；它目前仍是 Provider-neutral 的离线核心。Token Forge 下一步是 P1-008，
+为该状态机接入原子持久化、真实 Provider 与页面模板降级；完整顺序以 Token Forge 优先
+路线图为准。

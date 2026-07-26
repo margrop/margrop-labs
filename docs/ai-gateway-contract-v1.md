@@ -109,17 +109,26 @@ P2-005 的 `incident-detective.case-proposal-v1` 操作只发送 ID、主题、�
 Payload、内部答案、canonical attempt 或评分规则；输出只能进入人工审核，不能自动发布。
 详见[受约束案例生成与审核](./incident-detective-case-generation.md)。
 
+P4-004 为 `token-forge.plan-v1` 增加 Provider-neutral 的准入状态机。它在 Provider 调用前
+按最多两次尝试预留 56,000 可计费 Token 和 $0.10，执行匿名用户、Lab、全站三层日预算、
+滑动限流、并发与熔断；成功后按所有尝试的可信汇总用量退款，失败或预留超时按全额计费。
+固定数值、快照隐私和 P1-008 接入要求见
+[Token Forge AI 流量与成本策略](./token-forge-ai-traffic-policy.md)。
+
 ## Fixture 与验证
 
 - `ai-gateway-request.valid.json`
 - `ai-gateway-response.valid.json`
+- `token-forge-ai-policy.valid.json`
 
 测试使用内存中的合成 Adapter，覆盖公共 Schema、服务端控制字段、请求/响应/Token 上限、超时、限流、暂时不可用、无效模型结构、秘密回流、Provider 错误隔离和 HTTP 映射。没有真实 Provider、真实仓库内容或真实凭据。
 
 ## 已知限制
 
-- 没有 HTTP 路由、身份识别、限流存储、日预算存储和部署配置；
+- 没有 HTTP 路由、匿名身份派生、策略快照的原子持久化和部署配置；
 - 没有具体 Provider Adapter、模型选择、SDK 或精确 Tokenizer；
 - 通用请求 Schema 不能替代每个操作的输入 Schema；
 - Gateway 自身的最小秘密检测不能替代 P0-007 和各操作的允许字段脱敏；
-- `request_id` 目前只是合同字段，幂等缓存需要未来服务端状态实现。
+- 通用 Gateway 的 `request_id` 仍没有响应缓存；Token Forge 策略只提供 24 小时有限去重；
+- P4-004 不读取模型价格，也不汇总 Provider 尝试；P1-008 必须在服务端完成这两项后才能
+  提交可信结算。
