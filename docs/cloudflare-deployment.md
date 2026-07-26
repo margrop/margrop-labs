@@ -44,7 +44,8 @@ Secret。
 `https://api-gpt.speedtest.margrop.net:16666/v1/chat/completions`，模型为
 `qwen-latest`。由于使用自定义端口，`api-gpt.speedtest.margrop.net` 必须保持
 Cloudflare DNS-only（灰云）；若启用橙云，应先把服务迁移到 443 或受支持的 HTTPS 端口。
-Worker 的 `allow_custom_ports` compatibility flag 已在配置中固定。
+Worker 的 `compatibility_date` 晚于 `2024-09-02`，自定义端口能力已经默认启用，不再显式
+声明 `allow_custom_ports`。
 
 Bindings、变量和 Secrets 是按环境隔离的，见
 [Wrangler environments](https://developers.cloudflare.com/workers/wrangler/environments/)；
@@ -54,13 +55,14 @@ Bindings、变量和 Secrets 是按环境隔离的，见
 
 ## 发布流程
 
-部署不会随 `main` 提交自动触发。进入 GitHub Actions 的
-`Deploy Cloudflare Workers`，选择 `Run workflow`，然后选择：
+每次提交合并或推送到 `main` 后，`Deploy Cloudflare Workers` 会自动执行 Preview 的完整
+质量门、Wrangler dry-run、部署和在线 smoke test。自动 Preview 失败时停止，不会继续执行
+Production。
 
-1. `preview`：执行完整质量门、Wrangler dry-run、部署和在线 smoke test。
-2. 在手机宽度和桌面浏览器完成验收。
-3. `production`：再次执行质量门、dry-run、正式部署和
-   `https://lab.margrop.net` 在线 smoke test。
+需要重新运行 Preview 时，也可以在 GitHub Actions 中选择 `Run workflow` 和 `preview`。
+完成手机宽度与桌面浏览器验收后，仓库所有者才能手动选择 `production`；Production 会再次
+执行质量门、dry-run、正式部署和 `https://lab.margrop.net` 在线 smoke test。Preview 与
+Production 共用串行部署队列，不会同时修改 Cloudflare Worker。
 
 命令行等价操作：
 

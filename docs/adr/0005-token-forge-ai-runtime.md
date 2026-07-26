@@ -41,12 +41,15 @@ ADR-0003 选择 Astro 静态输出与 Cloudflare Workers Static Assets，并要�
    Provider 正文、计划正文或原始错误。
 10. 页面提供显式“AI 增强生成”和独立“仅生成模板”。AI、网络、限流、熔断或输出校验失败
     时，完整模板和导出继续可用。
+11. `main` 的每次 push 自动部署并 smoke test 隔离的 Preview Worker；Production 仍只允许
+    仓库所有者通过 `workflow_dispatch` 人工触发，且两种部署串行执行。
 
 ## 自定义端口约束
 
-Worker 使用 `allow_custom_ports` compatibility flag 才能请求 `16666`。该上游主机名必须
-保持 Cloudflare DNS-only（灰云），否则 Cloudflare Proxy 不接受的 HTTPS 端口不会被代理。
-如果必须启用橙云，应把上游迁移到 443 或 Cloudflare 支持的 HTTPS 端口，再更新固定配置。
+Worker 的 `compatibility_date` 晚于 `2024-09-02`，因此无需显式声明已经默认启用的
+`allow_custom_ports`，仍可请求 `16666`。该上游主机名必须保持 Cloudflare DNS-only
+（灰云），否则 Cloudflare Proxy 不接受的 HTTPS 端口不会被代理。如果必须启用橙云，应把
+上游迁移到 443 或 Cloudflare 支持的 HTTPS 端口，再更新固定配置。
 
 Cloudflare 参考：
 
