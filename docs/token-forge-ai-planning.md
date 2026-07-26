@@ -84,6 +84,17 @@ AI Gateway 的 Provider Request 不包含 `provider`、`model`、`system_prompt`
 
 模板输入也会在本地脱敏，所以降级计划不会把导致 AI 拒绝的 Secret 原样写回 Prompt。
 
+## 生产流量边界
+
+P4-004 已提供 `token-forge.plan-v1` 专属的日 Token/微美元预算、匿名用户滑动限流、并发
+预留与熔断状态机。每次生产调用必须在 Provider 前预留最多两次尝试的最坏成本；成功后按
+所有尝试的可信汇总用量结算，任意失败或预留超时则保留全额预留。准入拒绝映射为现有
+Gateway 错误码，P1-004 继续返回完整模板计划。
+
+策略核心不包含 Provider、端点、匿名身份派生或持久化。P1-008 必须按
+[AI 流量与成本策略](./token-forge-ai-traffic-policy.md) 接入原子状态存储后，才能把本
+模块连接到正式页面。
+
 ## 测试范围
 
 测试使用内存中的合成 Adapter 和合成公开仓库摘要，覆盖：
@@ -101,6 +112,6 @@ AI Gateway 的 Provider Request 不包含 `provider`、`model`、`system_prompt`
 
 - 尚无真实 Provider Adapter、服务端操作注册表或 HTTP API；
 - Token Forge 正式页面当前只接入确定性模板，AI 路径仍未连接；
-- 未实现用户级/每日预算、持久化限流或熔断；
+- 用户级/每日预算、限流和熔断已有离线状态机，但尚无生产端点与原子持久化；
 - 自然语言护栏不能替代最小权限与人工确认；
 - 导出边界由 P1-005 另行实现。

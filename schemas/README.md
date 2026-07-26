@@ -19,5 +19,6 @@
 | [`smart-rma-boundary-projection-v1.schema.json`](./smart-rma-boundary-projection-v1.schema.json)                       | Allowlisted SMART data for AI and export boundaries    |
 | [`ai-gateway-request-v1.schema.json`](./ai-gateway-request-v1.schema.json)                                             | Web-to-Gateway request envelope                        |
 | [`ai-gateway-response-v1.schema.json`](./ai-gateway-response-v1.schema.json)                                           | Validated Gateway result or safe error                 |
+| [`token-forge-ai-policy-v1.schema.json`](./token-forge-ai-policy-v1.schema.json)                                       | Token Forge AI budgets, rate limits and circuit bounds |
 
 Published Schema files are immutable contracts. Breaking changes require a new version, fixtures, consumer tests and migration notes.
