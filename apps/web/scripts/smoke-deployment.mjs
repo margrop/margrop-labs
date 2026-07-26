@@ -59,33 +59,52 @@ await fetchTextWithRetry(robotsUrl, (robots) => {
 });
 
 const apiUrl = new URL("/api/token-forge/plan", baseUrl);
-const apiResponse = await fetch(apiUrl, {
-  method: "POST",
-  cache: "no-store",
-  redirect: "error",
-  headers: {
-    "content-type": "application/json",
-    origin: baseUrl.origin,
-    "user-agent": "margrop-labs-deployment-smoke/1.0",
-  },
-  body: "{}",
-});
-assert.equal(apiResponse.status, 400);
-assert.equal(apiResponse.headers.get("cache-control"), "no-store");
-assert.match(
-  apiResponse.headers.get("content-type") ?? "",
-  /application\/json/,
-);
-assert.deepEqual(await apiResponse.json(), {
-  schema_version: "1.0",
-  status: "error",
-  error: {
-    code: "invalid_request",
-    retryable: false,
-  },
-  meta: {
-    attempt_count: 0,
-  },
-});
+let apiError;
+
+for (let attempt = 1; attempt <= attempts; attempt += 1) {
+  try {
+    const apiResponse = await fetch(apiUrl, {
+      method: "POST",
+      cache: "no-store",
+      redirect: "error",
+      headers: {
+        "cache-control": "no-cache",
+        "content-type": "application/json",
+        origin: baseUrl.origin,
+        "user-agent": "margrop-labs-deployment-smoke/1.0",
+      },
+      body: "{}",
+    });
+    assert.equal(apiResponse.status, 400);
+    assert.equal(apiResponse.headers.get("cache-control"), "no-store");
+    assert.match(
+      apiResponse.headers.get("content-type") ?? "",
+      /application\/json/,
+    );
+    assert.deepEqual(await apiResponse.json(), {
+      schema_version: "1.0",
+      status: "error",
+      error: {
+        code: "invalid_request",
+        retryable: false,
+      },
+      meta: {
+        attempt_count: 0,
+      },
+    });
+    apiError = undefined;
+    break;
+  } catch (error) {
+    apiError = error;
+  }
+
+  if (attempt < attempts) {
+    await new Promise((resolve) => setTimeout(resolve, retryDelayMs));
+  }
+}
+
+if (apiError !== undefined) {
+  throw apiError;
+}
 
 console.log(`Deployment smoke check passed: ${baseUrl.origin}`);

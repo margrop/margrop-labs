@@ -89,8 +89,9 @@ npm run deploy:production --workspace @margrop-labs/web
 - Preview 不响应正式域名；Production 只把正式入口指向
   `lab.margrop.net`。
 
-Workflow 的在线 smoke test 会自动检查 HTTP 状态、核心首页内容、移动端 viewport 和
-`robots.txt`；视觉和交互验收仍需在 Preview 完成后执行。
+Workflow 的在线 smoke test 会自动检查 HTTP 状态、核心首页内容、移动端 viewport、
+`robots.txt` 和 API 安全错误响应；为覆盖 Worker 发布传播窗口，在线检查会对瞬态错误最多
+重试约一分钟。视觉和交互验收仍需在 Preview 完成后执行。
 
 ## 失败与回滚
 
