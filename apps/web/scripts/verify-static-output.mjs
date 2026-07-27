@@ -190,6 +190,7 @@ const checks = [
       "qwen-latest",
       "minimax-latest",
       "TOKEN_FORGE_AI_BUDGET_MULTIPLIER",
+      "TOKEN_FORGE_AI_TRANSPORT",
       "TOKEN_FORGE_AI_API_KEY",
       "TOKEN_FORGE_ACTOR_KEY_SECRET",
       "Return only a Token Forge Plan v1 JSON object",
