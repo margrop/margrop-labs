@@ -16,6 +16,7 @@ import {
   type TokenForgeAiTrafficPolicy,
   TokenForgeAiPolicyLedger,
   admissionDecisionToAiGatewayFailure,
+  createTokenForgeAiPreviewPolicyLedger,
   validateTokenForgeAiPolicySnapshot,
   validateTokenForgeAiTrafficPolicy,
 } from "@margrop-labs/ai-gateway/token-forge-policy";
@@ -41,64 +42,81 @@ export const tokenForgeAiGatewayPolicy = Object.freeze({
   maxAttempts: 1,
 });
 
-const createTokenForgeAiTrafficPolicy = (
-  dailyBudgetMultiplier: 1 | 100,
-): Readonly<TokenForgeAiTrafficPolicy> =>
-  Object.freeze(
-    validateTokenForgeAiTrafficPolicy({
-      schema_version: "1.0",
-      lab_id: "token-forge",
-      operation: tokenForgeAiOperationId,
-      max_request_billable_tokens: tokenForgeAiFallbackAccountingTokens,
-      max_request_cost_microusd: 1,
-      daily_budgets: {
-        actor_tokens: 96_000 * dailyBudgetMultiplier,
-        lab_tokens: 1_200_000 * dailyBudgetMultiplier,
-        site_tokens: 2_400_000 * dailyBudgetMultiplier,
-        actor_cost_microusd: 4 * dailyBudgetMultiplier,
-        lab_cost_microusd: 50 * dailyBudgetMultiplier,
-        site_cost_microusd: 100 * dailyBudgetMultiplier,
-        actor_requests: 4,
-        lab_requests: 50,
-        site_requests: 100,
-      },
-      rate_limit: {
-        window_seconds: 60,
-        actor_requests: 1,
-        lab_requests: 6,
-        site_requests: 10,
-      },
-      concurrency: {
-        actor_in_flight: 1,
-        lab_in_flight: 2,
-        site_in_flight: 3,
-      },
-      circuit_breaker: {
-        consecutive_failures: 3,
-        open_seconds: 120,
-        half_open_requests: 1,
-      },
-      reservation_ttl_seconds: 60,
-    }),
-  );
+const createTokenForgeAiTrafficPolicy =
+  (): Readonly<TokenForgeAiTrafficPolicy> =>
+    Object.freeze(
+      validateTokenForgeAiTrafficPolicy({
+        schema_version: "1.0",
+        lab_id: "token-forge",
+        operation: tokenForgeAiOperationId,
+        max_request_billable_tokens: tokenForgeAiFallbackAccountingTokens,
+        max_request_cost_microusd: 1,
+        daily_budgets: {
+          actor_tokens: 96_000,
+          lab_tokens: 1_200_000,
+          site_tokens: 2_400_000,
+          actor_cost_microusd: 4,
+          lab_cost_microusd: 50,
+          site_cost_microusd: 100,
+          actor_requests: 4,
+          lab_requests: 50,
+          site_requests: 100,
+        },
+        rate_limit: {
+          window_seconds: 60,
+          actor_requests: 1,
+          lab_requests: 6,
+          site_requests: 10,
+        },
+        concurrency: {
+          actor_in_flight: 1,
+          lab_in_flight: 2,
+          site_in_flight: 3,
+        },
+        circuit_breaker: {
+          consecutive_failures: 3,
+          open_seconds: 120,
+          half_open_requests: 1,
+        },
+        reservation_ttl_seconds: 60,
+      }),
+    );
 
 export const tokenForgeAiProductionTrafficPolicy: Readonly<TokenForgeAiTrafficPolicy> =
-  createTokenForgeAiTrafficPolicy(1);
+  createTokenForgeAiTrafficPolicy();
 
 export const tokenForgeAiPreviewTrafficPolicy: Readonly<TokenForgeAiTrafficPolicy> =
-  createTokenForgeAiTrafficPolicy(100);
+  createTokenForgeAiPreviewPolicyLedger(
+    tokenForgeAiProductionTrafficPolicy,
+  ).policy;
 
-const resolveTokenForgeAiTrafficPolicy = (
+type TokenForgeAiTrafficPolicyMode = "production" | "preview";
+
+const resolveTokenForgeAiTrafficPolicyMode = (
   multiplier: string,
-): Readonly<TokenForgeAiTrafficPolicy> => {
+): TokenForgeAiTrafficPolicyMode => {
   if (multiplier === "1") {
-    return tokenForgeAiProductionTrafficPolicy;
+    return "production";
   }
   if (multiplier === "100") {
-    return tokenForgeAiPreviewTrafficPolicy;
+    return "preview";
   }
   throw new Error("Invalid server-side Token Forge budget configuration.");
 };
+
+const createTokenForgeAiPolicyLedger = (
+  mode: TokenForgeAiTrafficPolicyMode,
+  snapshot?: unknown,
+): TokenForgeAiPolicyLedger =>
+  mode === "preview"
+    ? createTokenForgeAiPreviewPolicyLedger(
+        tokenForgeAiProductionTrafficPolicy,
+        snapshot,
+      )
+    : new TokenForgeAiPolicyLedger(
+        tokenForgeAiProductionTrafficPolicy,
+        snapshot,
+      );
 
 const textEncoder = new TextEncoder();
 
@@ -496,21 +514,21 @@ const deriveActorKey = async (
 
 const admit = async (
   store: TokenForgePolicyStore,
-  trafficPolicy: Readonly<TokenForgeAiTrafficPolicy>,
+  trafficPolicyMode: TokenForgeAiTrafficPolicyMode,
   requestId: string,
   actorKey: string,
   nowMs: number,
 ): Promise<TokenForgeAiAdmissionDecision> =>
   store.mutate((snapshot) => {
-    const ledger = new TokenForgeAiPolicyLedger(trafficPolicy, snapshot);
+    const ledger = createTokenForgeAiPolicyLedger(trafficPolicyMode, snapshot);
     const result = ledger.admit({
       request_id: requestId,
       actor_key: actorKey,
       lab_id: "token-forge",
       operation: tokenForgeAiOperationId,
       now_ms: nowMs,
-      reserved_tokens: trafficPolicy.max_request_billable_tokens,
-      reserved_cost_microusd: trafficPolicy.max_request_cost_microusd,
+      reserved_tokens: ledger.policy.max_request_billable_tokens,
+      reserved_cost_microusd: ledger.policy.max_request_cost_microusd,
     });
 
     return {
@@ -521,14 +539,14 @@ const admit = async (
 
 const settle = async (
   store: TokenForgePolicyStore,
-  trafficPolicy: Readonly<TokenForgeAiTrafficPolicy>,
+  trafficPolicyMode: TokenForgeAiTrafficPolicyMode,
   requestId: string,
   nowMs: number,
   response: AiGatewayResponse<TokenForgeAiPlanJson>,
   accountingTokenFloor: number,
 ): Promise<TokenForgeAiSettlementResult> =>
   store.mutate((snapshot) => {
-    const ledger = new TokenForgeAiPolicyLedger(trafficPolicy, snapshot);
+    const ledger = createTokenForgeAiPolicyLedger(trafficPolicyMode, snapshot);
     const result = ledger.settle(
       response.status === "ok"
         ? {
@@ -641,7 +659,7 @@ export const handleTokenForgeAiRequest = async (
 
   let actorKey: string;
   let provider: ReturnType<typeof createOpenAiCompatibleProvider>;
-  let trafficPolicy: Readonly<TokenForgeAiTrafficPolicy>;
+  let trafficPolicyMode: TokenForgeAiTrafficPolicyMode;
   try {
     actorKey = await deriveActorKey(
       ipAddress,
@@ -655,7 +673,7 @@ export const handleTokenForgeAiRequest = async (
       fetch: options.fetch,
       now: options.now,
     });
-    trafficPolicy = resolveTokenForgeAiTrafficPolicy(
+    trafficPolicyMode = resolveTokenForgeAiTrafficPolicyMode(
       environment.TOKEN_FORGE_AI_BUDGET_MULTIPLIER,
     );
   } catch {
@@ -669,7 +687,7 @@ export const handleTokenForgeAiRequest = async (
   try {
     admission = await admit(
       options.store,
-      trafficPolicy,
+      trafficPolicyMode,
       parsed.requestId,
       actorKey,
       now(),
@@ -694,7 +712,7 @@ export const handleTokenForgeAiRequest = async (
   try {
     const settlement = await settle(
       options.store,
-      trafficPolicy,
+      trafficPolicyMode,
       parsed.requestId,
       now(),
       response,
