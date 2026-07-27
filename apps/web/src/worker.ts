@@ -39,6 +39,7 @@ type WorkerEnvironment = {
   TOKEN_FORGE_AI_POLICY: DurableObjectNamespace;
   TOKEN_FORGE_AI_BASE_URL: string;
   TOKEN_FORGE_AI_MODEL: string;
+  TOKEN_FORGE_AI_FALLBACK_MODEL: string;
   TOKEN_FORGE_AI_API_KEY: string;
   TOKEN_FORGE_ACTOR_KEY_SECRET: string;
 };

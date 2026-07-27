@@ -11,6 +11,7 @@ import {
   handleTokenForgeAiRequest,
   tokenForgeAiEndpointPath,
   tokenForgeAiGatewayPolicy,
+  tokenForgeAiProductionTrafficPolicy,
 } from "./token-forge-ai-runtime";
 
 const firstRequestId = "123e4567-e89b-42d3-a456-426614174000";
@@ -67,19 +68,23 @@ const plan: TokenForgePlan = {
 const environment = {
   TOKEN_FORGE_AI_BASE_URL: "https://api-gpt.speedtest.margrop.net:16666/v1",
   TOKEN_FORGE_AI_MODEL: "qwen-latest",
+  TOKEN_FORGE_AI_FALLBACK_MODEL: "minimax-latest",
   TOKEN_FORGE_AI_API_KEY: "synthetic-provider-key",
   TOKEN_FORGE_ACTOR_KEY_SECRET: "synthetic-actor-key-secret",
 };
 
-const openAiSuccess = (): Response =>
+const openAiSuccess = (
+  content = JSON.stringify(plan),
+  finishReason = "stop",
+): Response =>
   new Response(
     JSON.stringify({
       choices: [
         {
           message: {
-            content: JSON.stringify(plan),
+            content,
           },
-          finish_reason: "stop",
+          finish_reason: finishReason,
         },
       ],
       usage: {
@@ -122,7 +127,8 @@ describe("OpenAI-compatible Token Forge Provider", () => {
     const fetchProvider = vi.fn().mockResolvedValue(openAiSuccess());
     const provider = createOpenAiCompatibleProvider({
       baseUrl: environment.TOKEN_FORGE_AI_BASE_URL,
-      model: environment.TOKEN_FORGE_AI_MODEL,
+      primaryModel: environment.TOKEN_FORGE_AI_MODEL,
+      fallbackModel: environment.TOKEN_FORGE_AI_FALLBACK_MODEL,
       apiKey: environment.TOKEN_FORGE_AI_API_KEY,
       fetch: fetchProvider,
     });
@@ -162,10 +168,12 @@ describe("OpenAI-compatible Token Forge Provider", () => {
     const body = JSON.parse(String(init.body)) as {
       model: string;
       max_tokens: number;
+      response_format: { type: string };
       messages: Array<{ role: string; content: string }>;
     };
     expect(body.model).toBe("qwen-latest");
     expect(body.max_tokens).toBe(2_000);
+    expect(body.response_format).toEqual({ type: "json_object" });
     expect(body.messages[0]?.content).toContain("Token Forge Plan v1");
     expect(JSON.stringify(body)).not.toContain(
       environment.TOKEN_FORGE_AI_API_KEY,
@@ -173,22 +181,63 @@ describe("OpenAI-compatible Token Forge Provider", () => {
   });
 
   it.each([
+    [401, "policy_blocked"],
     [402, "budget_exhausted"],
-    [429, "rate_limited"],
-    [500, "unavailable"],
+    [403, "policy_blocked"],
   ])(
-    "maps HTTP %i without returning the Provider body",
+    "does not fall back for terminal HTTP %i responses",
     async (status, code) => {
+      const fetchProvider = vi.fn().mockResolvedValue(
+        new Response("unsafe upstream detail", {
+          status,
+          headers: { "retry-after": "30" },
+        }),
+      );
       const provider = createOpenAiCompatibleProvider({
         baseUrl: environment.TOKEN_FORGE_AI_BASE_URL,
-        model: environment.TOKEN_FORGE_AI_MODEL,
+        primaryModel: environment.TOKEN_FORGE_AI_MODEL,
+        fallbackModel: environment.TOKEN_FORGE_AI_FALLBACK_MODEL,
         apiKey: environment.TOKEN_FORGE_AI_API_KEY,
-        fetch: vi.fn().mockResolvedValue(
-          new Response("unsafe upstream detail", {
-            status,
-            headers: { "retry-after": "30" },
-          }),
-        ),
+        fetch: fetchProvider,
+      });
+
+      const result = await provider.generate(
+        {
+          request_id: firstRequestId,
+          lab_id: "token-forge",
+          operation: tokenForgeAiOperationId,
+          input: prepareTokenForgeAiInput(input),
+          limits: {
+            max_input_tokens: 22_000,
+            max_output_tokens: 2_000,
+          },
+        },
+        { signal: new AbortController().signal },
+      );
+
+      expect(result).toMatchObject({
+        ok: false,
+        error: { code },
+      });
+      expect(fetchProvider).toHaveBeenCalledTimes(1);
+    },
+  );
+
+  it.each([429, 500])(
+    "falls back to minimax-latest after retryable HTTP %i",
+    async (status) => {
+      const fetchProvider = vi
+        .fn()
+        .mockResolvedValueOnce(
+          new Response("unsafe upstream detail", { status }),
+        )
+        .mockResolvedValueOnce(openAiSuccess());
+      const provider = createOpenAiCompatibleProvider({
+        baseUrl: environment.TOKEN_FORGE_AI_BASE_URL,
+        primaryModel: environment.TOKEN_FORGE_AI_MODEL,
+        fallbackModel: environment.TOKEN_FORGE_AI_FALLBACK_MODEL,
+        apiKey: environment.TOKEN_FORGE_AI_API_KEY,
+        fetch: fetchProvider,
       });
 
       await expect(
@@ -206,11 +255,181 @@ describe("OpenAI-compatible Token Forge Provider", () => {
           { signal: new AbortController().signal },
         ),
       ).resolves.toMatchObject({
-        ok: false,
-        error: { code },
+        ok: true,
+        output: plan,
       });
+
+      const models = fetchProvider.mock.calls.map(([, init]) => {
+        const body = JSON.parse(String((init as RequestInit).body)) as {
+          model: string;
+        };
+        return body.model;
+      });
+      expect(models).toEqual(["qwen-latest", "minimax-latest"]);
+      expect(provider.getAccountingTokenFloor()).toBe(48_000);
     },
   );
+
+  it("falls back after a primary network failure", async () => {
+    const fetchProvider = vi
+      .fn()
+      .mockRejectedValueOnce(new TypeError("synthetic network failure"))
+      .mockResolvedValueOnce(openAiSuccess());
+    const provider = createOpenAiCompatibleProvider({
+      baseUrl: environment.TOKEN_FORGE_AI_BASE_URL,
+      primaryModel: environment.TOKEN_FORGE_AI_MODEL,
+      fallbackModel: environment.TOKEN_FORGE_AI_FALLBACK_MODEL,
+      apiKey: environment.TOKEN_FORGE_AI_API_KEY,
+      fetch: fetchProvider,
+    });
+
+    await expect(
+      provider.generate(
+        {
+          request_id: firstRequestId,
+          lab_id: "token-forge",
+          operation: tokenForgeAiOperationId,
+          input: prepareTokenForgeAiInput(input),
+          limits: {
+            max_input_tokens: 22_000,
+            max_output_tokens: 2_000,
+          },
+        },
+        { signal: new AbortController().signal },
+      ),
+    ).resolves.toMatchObject({
+      ok: true,
+      output: plan,
+    });
+    expect(fetchProvider).toHaveBeenCalledTimes(2);
+    expect(provider.getAccountingTokenFloor()).toBe(
+      tokenForgeAiProductionTrafficPolicy.max_request_billable_tokens,
+    );
+  });
+
+  it("accepts one complete JSON fence without relaxing the plan contract", async () => {
+    const provider = createOpenAiCompatibleProvider({
+      baseUrl: environment.TOKEN_FORGE_AI_BASE_URL,
+      primaryModel: environment.TOKEN_FORGE_AI_MODEL,
+      fallbackModel: environment.TOKEN_FORGE_AI_FALLBACK_MODEL,
+      apiKey: environment.TOKEN_FORGE_AI_API_KEY,
+      fetch: vi
+        .fn()
+        .mockResolvedValue(
+          openAiSuccess(`\`\`\`json\n${JSON.stringify(plan)}\n\`\`\``),
+        ),
+    });
+
+    await expect(
+      provider.generate(
+        {
+          request_id: firstRequestId,
+          lab_id: "token-forge",
+          operation: tokenForgeAiOperationId,
+          input: prepareTokenForgeAiInput(input),
+          limits: {
+            max_input_tokens: 22_000,
+            max_output_tokens: 2_000,
+          },
+        },
+        { signal: new AbortController().signal },
+      ),
+    ).resolves.toMatchObject({
+      ok: true,
+      output: plan,
+    });
+  });
+
+  it("falls back when the primary response contains invalid fenced JSON", async () => {
+    const fetchProvider = vi
+      .fn()
+      .mockResolvedValueOnce(
+        openAiSuccess(
+          `Here is the result:\n\`\`\`json\n${JSON.stringify(plan)}\n\`\`\``,
+        ),
+      )
+      .mockResolvedValueOnce(openAiSuccess());
+    const provider = createOpenAiCompatibleProvider({
+      baseUrl: environment.TOKEN_FORGE_AI_BASE_URL,
+      primaryModel: environment.TOKEN_FORGE_AI_MODEL,
+      fallbackModel: environment.TOKEN_FORGE_AI_FALLBACK_MODEL,
+      apiKey: environment.TOKEN_FORGE_AI_API_KEY,
+      fetch: fetchProvider,
+    });
+
+    await expect(
+      provider.generate(
+        {
+          request_id: firstRequestId,
+          lab_id: "token-forge",
+          operation: tokenForgeAiOperationId,
+          input: prepareTokenForgeAiInput(input),
+          limits: {
+            max_input_tokens: 22_000,
+            max_output_tokens: 2_000,
+          },
+        },
+        { signal: new AbortController().signal },
+      ),
+    ).resolves.toMatchObject({
+      ok: true,
+      output: plan,
+    });
+    expect(fetchProvider).toHaveBeenCalledTimes(2);
+  });
+
+  it("fails closed when the fallback response is also invalid", async () => {
+    const fetchProvider = vi
+      .fn()
+      .mockResolvedValueOnce(openAiSuccess("not-json"))
+      .mockResolvedValueOnce(openAiSuccess("still-not-json"));
+    const provider = createOpenAiCompatibleProvider({
+      baseUrl: environment.TOKEN_FORGE_AI_BASE_URL,
+      primaryModel: environment.TOKEN_FORGE_AI_MODEL,
+      fallbackModel: environment.TOKEN_FORGE_AI_FALLBACK_MODEL,
+      apiKey: environment.TOKEN_FORGE_AI_API_KEY,
+      fetch: fetchProvider,
+    });
+
+    await expect(
+      provider.generate(
+        {
+          request_id: firstRequestId,
+          lab_id: "token-forge",
+          operation: tokenForgeAiOperationId,
+          input: prepareTokenForgeAiInput(input),
+          limits: {
+            max_input_tokens: 22_000,
+            max_output_tokens: 2_000,
+          },
+        },
+        { signal: new AbortController().signal },
+      ),
+    ).resolves.toBeUndefined();
+    expect(fetchProvider).toHaveBeenCalledTimes(2);
+  });
+
+  it("keeps a truncated fallback response closed", async () => {
+    const fetchProvider = vi
+      .fn()
+      .mockResolvedValueOnce(new Response("unavailable", { status: 500 }))
+      .mockResolvedValueOnce(openAiSuccess(JSON.stringify(plan), "length"));
+    const response = await handleTokenForgeAiRequest(runtimeRequest(), {
+      store: createMemoryTokenForgePolicyStore(),
+      environment,
+      fetch: fetchProvider,
+      now: () => Date.UTC(2026, 6, 26, 12),
+    });
+
+    expect(response.status).toBe(502);
+    await expect(response.json()).resolves.toMatchObject({
+      status: "error",
+      error: {
+        code: "output_token_limit_exceeded",
+      },
+    });
+    expect(fetchProvider).toHaveBeenCalledTimes(2);
+  });
 });
 
 describe("Token Forge AI production runtime", () => {
@@ -313,24 +532,25 @@ describe("Token Forge AI production runtime", () => {
 
   it("opens the shared circuit after three invalid Provider results", async () => {
     let nowMs = Date.UTC(2026, 6, 26, 12);
-    const fetchProvider = vi.fn().mockResolvedValue(
-      new Response(
-        JSON.stringify({
-          choices: [
-            {
-              message: {
-                content: "{}",
+    const fetchProvider = vi.fn().mockImplementation(
+      () =>
+        new Response(
+          JSON.stringify({
+            choices: [
+              {
+                message: {
+                  content: "{}",
+                },
+                finish_reason: "stop",
               },
-              finish_reason: "stop",
+            ],
+            usage: {
+              prompt_tokens: 100,
+              completion_tokens: 10,
+              total_tokens: 110,
             },
-          ],
-          usage: {
-            prompt_tokens: 100,
-            completion_tokens: 10,
-            total_tokens: 110,
-          },
-        }),
-      ),
+          }),
+        ),
     );
     const options = {
       store: createMemoryTokenForgePolicyStore(),

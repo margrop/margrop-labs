@@ -21,7 +21,7 @@ import { generateTokenForgeTemplatePlan } from "./token-forge-templates";
 
 const endpoint = "/api/token-forge/plan";
 const responseLimitBytes = 64 * 1024;
-const clientTimeoutMs = 20_000;
+const clientTimeoutMs = 50_000;
 
 const fallback = (
   input: TokenForgeInput,

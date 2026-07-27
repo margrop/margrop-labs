@@ -19,6 +19,7 @@
   "vars": {
     "TOKEN_FORGE_AI_BASE_URL": "https://api-gpt.speedtest.margrop.net:16666/v1",
     "TOKEN_FORGE_AI_MODEL": "qwen-latest",
+    "TOKEN_FORGE_AI_FALLBACK_MODEL": "minimax-latest",
   },
   "secrets": {
     "required": ["TOKEN_FORGE_AI_API_KEY", "TOKEN_FORGE_ACTOR_KEY_SECRET"],
@@ -45,6 +46,7 @@
       "vars": {
         "TOKEN_FORGE_AI_BASE_URL": "https://api-gpt.speedtest.margrop.net:16666/v1",
         "TOKEN_FORGE_AI_MODEL": "qwen-latest",
+        "TOKEN_FORGE_AI_FALLBACK_MODEL": "minimax-latest",
       },
       "secrets": {
         "required": ["TOKEN_FORGE_AI_API_KEY", "TOKEN_FORGE_ACTOR_KEY_SECRET"],

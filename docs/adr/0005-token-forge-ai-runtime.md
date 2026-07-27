@@ -12,7 +12,8 @@ ADR-0003 选择 Astro 静态输出与 Cloudflare Workers Static Assets，并要�
 用户提供了一个标准 OpenAI Chat Completions 兼容服务：
 
 - Base URL：`https://api-gpt.speedtest.margrop.net:16666/v1`
-- 模型：`qwen-latest`
+- 主模型：`qwen-latest`
+- 回退模型：`minimax-latest`
 - 认证：服务端 `Authorization: Bearer` Secret
 
 该上游网关负责真实货币预算，因此 Labs 仍必须限制 Token、请求、频率、并发与故障扩散，
@@ -25,23 +26,29 @@ ADR-0003 选择 Astro 静态输出与 Cloudflare Workers Static Assets，并要�
 2. 固定公开端点为 `POST /api/token-forge/plan`。浏览器只能提交
    `ai-gateway-request-v1` 和 `token-forge-ai-input-v1`，不能提交 URL、模型、指令、价格、
    尝试次数或密钥。
-3. Worker 使用固定 OpenAI-compatible Adapter 调用 `/v1/chat/completions`，固定模型为
-   `qwen-latest`，单次最大输入 22,000 Token、输出 2,000 Token、15 秒、1 次尝试。
-4. `TOKEN_FORGE_AI_API_KEY` 和 `TOKEN_FORGE_ACTOR_KEY_SECRET` 分别作为 Preview 与
+3. Worker 使用固定 OpenAI-compatible Adapter 调用 `/v1/chat/completions`。主模型固定为
+   `qwen-latest`；网络失败、429、408/504、5xx 或响应无法解析时，才顺序调用固定回退模型
+   `minimax-latest`。401/402/403 等终止型错误不回退，浏览器不能选择或覆盖模型。
+4. 每个模型仍固定最大输入 22,000 Token、输出 2,000 Token；两个模型共享 45 秒 Gateway
+   窗口和 1 次 Gateway 尝试。请求显式要求 `json_object`；只额外接受完整、无前后文字的
+   单个 `json` Markdown 围栏，解析后仍执行相同的 Plan v1 与安全校验。
+5. `TOKEN_FORGE_AI_API_KEY` 和 `TOKEN_FORGE_ACTOR_KEY_SECRET` 分别作为 Preview 与
    Production Worker Secret 管理；任何一个缺失时失败关闭到模板。
-5. 只使用 Cloudflare Edge 写入的 `CF-Connecting-IP`，通过 HMAC-SHA256 派生
+6. 只使用 Cloudflare Edge 写入的 `CF-Connecting-IP`，通过 HMAC-SHA256 派生
    `anon_<base64url>`。原始 IP、Secret 与对应关系不写入状态、日志或响应。
-6. 使用单个 SQLite Durable Object 保存 P4-004 快照。在存储事务内完成“读取 → 准入/结算
+7. 使用单个 SQLite Durable Object 保存 P4-004 快照。在存储事务内完成“读取 → 准入/结算
    → 写回”，Provider 网络调用位于两个事务之间。
-7. 生产流量配置为：每请求预留 24,000 Token；匿名用户、Lab、全站每日请求
-   4/50/100；60 秒请求 1/6/10；并发 1/2/3；连续失败 3 次后熔断 120 秒；预留 45 秒。
-8. 成本字段使用最小合同占位：调用前预留 1 microUSD，成功按 0 结算。真实货币预算完全由
+8. 生产流量配置为：每请求按两个模型的最坏情况预留 48,000 Token；未回退的成功请求按
+   标准 usage 结算，一旦实际调用回退模型则按 48,000 Token 保守结算。匿名用户、Lab、
+   全站每日请求 4/50/100；60 秒请求 1/6/10；并发 1/2/3；连续失败 3 次后熔断 120 秒；
+   预留 60 秒。
+9. 成本字段使用最小合同占位：调用前预留 1 microUSD，成功按 0 结算。真实货币预算完全由
    上游网关负责；Labs 不展示或推断费用。
-9. API 只接受同源 JSON POST，请求与响应各 64 KiB，禁止重定向与缓存，不记录请求、
-   Provider 正文、计划正文或原始错误。
-10. 页面提供显式“AI 增强生成”和独立“仅生成模板”。AI、网络、限流、熔断或输出校验失败
+10. API 只接受同源 JSON POST，请求与响应各 64 KiB，禁止重定向与缓存，不记录请求、
+    Provider 正文、计划正文或原始错误。
+11. 页面提供显式“AI 增强生成”和独立“仅生成模板”。AI、网络、限流、熔断或输出校验失败
     时，完整模板和导出继续可用。
-11. `main` 的每次 push 自动部署并 smoke test 隔离的 Preview Worker；Production 仍只允许
+12. `main` 的每次 push 自动部署并 smoke test 隔离的 Preview Worker；Production 仍只允许
     仓库所有者通过 `workflow_dispatch` 人工触发，且两种部署串行执行。
 
 ## 自定义端口约束
@@ -65,6 +72,10 @@ Cloudflare 参考：
 - Durable Object 成为 Token Forge AI 策略状态的唯一生产写入者；
 - 共享 NAT 用户会共用匿名限额；轮换 HMAC Secret 会切换匿名桶，但不会恢复全局预算；
 - 上游 usage 必须提供 `prompt_tokens` 和 `completion_tokens`，缺失或无效时整体降级；
+- 页面 usage 只表示最终成功模型的标准 usage；回退路径的策略结算固定采用 48,000 Token
+  下限，避免主模型无效响应缺少可信 usage 时低估消耗；
+- `minimax-latest` 仍受 2,000 输出 Token 和共享 45 秒窗口限制；若只返回推理正文或
+  `finish_reason: length`，会失败关闭到模板，不会放宽合同；
 - Preview 与 Production 的 Durable Object、Secrets 和流量状态彼此隔离；
 - 发布仍先经过 Preview，Production 只能由仓库所有者人工触发。
 

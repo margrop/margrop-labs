@@ -8,7 +8,8 @@ P1-004 在 P1-002 确定性模板之上增加 Provider-neutral 的 AI 规划核�
 1. Token Forge v1 输入先通过业务合同；
 2. 立即生成一份经过本地脱敏的 P1-002 模板计划；
 3. 可选的 P1-003 公开仓库摘要被压缩、允许字段映射和脱敏；
-4. 生产 AI Gateway 在 22,000 输入、2,000 输出、15 秒和 1 次尝试内调用固定 Adapter；
+4. 生产 AI Gateway 在每模型 22,000 输入、2,000 输出、共享 45 秒和 1 次 Gateway
+   尝试内，先调用固定主模型，符合条件时再顺序调用固定回退模型；
 5. AI 输出重新通过 Token Forge Plan v1 合同和确定性安全规则；
 6. 任一步失败都丢弃 AI 输出并返回第 2 步的完整模板计划。
 
@@ -55,7 +56,13 @@ P1-004 在 P1-002 确定性模板之上增加 Provider-neutral 的 AI 规划核�
 AI Gateway 的 Provider Request 不包含 `provider`、`model`、`system_prompt` 或密钥。
 生产 Adapter 在服务端固定 OpenAI-compatible
 `https://api-gpt.speedtest.margrop.net:16666/v1/chat/completions` 与
-`qwen-latest`；上述配置、Secret 和系统指令都不能由 Web 覆盖。
+主模型 `qwen-latest`、回退模型 `minimax-latest`；上述配置、Secret 和系统指令都不能由
+Web 覆盖。网络错误、429、408/504、5xx 或无法解析的响应才会进入回退；认证、预算或其他
+策略型 4xx 不会回退。两个模型不会并行调用。
+
+Adapter 请求标准 `json_object` 响应。若兼容网关仍把唯一 JSON 对象包在 Markdown 中，
+只接受完整、无前后文字的单个 `json` 围栏；围栏被移除后，结果仍须通过全部合同和安全
+后处理，不能借此接受自然语言说明、多围栏或部分 JSON。
 
 ## 确定性后处理
 
@@ -89,7 +96,8 @@ AI Gateway 的 Provider Request 不包含 `provider`、`model`、`system_prompt`
 
 P4-004 已提供 `token-forge.plan-v1` 专属的日 Token/微美元预算、匿名用户滑动限流、并发
 预留与熔断状态机。P1-008 用 HMAC 匿名键和 SQLite Durable Object 原子保存快照，并在
-Provider 前预留单次最坏 24,000 Token。成功按标准 usage 结算；失败或预留超时保留全额
+Provider 前按两个模型的最坏情况预留 48,000 Token。主模型直接成功时按标准 usage
+结算；只要调用回退模型，就按 48,000 Token 保守下限结算；失败或预留超时同样保留全额
 预留。自建上游网关负责真实货币预算，因此金额只保留最小合同占位。
 
 详细固定参数见 [AI 流量与成本策略](./token-forge-ai-traffic-policy.md)。
@@ -102,7 +110,7 @@ Provider 前预留单次最坏 24,000 Token。成功按标准 usage 结算；失
 - 有效 AI 计划与 Provider Request 控制字段；
 - 输出标识符脱敏、相似任务合并和依赖重写；
 - 生产写入、仓库原文回显、超预算和无效输出；
-- Secret 预检、Provider 超时、暂时不可用和有界重试；
+- Secret 预检、Provider 超时、终止型错误不回退、暂时错误顺序回退和双模型失败；
 - 所有失败路径回退到仍符合 v1 合同的模板计划。
 
 测试不使用真实仓库正文、真实 Provider 或真实凭据。
@@ -110,6 +118,9 @@ Provider 前预留单次最坏 24,000 Token。成功按标准 usage 结算；失
 ## 已知限制
 
 - 上游必须支持标准 Chat Completions 字符串内容与 prompt/completion usage；
+- 页面只展示最终成功模型的 usage；策略层对已调用的回退路径采用最坏 Token 下限；
+- `minimax-latest` 若在 2,000 输出 Token 内没有形成最终 JSON，会按输出截断或无效响应
+  降级，不会返回推理正文；
 - 自定义 `16666` 端口要求上游域名保持 DNS-only，或迁移到支持的 HTTPS 端口；
 - 共享 NAT 用户共用匿名限额；匿名键轮换会创建新的匿名桶；
 - 代码完成不等于真实流量已激活，仍需 Secrets、Preview 验收和人工 Production 决定；

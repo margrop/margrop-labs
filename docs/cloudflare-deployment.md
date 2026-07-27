@@ -41,8 +41,10 @@ npx wrangler secret put TOKEN_FORGE_ACTOR_KEY_SECRET
 Secret。
 
 固定上游是
-`https://api-gpt.speedtest.margrop.net:16666/v1/chat/completions`，模型为
-`qwen-latest`。由于使用自定义端口，`api-gpt.speedtest.margrop.net` 必须保持
+`https://api-gpt.speedtest.margrop.net:16666/v1/chat/completions`，主模型为
+`qwen-latest`，顺序回退模型为 `minimax-latest`。两者都是公开的 Worker 变量，不是
+Secret；模型只能由服务端配置，浏览器不能覆盖。由于使用自定义端口，
+`api-gpt.speedtest.margrop.net` 必须保持
 Cloudflare DNS-only（灰云）；若启用橙云，应先把服务迁移到 443 或受支持的 HTTPS 端口。
 Worker 的 `compatibility_date` 晚于 `2024-09-02`，自定义端口能力已经默认启用，不再显式
 声明 `allow_custom_ports`。

@@ -389,7 +389,7 @@ describe("AI Gateway v1 contracts", () => {
       maxInputTokens: 24_000,
       maxOutputTokens: 4_000,
       systemInputTokenReserve: 2_000,
-      providerTimeoutMs: 15_000,
+      providerTimeoutMs: 45_000,
       maxAttempts: 2,
       maxJsonDepth: 8,
       maxJsonNodes: 1_000,
