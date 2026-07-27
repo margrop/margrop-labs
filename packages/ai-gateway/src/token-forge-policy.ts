@@ -695,6 +695,27 @@ const subtractUsage = (
   usage.cost_microusd = Math.max(0, usage.cost_microusd - costRefund);
 };
 
+const previewBudgetMarker = Symbol("token-forge-preview-budget");
+const previewDailyBudgetMultiplier = 100;
+
+const expandPreviewDailyBudgets = (
+  policy: TokenForgeAiTrafficPolicy,
+): Readonly<TokenForgeAiTrafficPolicy> => {
+  const previewPolicy = cloneJson(
+    policy,
+    "Token Forge AI Preview traffic policy",
+  );
+  previewPolicy.daily_budgets.actor_tokens *= previewDailyBudgetMultiplier;
+  previewPolicy.daily_budgets.lab_tokens *= previewDailyBudgetMultiplier;
+  previewPolicy.daily_budgets.site_tokens *= previewDailyBudgetMultiplier;
+  previewPolicy.daily_budgets.actor_cost_microusd *=
+    previewDailyBudgetMultiplier;
+  previewPolicy.daily_budgets.lab_cost_microusd *= previewDailyBudgetMultiplier;
+  previewPolicy.daily_budgets.site_cost_microusd *=
+    previewDailyBudgetMultiplier;
+  return deepFreeze(previewPolicy);
+};
+
 export class TokenForgeAiPolicyLedger {
   readonly policy: Readonly<TokenForgeAiTrafficPolicy>;
   private state: TokenForgeAiPolicySnapshot;
@@ -702,8 +723,13 @@ export class TokenForgeAiPolicyLedger {
   constructor(
     policy: unknown = tokenForgeAiTrafficHardPolicy,
     snapshot?: unknown,
+    previewMarker?: symbol,
   ) {
-    this.policy = deepFreeze(validateTokenForgeAiTrafficPolicy(policy));
+    const validatedPolicy = validateTokenForgeAiTrafficPolicy(policy);
+    this.policy =
+      previewMarker === previewBudgetMarker
+        ? expandPreviewDailyBudgets(validatedPolicy)
+        : deepFreeze(validatedPolicy);
     this.state =
       snapshot === undefined
         ? emptySnapshot()
@@ -1110,6 +1136,12 @@ export class TokenForgeAiPolicyLedger {
     }
   }
 }
+
+export const createTokenForgeAiPreviewPolicyLedger = (
+  policy: unknown,
+  snapshot?: unknown,
+): TokenForgeAiPolicyLedger =>
+  new TokenForgeAiPolicyLedger(policy, snapshot, previewBudgetMarker);
 
 export const admissionDecisionToAiGatewayFailure = (
   decision: Extract<TokenForgeAiAdmissionDecision, { status: "denied" }>,

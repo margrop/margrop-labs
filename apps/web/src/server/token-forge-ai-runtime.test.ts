@@ -11,6 +11,7 @@ import {
   handleTokenForgeAiRequest,
   tokenForgeAiEndpointPath,
   tokenForgeAiGatewayPolicy,
+  tokenForgeAiPreviewTrafficPolicy,
   tokenForgeAiProductionTrafficPolicy,
 } from "./token-forge-ai-runtime";
 
@@ -69,6 +70,7 @@ const environment = {
   TOKEN_FORGE_AI_BASE_URL: "https://api-gpt.speedtest.margrop.net:16666/v1",
   TOKEN_FORGE_AI_MODEL: "qwen-latest",
   TOKEN_FORGE_AI_FALLBACK_MODEL: "minimax-latest",
+  TOKEN_FORGE_AI_BUDGET_MULTIPLIER: "1",
   TOKEN_FORGE_AI_API_KEY: "synthetic-provider-key",
   TOKEN_FORGE_ACTOR_KEY_SECRET: "synthetic-actor-key-secret",
 };
@@ -433,6 +435,34 @@ describe("OpenAI-compatible Token Forge Provider", () => {
 });
 
 describe("Token Forge AI production runtime", () => {
+  it("expands only Preview daily token and cost budgets by 100 times", () => {
+    expect(tokenForgeAiPreviewTrafficPolicy.daily_budgets).toEqual({
+      actor_tokens: 9_600_000,
+      lab_tokens: 120_000_000,
+      site_tokens: 240_000_000,
+      actor_cost_microusd: 400,
+      lab_cost_microusd: 5_000,
+      site_cost_microusd: 10_000,
+      actor_requests: 4,
+      lab_requests: 50,
+      site_requests: 100,
+    });
+    expect(tokenForgeAiPreviewTrafficPolicy.rate_limit).toEqual(
+      tokenForgeAiProductionTrafficPolicy.rate_limit,
+    );
+    expect(tokenForgeAiPreviewTrafficPolicy.concurrency).toEqual(
+      tokenForgeAiProductionTrafficPolicy.concurrency,
+    );
+    expect(tokenForgeAiProductionTrafficPolicy.daily_budgets).toMatchObject({
+      actor_tokens: 96_000,
+      lab_tokens: 1_200_000,
+      site_tokens: 2_400_000,
+      actor_cost_microusd: 4,
+      lab_cost_microusd: 50,
+      site_cost_microusd: 100,
+    });
+  });
+
   it("admits, validates, settles, and returns a no-store Gateway response", async () => {
     const fetchProvider = vi.fn().mockResolvedValue(openAiSuccess());
     const response = await handleTokenForgeAiRequest(runtimeRequest(), {
@@ -603,6 +633,31 @@ describe("Token Forge AI production runtime", () => {
     });
 
     expect(response.status).toBe(503);
+    expect(fetchProvider).not.toHaveBeenCalled();
+  });
+
+  it("fails closed before admission for an unknown budget multiplier", async () => {
+    const fetchProvider = vi.fn();
+    const response = await handleTokenForgeAiRequest(runtimeRequest(), {
+      store: createMemoryTokenForgePolicyStore(),
+      environment: {
+        ...environment,
+        TOKEN_FORGE_AI_BUDGET_MULTIPLIER: "2",
+      },
+      fetch: fetchProvider,
+    });
+
+    expect(response.status).toBe(503);
+    await expect(response.json()).resolves.toMatchObject({
+      request_id: firstRequestId,
+      status: "error",
+      error: {
+        code: "provider_unavailable",
+      },
+      meta: {
+        attempt_count: 0,
+      },
+    });
     expect(fetchProvider).not.toHaveBeenCalled();
   });
 
