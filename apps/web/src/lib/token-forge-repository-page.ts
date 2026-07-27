@@ -1,5 +1,9 @@
 import type { TokenForgeInput, TokenForgePlan } from "./token-forge-contracts";
 import {
+  type TokenForgeAgentPackage,
+  buildTokenForgeAgentPackage,
+} from "./token-forge-agent-package";
+import {
   type TokenForgeExportBundle,
   buildTokenForgeExports,
 } from "./token-forge-exports";
@@ -81,6 +85,7 @@ export type TokenForgeRepositoryPageResult = {
   plan: TokenForgePlan;
   quality: TokenForgePlanQuality;
   exports: TokenForgeExportBundle;
+  agent_package: TokenForgeAgentPackage;
   repository: TokenForgeRepositoryEvidence;
   ai:
     | {
@@ -195,6 +200,7 @@ const buildTemplateResult = (
     plan: assessed.plan,
     quality: assessed.quality,
     exports: buildTokenForgeExports(input, assessed.plan),
+    agent_package: buildTokenForgeAgentPackage(input, assessed.plan),
     repository,
     ai: { status: "not-requested" },
   };
@@ -232,6 +238,7 @@ const enhanceTemplateResult = async (
     plan: assessed.plan,
     quality: assessed.quality,
     exports: buildTokenForgeExports(result.input, assessed.plan),
+    agent_package: buildTokenForgeAgentPackage(result.input, assessed.plan),
     ai: {
       ...ai,
       plan: assessed.plan,
@@ -263,6 +270,7 @@ export const rebuildTokenForgeEditedPageResult = (
     plan: assessed.plan,
     quality: assessed.quality,
     exports: buildTokenForgeExports(session.input, assessed.plan),
+    agent_package: buildTokenForgeAgentPackage(session.input, assessed.plan),
     ai:
       result.ai.status === "not-requested"
         ? result.ai
