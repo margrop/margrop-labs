@@ -151,7 +151,7 @@ const checks = [
   ],
   [
     "Token Forge native form",
-    tokenForgeHtml.includes('<form class="token-forge-form"') &&
+    tokenForgeHtml.includes('class="token-forge-form"') &&
       tokenForgeHtml.includes('name="token_budget"') &&
       tokenForgeHtml.includes('name="expires_in_days"') &&
       tokenForgeHtml.includes('name="available_hours"') &&
@@ -164,7 +164,33 @@ const checks = [
     "Token Forge dual planning actions",
     tokenForgeHtml.includes("AI 增强生成") &&
       tokenForgeHtml.includes("仅生成模板") &&
-      tokenForgeHtml.includes("载入合成样例"),
+      tokenForgeHtml.includes("用此样例生成模板"),
+  ],
+  [
+    "Token Forge three-tier first-use path",
+    [
+      "6K · 快速加固",
+      "24K · 公开仓库切片",
+      "40K · 离线 MVP",
+      "三步完成首次体验",
+      "恢复 6K 安全样例",
+    ].every(
+      (value) =>
+        tokenForgeHtml.includes(value) || clientJavaScript.includes(value),
+    ),
+  ],
+  [
+    "Token Forge result navigation",
+    [
+      "计划结果快速导航",
+      "#forge-tasks",
+      "#forge-editing",
+      "#forge-evidence",
+      "#forge-exports",
+    ].every(
+      (value) =>
+        tokenForgeHtml.includes(value) || clientJavaScript.includes(value),
+    ),
   ],
   [
     "Token Forge privacy disclosure",
@@ -224,7 +250,10 @@ const checks = [
     styles.includes(".token-forge-field-grid") &&
       styles.includes(".token-forge-form input") &&
       styles.includes("min-height: 46px") &&
-      styles.includes(".token-forge-task-columns"),
+      styles.includes(".token-forge-task-columns") &&
+      styles.includes(".token-forge-sample-grid") &&
+      styles.includes(".token-forge-result-nav") &&
+      styles.includes("grid-template-columns: repeat(2, minmax(0, 1fr))"),
   ],
   [
     "Incident Detective indexable page",
