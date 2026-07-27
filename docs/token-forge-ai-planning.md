@@ -97,8 +97,9 @@ Adapter 请求标准 `json_object` 响应。若兼容网关仍把唯一 JSON 对
 P4-004 已提供 `token-forge.plan-v1` 专属的日 Token/微美元预算、匿名用户滑动限流、并发
 预留与熔断状态机。P1-008 用 HMAC 匿名键和 SQLite Durable Object 原子保存快照，并在
 Provider 前按两个模型的最坏情况预留 48,000 Token。主模型直接成功时按标准 usage
-结算；只要调用回退模型，就按 48,000 Token 保守下限结算；失败或预留超时同样保留全额
-预留。自建上游网关负责真实货币预算，因此金额只保留最小合同占位。
+展示、按 24,000 Token 结算；只要调用回退模型，就按 48,000 Token 结算；失败或预留
+超时同样保留全额预留。Provider usage 不进入 Labs 策略账本。自建上游网关负责真实货币
+预算，因此金额只保留最小合同占位。
 
 详细固定参数见 [AI 流量与成本策略](./token-forge-ai-traffic-policy.md)。
 
