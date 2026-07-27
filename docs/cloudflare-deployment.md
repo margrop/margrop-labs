@@ -49,15 +49,20 @@ Preview 固定为 `100`；后者只扩大每日 Token 与成本占位，分钟�
 `api-gpt.speedtest.margrop.net` 必须保持
 Cloudflare DNS-only（灰云）；若启用橙云，应先把服务迁移到 443 或受支持的 HTTPS 端口。
 Worker 的 `compatibility_date` 晚于 `2024-09-02`，自定义端口能力已经默认启用，不再显式
-声明 `allow_custom_ports`。Preview 额外启用 `global_fetch_strictly_public`，确保同属
-`margrop.net` Zone 的 Provider 域名仍按公网 DNS 路径访问 Lucky；该标志尚未加入
-Production，正式环境配置保持不变。
+声明 `allow_custom_ports`。Production 的 Provider 传输保持标准 `fetch`。Preview 在
+`global_fetch_strictly_public` 实测仍未到达 Lucky 后，改用 Workers TCP Socket 对固定
+主机和 `16666` 建立 TLS 连接；这不会开放浏览器可控的 URL、端口或通用代理。
+
+TCP Socket 不能连接 Cloudflare IP、私网 IP 或回环地址，所以
+`api-gpt.speedtest.margrop.net` 必须继续解析到公网非 Cloudflare Origin。Socket 出站来源
+不属于 Cloudflare 公布的代理 IP 段；若 Lucky、系统防火墙或路由器使用来源白名单，应以
+实际连接日志为准放行。Preview 验收成功前，Production 不切换传输。
 
 Bindings、变量和 Secrets 是按环境隔离的，见
 [Wrangler environments](https://developers.cloudflare.com/workers/wrangler/environments/)；
 自定义端口与代理端口限制见
 [compatibility flag](https://developers.cloudflare.com/workers/configuration/compatibility-flags/#allow-specifying-a-custom-port-when-making-a-subrequest-with-the-fetch-api)
-、[public fetch compatibility flag](https://developers.cloudflare.com/workers/configuration/compatibility-flags/#global-fetch-strictly-public)
+、[Workers TCP sockets](https://developers.cloudflare.com/workers/runtime-apis/tcp-sockets/)
 和 [Network ports](https://developers.cloudflare.com/fundamentals/reference/network-ports/)。
 
 ## 发布流程
