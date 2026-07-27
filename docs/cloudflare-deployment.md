@@ -49,9 +49,10 @@ Preview 固定为 `100`；后者只扩大每日 Token 与成本占位，分钟�
 `api-gpt.speedtest.margrop.net` 必须保持
 Cloudflare DNS-only（灰云）；若启用橙云，应先把服务迁移到 443 或受支持的 HTTPS 端口。
 Worker 的 `compatibility_date` 晚于 `2024-09-02`，自定义端口能力已经默认启用，不再显式
-声明 `allow_custom_ports`。Production 的 Provider 传输保持标准 `fetch`。Preview 在
-`global_fetch_strictly_public` 实测仍未到达 Lucky 后，改用 Workers TCP Socket 对固定
-主机和 `16666` 建立 TLS 连接；这不会开放浏览器可控的 URL、端口或通用代理。
+声明 `allow_custom_ports`。Preview 在 `global_fetch_strictly_public` 实测仍未到达 Lucky
+后，改用 Workers TCP Socket 对固定主机和 `16666` 建立 TLS 连接；Lucky 日志与有效 qwen
+计划已经确认真实链路。Production 因此使用同一受限 TCP 传输，这不会开放浏览器可控的
+URL、端口或通用代理。
 
 TCP Socket 不能连接 Cloudflare IP、私网 IP 或回环地址，所以
 `api-gpt.speedtest.margrop.net` 必须继续解析到公网非 Cloudflare Origin。Socket 出站来源
