@@ -2,6 +2,7 @@
 
 - 状态：Accepted
 - 日期：2026-07-26
+- 更新：2026-07-27
 
 ## 背景
 
@@ -42,13 +43,16 @@ ADR-0003 选择 Astro 静态输出与 Cloudflare Workers Static Assets，并要�
    标准 usage 结算，一旦实际调用回退模型则按 48,000 Token 保守结算。匿名用户、Lab、
    全站每日请求 4/50/100；60 秒请求 1/6/10；并发 1/2/3；连续失败 3 次后熔断 120 秒；
    预留 60 秒。
-9. 成本字段使用最小合同占位：调用前预留 1 microUSD，成功按 0 结算。真实货币预算完全由
+9. Production 固定 `TOKEN_FORGE_AI_BUDGET_MULTIPLIER=1`。Preview 为真实兼容性验收固定
+   使用 `100`，仅把匿名用户、Lab、全站三层每日 Token 与 microUSD 合同占位放大 100 倍；
+   每日请求数、60 秒限流、并发、单请求预留与熔断不变。其他值失败关闭。
+10. 成本字段使用最小合同占位：调用前预留 1 microUSD，成功按 0 结算。真实货币预算完全由
    上游网关负责；Labs 不展示或推断费用。
-10. API 只接受同源 JSON POST，请求与响应各 64 KiB，禁止重定向与缓存，不记录请求、
+11. API 只接受同源 JSON POST，请求与响应各 64 KiB，禁止重定向与缓存，不记录请求、
     Provider 正文、计划正文或原始错误。
-11. 页面提供显式“AI 增强生成”和独立“仅生成模板”。AI、网络、限流、熔断或输出校验失败
+12. 页面提供显式“AI 增强生成”和独立“仅生成模板”。AI、网络、限流、熔断或输出校验失败
     时，完整模板和导出继续可用。
-12. `main` 的每次 push 自动部署并 smoke test 隔离的 Preview Worker；Production 仍只允许
+13. `main` 的每次 push 自动部署并 smoke test 隔离的 Preview Worker；Production 仍只允许
     仓库所有者通过 `workflow_dispatch` 人工触发，且两种部署串行执行。
 
 ## 自定义端口约束
@@ -77,6 +81,7 @@ Cloudflare 参考：
 - `minimax-latest` 仍受 2,000 输出 Token 和共享 45 秒窗口限制；若只返回推理正文或
   `finish_reason: length`，会失败关闭到模板，不会放宽合同；
 - Preview 与 Production 的 Durable Object、Secrets 和流量状态彼此隔离；
+- Preview 的高日预算只用于兼容性和失败路径验收，仍受相同的分钟限流、并发与熔断保护；
 - 发布仍先经过 Preview，Production 只能由仓库所有者人工触发。
 
 ## 备选方案
