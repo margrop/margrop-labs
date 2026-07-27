@@ -950,12 +950,19 @@ a {
 
 .token-forge-task-meta {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 1rem;
 }
 
-.token-forge-task-meta span {
+.token-forge-task-badges {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.token-forge-task-size {
   display: grid;
   width: 2.2rem;
   height: 2.2rem;
@@ -964,6 +971,22 @@ a {
   background: var(--cyan);
   color: var(--bg);
   font-weight: 800;
+}
+
+.token-forge-quality-badge {
+  padding: 0.42rem 0.58rem;
+  border: 1px solid rgba(80, 227, 208, 0.32);
+  border-radius: 999px;
+  color: var(--cyan);
+  font-family: ui-monospace, monospace;
+  font-size: 0.68rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.token-forge-quality-badge--review {
+  border-color: rgba(255, 194, 102, 0.48);
+  color: #ffc266;
 }
 
 .token-forge-task-meta code,
@@ -1000,6 +1023,56 @@ a {
   color: var(--muted);
   font-size: 0.76rem;
   line-height: 1.6;
+}
+
+.token-forge-task-quality {
+  margin-top: 1rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 0.74rem;
+}
+
+.token-forge-task-quality summary {
+  min-height: 44px;
+  cursor: pointer;
+  color: var(--text);
+  font-weight: 700;
+  line-height: 44px;
+}
+
+.token-forge-task-quality summary:focus-visible {
+  border-radius: 0.35rem;
+  outline: 2px solid var(--cyan);
+  outline-offset: 3px;
+}
+
+.token-forge-task-quality ul {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0.4rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.token-forge-task-quality li {
+  display: grid;
+  grid-template-columns: auto auto minmax(0, 1fr);
+  gap: 0.45rem;
+  align-items: baseline;
+}
+
+.token-forge-task-quality li[data-status="warning"] strong {
+  color: #ffc266;
+}
+
+.token-forge-task-quality li[data-status="pass"] strong {
+  color: var(--cyan);
+}
+
+.token-forge-task-quality p {
+  margin: 0.8rem 0 0;
+  line-height: 1.55;
 }
 
 .token-forge-evidence {
@@ -2461,7 +2534,8 @@ a {
 
   .token-forge-field-grid,
   .token-forge-task-columns,
-  .token-forge-coverage {
+  .token-forge-coverage,
+  .token-forge-task-quality li {
     grid-template-columns: 1fr;
   }
 
@@ -2599,6 +2673,7 @@ a {
   .token-forge-form textarea,
   .token-forge-shell,
   .token-forge-task,
+  .token-forge-task-quality,
   .incident-shell,
   .incident-evidence,
   .incident-hypothesis fieldset,
