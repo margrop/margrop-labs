@@ -9,7 +9,14 @@ import {
   tokenForgeSyntheticFormValues,
   TokenForgeFormError,
 } from "./token-forge-page";
-import { generateTokenForgeRepositoryPageResult } from "./token-forge-repository-page";
+import {
+  createTokenForgeEditorSession,
+  updateTokenForgeEditorTask,
+} from "./token-forge-editor";
+import {
+  generateTokenForgeRepositoryPageResult,
+  rebuildTokenForgeEditedPageResult,
+} from "./token-forge-repository-page";
 import { generateTokenForgeTemplatePlan } from "./token-forge-templates";
 
 const repositoryUrl = "https://github.com/acme/synthetic-repository";
@@ -361,6 +368,47 @@ describe("Token Forge repository page orchestration", () => {
     expect(
       result.exports.markdown.content.indexOf("实现可重复验证的质量规则"),
     ).toBeLessThan(result.exports.markdown.content.indexOf("优化相关功能"));
+  });
+
+  it("rebuilds quality and exports from a locally edited manual plan", async () => {
+    const result = await generateTokenForgeRepositoryPageResult({
+      ...tokenForgeSyntheticFormValues,
+    });
+    const session = createTokenForgeEditorSession(result.input, result.plan);
+    const task = session.plan.tasks[0];
+    if (!task) {
+      throw new Error("Synthetic plan requires one task.");
+    }
+    const edited = updateTokenForgeEditorTask(session, task.id, {
+      size: task.size,
+      title: "更新本地可编辑的任务计划",
+      estimated_tokens: String(task.estimated_tokens),
+      estimated_hours: String(task.estimated_hours),
+      included: task.scope.included.join("\n"),
+      excluded: task.scope.excluded.join("\n"),
+      prompt: task.prompt,
+      acceptance_criteria: task.acceptance_criteria.join("\n"),
+    });
+    const rebuilt = rebuildTokenForgeEditedPageResult(result, edited);
+    const qualityOrdered = rebuildTokenForgeEditedPageResult(
+      result,
+      edited,
+      "quality",
+    );
+
+    expect(rebuilt.plan.tasks[0]?.title).toBe("更新本地可编辑的任务计划");
+    expect(rebuilt.quality.tasks[0]?.order.rule_id).toBe("QF-O04");
+    expect(rebuilt.exports.markdown.content).toContain(
+      "更新本地可编辑的任务计划",
+    );
+    expect(rebuilt.exports.github_issues.issues[0]?.title).toContain(
+      "更新本地可编辑的任务计划",
+    );
+    expect(
+      qualityOrdered.quality.tasks.every(
+        (quality) => quality.order.rule_id !== "QF-O04",
+      ),
+    ).toBe(true);
   });
 
   it("fails closed to the existing template when an enhancer throws", async () => {
