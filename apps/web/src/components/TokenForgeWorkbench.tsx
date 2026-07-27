@@ -9,10 +9,16 @@ import {
   tokenForgeSyntheticFormValues,
 } from "../lib/token-forge-page";
 import {
+  type TokenForgeEditorSession,
+  createTokenForgeEditorSession,
+} from "../lib/token-forge-editor";
+import {
   type TokenForgeRepositoryPageResult,
   generateTokenForgeRepositoryPageResult,
+  rebuildTokenForgeEditedPageResult,
 } from "../lib/token-forge-repository-page";
 import { requestTokenForgeAiPlan } from "../lib/token-forge-ai-client";
+import { TokenForgePlanEditor } from "./TokenForgePlanEditor";
 import { EvidenceCard } from "./ui/EvidenceCard";
 import { ExportActions } from "./ui/ExportActions";
 import { FormField } from "./ui/FormField";
@@ -53,6 +59,10 @@ export default function TokenForgeWorkbench({
   const [result, setResult] = useState<TokenForgeRepositoryPageResult | null>(
     null,
   );
+  const [baselineResult, setBaselineResult] =
+    useState<TokenForgeRepositoryPageResult | null>(null);
+  const [editorSession, setEditorSession] =
+    useState<TokenForgeEditorSession | null>(null);
   const [status, setStatus] = useState<WorkbenchStatus>(initialStatus);
   const [isLoading, setIsLoading] = useState(false);
   const runVersion = useRef(0);
@@ -68,6 +78,8 @@ export default function TokenForgeWorkbench({
     runVersion.current += 1;
     setForm((current) => ({ ...current, [field]: value }));
     setResult(null);
+    setBaselineResult(null);
+    setEditorSession(null);
     setIsLoading(false);
     setStatus(initialStatus);
   };
@@ -76,6 +88,8 @@ export default function TokenForgeWorkbench({
     runVersion.current += 1;
     setForm(freshSyntheticValues());
     setResult(null);
+    setBaselineResult(null);
+    setEditorSession(null);
     setIsLoading(false);
     setStatus({
       tone: "info",
@@ -91,6 +105,8 @@ export default function TokenForgeWorkbench({
     const repositoryRequested = form.repository_url.trim().length > 0;
 
     setResult(null);
+    setBaselineResult(null);
+    setEditorSession(null);
     setIsLoading(true);
     setStatus(
       useAi
@@ -122,7 +138,13 @@ export default function TokenForgeWorkbench({
         return;
       }
 
+      const nextEditorSession = createTokenForgeEditorSession(
+        nextResult.input,
+        nextResult.plan,
+      );
       setResult(nextResult);
+      setBaselineResult(nextResult);
+      setEditorSession(nextEditorSession);
       if (nextResult.quality.status === "review") {
         setStatus({
           tone: "warning",
@@ -172,6 +194,8 @@ export default function TokenForgeWorkbench({
       }
 
       setResult(null);
+      setBaselineResult(null);
+      setEditorSession(null);
       setStatus({
         tone: "error",
         title: "无法生成计划",
@@ -191,6 +215,67 @@ export default function TokenForgeWorkbench({
   const handleSubmit = (event: SubmitEvent): void => {
     event.preventDefault();
     void generatePlan(true);
+  };
+
+  const applyEditorSession = (
+    nextSession: TokenForgeEditorSession,
+    notice: {
+      title: string;
+      message: string;
+      ordering_mode?: "quality" | "manual";
+    },
+  ): void => {
+    if (!result) {
+      return;
+    }
+
+    try {
+      const rebuilt = rebuildTokenForgeEditedPageResult(
+        result,
+        nextSession,
+        notice.ordering_mode,
+      );
+      setResult(rebuilt);
+      setEditorSession(nextSession);
+      setForm((current) => ({
+        ...current,
+        token_budget: String(nextSession.input.token_budget),
+        available_hours: String(nextSession.input.available_hours),
+      }));
+      setStatus({
+        tone: rebuilt.quality.status === "review" ? "warning" : "ready",
+        title: notice.title,
+        message: `${notice.message} 当前计划规则评分 ${rebuilt.quality.score}/100。`,
+      });
+    } catch {
+      setStatus({
+        tone: "error",
+        title: "本地修改未应用",
+        message: "修改没有通过最终合同或导出验证，上一版计划保持不变。",
+      });
+    }
+  };
+
+  const restoreGeneratedResult = (): void => {
+    if (!baselineResult) {
+      return;
+    }
+
+    setResult(baselineResult);
+    setEditorSession(
+      createTokenForgeEditorSession(baselineResult.input, baselineResult.plan),
+    );
+    setForm((current) => ({
+      ...current,
+      token_budget: String(baselineResult.input.token_budget),
+      available_hours: String(baselineResult.input.available_hours),
+    }));
+    setStatus({
+      tone: baselineResult.quality.status === "review" ? "warning" : "ready",
+      title: "已恢复生成结果",
+      message:
+        "本地编辑、锁定和手动顺序已清除；原始生成计划、评分与导出已经恢复。",
+    });
   };
 
   const totalTokens =
@@ -407,7 +492,11 @@ export default function TokenForgeWorkbench({
         >
           <div class="token-forge-result-heading">
             <div>
-              <p class="section-kicker">VALIDATED · RULE-SCORED PLAN</p>
+              <p class="section-kicker">
+                {editorSession && editorSession.revision > 0
+                  ? "USER-EDITED · REVALIDATED PLAN"
+                  : "VALIDATED · RULE-SCORED PLAN"}
+              </p>
               <h2 id="forge-result-title">
                 {result.ai.status === "ai-assisted"
                   ? "可执行的 AI 增强任务"
@@ -489,6 +578,21 @@ export default function TokenForgeWorkbench({
               );
             })}
           </div>
+
+          {editorSession ? (
+            <TokenForgePlanEditor
+              session={editorSession}
+              onSessionChange={applyEditorSession}
+              onRestore={restoreGeneratedResult}
+              onError={(message) =>
+                setStatus({
+                  tone: "warning",
+                  title: "本地修改未应用",
+                  message,
+                })
+              }
+            />
+          ) : null}
 
           <div class="evidence-grid token-forge-evidence">
             <EvidenceCard
