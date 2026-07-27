@@ -45,7 +45,9 @@ ADR-0003 选择 Astro 静态输出与 Cloudflare Workers Static Assets，并要�
    预留 60 秒。
 9. Production 固定 `TOKEN_FORGE_AI_BUDGET_MULTIPLIER=1`。Preview 为真实兼容性验收固定
    使用 `100`，仅把匿名用户、Lab、全站三层每日 Token 与 microUSD 合同占位放大 100 倍；
-   每日请求数、60 秒限流、并发、单请求预留与熔断不变。其他值失败关闭。
+   每日请求数、60 秒限流、并发、单请求预留与熔断不变。Preview 专属账本工厂只能从
+   已通过共享 Schema 的 Production 策略派生高预算策略，不能扩大 Production 合同；
+   其他倍率值失败关闭。
 10. 成本字段使用最小合同占位：调用前预留 1 microUSD，成功按 0 结算。真实货币预算完全由
    上游网关负责；Labs 不展示或推断费用。
 11. API 只接受同源 JSON POST，请求与响应各 64 KiB，禁止重定向与缓存，不记录请求、
