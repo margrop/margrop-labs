@@ -9,6 +9,7 @@ import {
   TokenForgeAiPolicyContractError,
   TokenForgeAiPolicyLedger,
   admissionDecisionToAiGatewayFailure,
+  createTokenForgeAiPreviewPolicyLedger,
   tokenForgeAiTrafficHardPolicy,
   validateTokenForgeAiPolicySnapshot,
   validateTokenForgeAiTrafficPolicy,
@@ -106,14 +107,6 @@ describe("Token Forge AI traffic policy v1", () => {
       TokenForgeAiPolicyContractError,
     );
 
-    const loosenedTokenBudget = JSON.parse(
-      JSON.stringify(fixture),
-    ) as TokenForgeAiTrafficPolicy;
-    loosenedTokenBudget.daily_budgets.actor_tokens = 9_600_001;
-    expect(() =>
-      validateTokenForgeAiTrafficPolicy(loosenedTokenBudget),
-    ).toThrow(TokenForgeAiPolicyContractError);
-
     expect(() =>
       validateTokenForgeAiTrafficPolicy({
         ...(fixture as TokenForgeAiTrafficPolicy),
@@ -128,6 +121,33 @@ describe("Token Forge AI traffic policy v1", () => {
     } catch (error) {
       expect((error as Error).message).not.toContain("synthetic-secret-value");
     }
+  });
+
+  it("isolates the fixed Preview budget expansion from the shared policy contract", () => {
+    const previewLedger = createTokenForgeAiPreviewPolicyLedger(
+      tokenForgeAiTrafficHardPolicy,
+    );
+
+    expect(previewLedger.policy.daily_budgets).toMatchObject({
+      actor_tokens: 22_400_000,
+      lab_tokens: 224_000_000,
+      site_tokens: 560_000_000,
+      actor_cost_microusd: 25_000_000,
+      lab_cost_microusd: 500_000_000,
+      site_cost_microusd: 1_000_000_000,
+    });
+    expect(previewLedger.policy.daily_budgets.actor_requests).toBe(
+      tokenForgeAiTrafficHardPolicy.daily_budgets.actor_requests,
+    );
+    expect(previewLedger.policy.rate_limit).toEqual(
+      tokenForgeAiTrafficHardPolicy.rate_limit,
+    );
+    expect(previewLedger.policy.concurrency).toEqual(
+      tokenForgeAiTrafficHardPolicy.concurrency,
+    );
+    expect(() =>
+      validateTokenForgeAiTrafficPolicy(previewLedger.policy),
+    ).toThrow(TokenForgeAiPolicyContractError);
   });
 
   it("reserves worst-case tokens and micro-USD before allowing a request", () => {
