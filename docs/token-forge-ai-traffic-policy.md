@@ -70,10 +70,10 @@ usage 只代表最终成功模型并仅供观察，不参与 Labs 策略账本�
 Preview 固定 `TOKEN_FORGE_AI_BUDGET_MULTIPLIER=100`，只把三层每日 Token 与 microUSD
 合同占位放大 100 倍：
 
-| 边界                                    |                         Preview 配置 |
-| --------------------------------------- | -----------------------------------: |
-| 匿名用户 / Token Forge / 全站每日 Token | 9,600,000 / 120,000,000 / 240,000,000 |
-| 匿名用户 / Token Forge / 全站每日成本占位 |                400 / 5,000 / 10,000 |
+| 边界                                      |                          Preview 配置 |
+| ----------------------------------------- | ------------------------------------: |
+| 匿名用户 / Token Forge / 全站每日 Token   | 9,600,000 / 120,000,000 / 240,000,000 |
+| 匿名用户 / Token Forge / 全站每日成本占位 |                  400 / 5,000 / 10,000 |
 
 Production 固定使用倍率 `1`。倍率只允许 `1` 或 `100`，其他值失败关闭。Preview 的每日
 请求 4/50/100、60 秒请求 1/6/10、并发 1/2/3、单请求 48,000 Token、熔断和预留有效期均
@@ -166,10 +166,10 @@ Object。
 ## P1-008 激活清单
 
 代码已完成运行时、HMAC 匿名键、固定 Provider/模型/指令、最坏 Token 预留、固定尝试结算、
-模板降级和合成测试。真实流量激活仍必须按顺序完成：
+模板降级和合成测试。真实流量已按顺序完成激活：
 
 1. 已为 Preview 设置 Provider Key 与匿名键 Secret；
 2. 已确认 `api-gpt.speedtest.margrop.net` 为 DNS-only，并使用 DDNS 解析当前公网地址；
 3. 已部署 Preview，并完成有效调用、真实链路和浏览器无密钥验收；
-4. 人工确认 Preview 后，设置 Production Secrets 并手动触发 Production；
-5. Production smoke 通过后，再把 P1-008 标记为完成。
+4. 已在人工确认 Preview 后设置 Production Secrets，并手动触发 Production；
+5. 2026-07-27 Production deploy、静态 smoke 与 API smoke 全部通过，P1-008 完成。
