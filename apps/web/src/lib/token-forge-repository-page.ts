@@ -15,6 +15,10 @@ import {
   TokenForgeFormError,
   buildTokenForgeInputFromForm,
 } from "./token-forge-page";
+import {
+  type TokenForgePlanQuality,
+  assessAndOrderTokenForgePlan,
+} from "./token-forge-quality";
 import { generateTokenForgeTemplatePlan } from "./token-forge-templates";
 
 export type TokenForgeRepositoryFallbackCode = GitHubPublicRepositoryErrorCode;
@@ -74,6 +78,7 @@ export type TokenForgeRepositoryEvidence =
 export type TokenForgeRepositoryPageResult = {
   input: TokenForgeInput;
   plan: TokenForgePlan;
+  quality: TokenForgePlanQuality;
   exports: TokenForgeExportBundle;
   repository: TokenForgeRepositoryEvidence;
   ai:
@@ -178,13 +183,17 @@ const buildTemplateResult = (
   input: TokenForgeInput,
   repository: TokenForgeRepositoryEvidence,
 ): TokenForgeRepositoryPageResult => {
-  const plan = generateTokenForgeTemplatePlan(input);
-  const exports = buildTokenForgeExports(input, plan);
+  const assessed = assessAndOrderTokenForgePlan(
+    input,
+    generateTokenForgeTemplatePlan(input),
+    { repository_status: repository.status },
+  );
 
   return {
     input,
-    plan,
-    exports,
+    plan: assessed.plan,
+    quality: assessed.quality,
+    exports: buildTokenForgeExports(input, assessed.plan),
     repository,
     ai: { status: "not-requested" },
   };
@@ -213,11 +222,19 @@ const enhanceTemplateResult = async (
     };
   }
 
+  const assessed = assessAndOrderTokenForgePlan(result.input, ai.plan, {
+    repository_status: result.repository.status,
+  });
+
   return {
     ...result,
-    plan: ai.plan,
-    exports: buildTokenForgeExports(result.input, ai.plan),
-    ai,
+    plan: assessed.plan,
+    quality: assessed.quality,
+    exports: buildTokenForgeExports(result.input, assessed.plan),
+    ai: {
+      ...ai,
+      plan: assessed.plan,
+    },
   };
 };
 
