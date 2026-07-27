@@ -21,7 +21,7 @@
     "TOKEN_FORGE_AI_MODEL": "qwen-latest",
     "TOKEN_FORGE_AI_FALLBACK_MODEL": "minimax-latest",
     "TOKEN_FORGE_AI_BUDGET_MULTIPLIER": "1",
-    "TOKEN_FORGE_AI_TRANSPORT": "fetch",
+    "TOKEN_FORGE_AI_TRANSPORT": "cloudflare-tcp",
   },
   "secrets": {
     "required": ["TOKEN_FORGE_AI_API_KEY", "TOKEN_FORGE_ACTOR_KEY_SECRET"],
