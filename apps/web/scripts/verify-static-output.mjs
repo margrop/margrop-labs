@@ -204,6 +204,17 @@ const checks = [
       ),
   ],
   [
+    "Token Forge Coding Agent package",
+    tokenForgeHtml.includes("分阶段 Coding Agent 执行包") &&
+      [
+        "Coding Agent 执行包",
+        "token-forge-agent-package.md",
+        "命令发现与验收协议",
+        "阶段交接模板",
+        "失败恢复",
+      ].every((value) => clientJavaScript.includes(value)),
+  ],
+  [
     "Token Forge visible hydration",
     tokenForgeHtml.includes('client="visible"') &&
       !tokenForgeHtml.includes('client="load"'),

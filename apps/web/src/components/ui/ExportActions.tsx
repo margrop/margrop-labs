@@ -15,7 +15,9 @@ export function ExportActions({
   label = "Markdown",
   onExport,
 }: ExportActionsProps) {
-  const [message, setMessage] = useState("导出只包含当前数值和可见规则结果。");
+  const [message, setMessage] = useState(
+    "导出只包含当前页面已经验证的结构化结果。",
+  );
 
   const copyContent = async () => {
     try {
@@ -24,7 +26,7 @@ export function ExportActions({
       }
 
       await navigator.clipboard.writeText(content);
-      setMessage(`已复制${label}，可以粘贴到 Issue 或笔记中。`);
+      setMessage(`已复制${label}，可以粘贴到目标工具或笔记中。`);
       onExport?.("copy");
     } catch {
       setMessage(`复制失败，请改用下载${label}。`);

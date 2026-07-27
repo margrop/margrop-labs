@@ -9,9 +9,9 @@
 
 ## 当前产品焦点
 
-**Token 任务炼金炉是当前唯一产品开发主线。** 在它完成公开仓库分析、受控 AI 规划、
-可编辑计划、Coding Agent 执行包、可靠性基准和上线验证之前，AI 故障侦探与 SMART / RMA
-报告机只接受生产故障和安全修复，不继续增加功能。具体顺序和解除冻结的量化门槛见
+**Token 任务炼金炉是当前唯一产品开发主线。** 在它完成首次使用体验、可靠性基准和
+上线验证之前，AI 故障侦探与 SMART / RMA 报告机只接受生产故障和安全修复，不继续增加
+功能。具体顺序和解除冻结的量化门槛见
 [Token Forge 优先路线图](./docs/token-forge-roadmap.md)。
 
 ## 首批实验
@@ -57,6 +57,9 @@ Web 端采用 **Astro + TypeScript + Preact Islands**，首期生成静态 HTML�
 - Token Forge AI 规划：遵循 [AI 任务拆分](./docs/token-forge-ai-planning.md)。
 - Token Forge AI 成本边界：遵循 [流量与成本策略](./docs/token-forge-ai-traffic-policy.md)。
 - Token Forge 本地导出：遵循 [Markdown / GitHub Issue 导出](./docs/token-forge-export.md)。
+- Token Forge 本地编辑：遵循 [可逆编辑与依赖锁定](./docs/token-forge-local-editing.md)。
+- Token Forge 执行包：遵循 [Provider-neutral Coding Agent 执行包](./docs/token-forge-agent-package.md)。
+- Token Forge 质量解释：遵循 [确定性质量报告](./docs/token-forge-quality.md)。
 - Token Forge 正式页面：遵循 [页面与事件合同](./docs/token-forge-page.md)。
 - Token Forge 当前顺序与 Beta 门槛：遵循 [优先路线图](./docs/token-forge-roadmap.md)。
 - Incident Detective 合同：遵循 [场景与单局推理 v1](./docs/incident-detective-contract-v1.md)。
@@ -92,7 +95,13 @@ AI Gateway 和 P0-007 脱敏边界上实现 Token Forge AI 任务拆分核心：
 Markdown 和逐任务 GitHub Issue 草稿，包含脱敏、Markdown 安全、固定文件名和大小上限。
 P1-006 已把无需登录、仓库和 AI 的模板生成与两种本地导出接到 `/token-forge/`；P1-007
 又接入可选的受限公开 GitHub 摘要，只展示固定技术标签、覆盖计数和安全未知项，任何仓库
-失败都保留模板与导出。最小转化事件已定义但保持空接收器，不会在 P4-003 前发送数据。
+失败都保留模板与导出。P1-008 已完成 Preview 与 Production 的真实 Provider 验收：
+浏览器不持有密钥，匿名限流、原子预算、并发上限、超时、熔断与固定 fallback 模型均在
+服务端执行，AI 失败仍保留本地模板。P1-009 已为计划增加确定性质量报告；P1-010 已上线
+可撤销、本地依赖安全的计划编辑；P1-011 已把最终计划生成第三种 Provider-neutral Coding
+Agent 执行包，逐阶段提供上下文边界、命令发现、验收、交接与失败恢复协议。当前下一项是
+P1-012 首次使用引导与三档样例。最小转化事件已定义但保持空接收器，不会在 P4-003 前发送
+数据。
 P2-001 已定义完全合成的 Incident Detective 场景/证据与单局推理
 合同；P2-002 已完成首个 MySQL + Prometheus + Loki 合成事故，包含 10 份证据、13/9
 点预算取舍、合理反证、按证据揭示的时间线和与公开场景分离的内部答案草稿。P2-003 已上线
@@ -105,7 +114,5 @@ Score-only 的确定性 SVG 下载，Incident Detective MVP 六个任务全部�
 缺失字段、厂商扩展、SMART 不可用和冲突信号。P3-002 已上线浏览器端只读解析工作台和
 Parse Result v1。P3-003 已增加序列号、WWN、主机名、IP 与常见 Secret 的本地脱敏预览，
 以及不含自由文本的 Boundary Projection v1；URL、日志和 Analytics 进一步收窄为固定元数据，
-AI 与导出尚未启用，现有结果仍不构成厂商保修判断。P1-008 已为 Token Forge 增加固定
-OpenAI-compatible 服务端 Adapter、HMAC 匿名限流、SQLite Durable Object 原子状态和显式
-AI 增强入口；浏览器无密钥，任一失败保留模板。代码仍需配置 Preview Secrets、验证真实
-接口并由人工决定 Production，之后才进入 P1-009；完整顺序以 Token Forge 优先路线图为准。
+AI 与导出尚未启用，现有结果仍不构成厂商保修判断。完整顺序以 Token Forge
+优先路线图为准。

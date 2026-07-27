@@ -1,0 +1,41 @@
+{
+  "schema_version": "1.0",
+  "format": "provider-neutral",
+  "source_mode": "template",
+  "execution_policy": {
+    "stage_order": "dependency-safe",
+    "repository_access": "user-provided-workspace-only",
+    "command_policy": "discover-confirm-run",
+    "destructive_actions": "forbidden-without-user-approval"
+  },
+  "stages": [
+    {
+      "stage_number": 1,
+      "task_id": "synthetic-stage",
+      "title": "验证合成执行包合同",
+      "size": "S",
+      "estimated_tokens": 2000,
+      "estimated_hours": 1,
+      "dependencies": [],
+      "agent_prompt": "只验证合成执行包的结构，不访问网络或真实仓库。",
+      "allowed_context": ["用户提供的当前工作区"],
+      "forbidden_context": ["密钥、Cookie、Authorization 和私有仓库正文"],
+      "scope": {
+        "included": ["验证版本化结构"],
+        "excluded": ["不修改生产系统"]
+      },
+      "acceptance_criteria": ["Schema 验证通过并返回稳定结果"],
+      "verification_protocol": ["只运行已确认的本地合同测试"],
+      "handoff_template": ["记录实际命令、退出码和结果"],
+      "failure_recovery": ["失败时停止，不执行破坏性命令"]
+    }
+  ],
+  "unknowns": ["这是完全合成的合同 fixture。"],
+  "safety_notes": ["不包含真实仓库、路径、凭据或 Provider 配置。"],
+  "artifact": {
+    "file_name": "token-forge-agent-package.md",
+    "mime_type": "text/markdown;charset=utf-8",
+    "content": "synthetic",
+    "content_bytes": 9
+  }
+}

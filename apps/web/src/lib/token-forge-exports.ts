@@ -228,7 +228,7 @@ const sanitizeTaskForExport = (task: TokenForgeTask): TokenForgeTask => ({
   ),
 });
 
-const sanitizePlanForExport = (
+export const sanitizeTokenForgePlanForArtifact = (
   input: TokenForgeInput,
   plan: TokenForgePlan,
 ): TokenForgePlan => {
@@ -523,7 +523,7 @@ export const buildTokenForgeExports = (
     throw new TokenForgeExportError("invalid_plan");
   }
 
-  const exportPlan = sanitizePlanForExport(input, plan);
+  const exportPlan = sanitizeTokenForgePlanForArtifact(input, plan);
   const markdown = buildArtifact(
     "token-forge-plan.md",
     buildPlanMarkdown(exportPlan),

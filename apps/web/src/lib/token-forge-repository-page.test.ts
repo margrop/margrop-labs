@@ -89,6 +89,14 @@ describe("Token Forge repository page orchestration", () => {
     expect(result.exports.github_issues.issues).toHaveLength(
       result.plan.tasks.length,
     );
+    expect(result.agent_package).toMatchObject({
+      schema_version: "1.0",
+      format: "provider-neutral",
+      source_mode: "template",
+    });
+    expect(result.agent_package.stages.map((stage) => stage.task_id)).toEqual(
+      result.plan.tasks.map((task) => task.id),
+    );
   });
 
   it("projects only safe counts and fixed technology labels from a summary", async () => {
@@ -284,6 +292,7 @@ describe("Token Forge repository page orchestration", () => {
     expect(enhancePlan).toHaveBeenCalledWith(result.input, summary);
     expect(result.ai.status).toBe("ai-assisted");
     expect(result.plan.mode).toBe("ai-assisted");
+    expect(result.agent_package.source_mode).toBe("ai-assisted");
     expect(result.quality.evidence.rule_id).toBe("QF-E02");
     expect(result.quality.tasks).toHaveLength(result.plan.tasks.length);
     expect(result.exports.markdown.content).toContain("AI 辅助（已重新验证）");
@@ -402,6 +411,12 @@ describe("Token Forge repository page orchestration", () => {
       "更新本地可编辑的任务计划",
     );
     expect(rebuilt.exports.github_issues.issues[0]?.title).toContain(
+      "更新本地可编辑的任务计划",
+    );
+    expect(rebuilt.agent_package.stages[0]?.title).toBe(
+      "更新本地可编辑的任务计划",
+    );
+    expect(rebuilt.agent_package.artifact.content).toContain(
       "更新本地可编辑的任务计划",
     );
     expect(

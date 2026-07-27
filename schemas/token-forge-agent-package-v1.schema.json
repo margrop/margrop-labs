@@ -1,0 +1,197 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lab.margrop.net/schemas/token-forge-agent-package-v1.schema.json",
+  "title": "Token Forge Coding Agent Package v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "format",
+    "source_mode",
+    "execution_policy",
+    "stages",
+    "unknowns",
+    "safety_notes",
+    "artifact"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "format": {
+      "const": "provider-neutral"
+    },
+    "source_mode": {
+      "enum": ["template", "ai-assisted"]
+    },
+    "execution_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "stage_order",
+        "repository_access",
+        "command_policy",
+        "destructive_actions"
+      ],
+      "properties": {
+        "stage_order": {
+          "const": "dependency-safe"
+        },
+        "repository_access": {
+          "const": "user-provided-workspace-only"
+        },
+        "command_policy": {
+          "const": "discover-confirm-run"
+        },
+        "destructive_actions": {
+          "const": "forbidden-without-user-approval"
+        }
+      }
+    },
+    "stages": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 6,
+      "items": {
+        "$ref": "#/$defs/stage"
+      }
+    },
+    "unknowns": {
+      "$ref": "#/$defs/textList"
+    },
+    "safety_notes": {
+      "$ref": "#/$defs/textList"
+    },
+    "artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["file_name", "mime_type", "content", "content_bytes"],
+      "properties": {
+        "file_name": {
+          "const": "token-forge-agent-package.md"
+        },
+        "mime_type": {
+          "const": "text/markdown;charset=utf-8"
+        },
+        "content": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 196608
+        },
+        "content_bytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 196608
+        }
+      }
+    }
+  },
+  "$defs": {
+    "textList": {
+      "type": "array",
+      "maxItems": 10,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 4000
+      }
+    },
+    "stage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "stage_number",
+        "task_id",
+        "title",
+        "size",
+        "estimated_tokens",
+        "estimated_hours",
+        "dependencies",
+        "agent_prompt",
+        "allowed_context",
+        "forbidden_context",
+        "scope",
+        "acceptance_criteria",
+        "verification_protocol",
+        "handoff_template",
+        "failure_recovery"
+      ],
+      "properties": {
+        "stage_number": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 6
+        },
+        "task_id": {
+          "type": "string",
+          "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "size": {
+          "enum": ["S", "M", "L"]
+        },
+        "estimated_tokens": {
+          "type": "integer",
+          "minimum": 2000,
+          "maximum": 60000
+        },
+        "estimated_hours": {
+          "type": "number",
+          "minimum": 0.5,
+          "maximum": 80,
+          "multipleOf": 0.5
+        },
+        "dependencies": {
+          "type": "array",
+          "maxItems": 5,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+          }
+        },
+        "agent_prompt": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "allowed_context": {
+          "$ref": "#/$defs/textList"
+        },
+        "forbidden_context": {
+          "$ref": "#/$defs/textList"
+        },
+        "scope": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["included", "excluded"],
+          "properties": {
+            "included": {
+              "$ref": "#/$defs/textList"
+            },
+            "excluded": {
+              "$ref": "#/$defs/textList"
+            }
+          }
+        },
+        "acceptance_criteria": {
+          "$ref": "#/$defs/textList"
+        },
+        "verification_protocol": {
+          "$ref": "#/$defs/textList"
+        },
+        "handoff_template": {
+          "$ref": "#/$defs/textList"
+        },
+        "failure_recovery": {
+          "$ref": "#/$defs/textList"
+        }
+      }
+    }
+  }
+}

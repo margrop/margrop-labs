@@ -14,7 +14,7 @@ P1-006 在不改变这些基础合同的前提下，将组件用于首个正式
 | `StatusNotice.tsx`               | 文字、符号、颜色和 `status`/`alert` 语义共同表达状态                                                    |
 | `EvidenceCard.tsx`               | 明确区分输入证据、规则依据、AI 解释和未知项                                                             |
 | `ExportActions.tsx`              | 复制或下载调用方提供的 Markdown，净化下载文件名，通过状态消息反馈结果，并在成功后触发可选的最小导出回调 |
-| `TokenForgeWorkbench.tsx`        | 原生表单、本地模板生成、证据卡、任务卡和两种导出的正式 Lab 组合                                         |
+| `TokenForgeWorkbench.tsx`        | 原生表单、本地模板生成、证据卡、任务卡和三种导出的正式 Lab 组合                                         |
 | `IncidentDetectiveWorkbench.tsx` | 预算、证据解锁、五类 Payload、时间线、假设表单、Attempt 验证和五维本地评分                              |
 
 ## 键盘与辅助技术

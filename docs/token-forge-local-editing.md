@@ -27,7 +27,7 @@ P1-010 在模板或 AI 计划通过 Token Forge Plan v1 后，建立一个只存
 3. 计划重新通过 Plan v1、任务 ID、依赖图、Token 总额和工时上限；
 4. 手动顺序重新检查依赖先行，并标记为 `QF-O04`；
 5. 六项确定性质量规则重新评分；
-6. Markdown 与 GitHub Issue 草稿从最终计划重新生成。
+6. Markdown、GitHub Issue 草稿与 Coding Agent 执行包从最终计划重新生成。
 
 任何一步失败都会保留上一版计划，并显示不回显原始敏感值的稳定错误。修改不会自动再次
 调用 AI；“AI 增强生成”仍是唯一的模型入口。
@@ -49,4 +49,4 @@ P1-010 在模板或 AI 计划通过 Token Forge Plan v1 后，建立一个只存
 - 本地操作不调用 GitHub、AI Gateway 或 Provider，因此没有新增 Token 成本；
 - “恢复生成结果”只恢复当前标签页内保留的基线，不提供跨设备或跨会话历史。
 
-P1-011 将在这个已重新验证的最终计划上生成 Provider-neutral Coding Agent 执行包。
+P1-011 已在这个重新验证的最终计划上生成 Provider-neutral Coding Agent 执行包。
