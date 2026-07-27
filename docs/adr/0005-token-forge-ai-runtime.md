@@ -56,6 +56,9 @@ ADR-0003 选择 Astro 静态输出与 Cloudflare Workers Static Assets，并要�
     时，完整模板和导出继续可用。
 13. `main` 的每次 push 自动部署并 smoke test 隔离的 Preview Worker；Production 仍只允许
     仓库所有者通过 `workflow_dispatch` 人工触发，且两种部署串行执行。
+14. Preview 通过 `global_fetch_strictly_public` 强制 Provider 子请求按公网客户端路径解析
+    和路由，避免同一 Cloudflare 账户/Zone 内的 `margrop.net` 目标被当作私有 Origin 或
+    Worker-to-Worker 子请求。该标志先只用于 Preview 验收；Production 配置保持不变。
 
 ## 自定义端口约束
 
@@ -64,9 +67,15 @@ Worker 的 `compatibility_date` 晚于 `2024-09-02`，因此无需显式声明�
 （灰云），否则 Cloudflare Proxy 不接受的 HTTPS 端口不会被代理。如果必须启用橙云，应把
 上游迁移到 443 或 Cloudflare 支持的 HTTPS 端口，再更新固定配置。
 
+Lucky 访问日志确认普通公网 `curl` 能到达 `16666` 并转发至内部网关，但 Preview Provider
+调用没有到达 Lucky。Preview 因此显式启用 `global_fetch_strictly_public`，让同 Zone
+Provider 域名严格经过公网入口；不重新声明曾导致 Wrangler 发布失败且现已默认启用的
+`allow_custom_ports`。
+
 Cloudflare 参考：
 
 - [Workers custom port compatibility flag](https://developers.cloudflare.com/workers/configuration/compatibility-flags/#allow-specifying-a-custom-port-when-making-a-subrequest-with-the-fetch-api)
+- [Workers public fetch compatibility flag](https://developers.cloudflare.com/workers/configuration/compatibility-flags/#global-fetch-strictly-public)
 - [Cloudflare Network ports](https://developers.cloudflare.com/fundamentals/reference/network-ports/)
 - [Durable Object migrations and SQLite storage](https://developers.cloudflare.com/durable-objects/reference/durable-objects-migrations/)
 - [Static Assets binding and Worker-first routes](https://developers.cloudflare.com/workers/static-assets/binding/)
