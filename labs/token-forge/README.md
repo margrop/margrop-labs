@@ -59,9 +59,10 @@ P1-008 已把核心接到固定 OpenAI-compatible Provider、服务端 HTTP API 
 
 [P4-004 AI 流量与成本策略](../../docs/token-forge-ai-traffic-policy.md) 已增加匿名用户、
 Token Forge 与全站三层日 Token/微美元预算、60 秒滑动限流、并发预留和熔断状态机。它
-的生产配置按一次尝试预留 24,000 Token，成功后按 usage 退款，失败或预留超时全额保留；
-快照不含目标、Prompt、仓库 URL、路径或正文。SQLite Durable Object 提供原子持久化，
-真实货币预算由自建上游网关负责；实际流量仍需 Secrets、Preview 与人工 Production 验收。
+的生产配置按固定主模型与顺序回退模型的最坏情况预留 48,000 Token；主模型直接成功按
+usage 退款，一旦调用回退模型、失败或预留超时则保守保留全额。快照不含目标、Prompt、
+仓库 URL、路径或正文。SQLite Durable Object 提供原子持久化，真实货币预算由自建上游
+网关负责；实际流量仍需 Secrets、Preview 与人工 Production 验收。
 
 ## Markdown / GitHub Issue 导出
 
