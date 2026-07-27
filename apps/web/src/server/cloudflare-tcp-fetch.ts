@@ -210,6 +210,7 @@ const serializeRequest = (url: URL, init: RequestInit): Uint8Array => {
   const body = textEncoder.encode(init.body);
   const headers = new Headers(init.headers);
   for (const name of [
+    "accept-encoding",
     "connection",
     "content-length",
     "host",
@@ -218,6 +219,7 @@ const serializeRequest = (url: URL, init: RequestInit): Uint8Array => {
   ]) {
     headers.delete(name);
   }
+  headers.set("accept-encoding", "identity");
   headers.set("connection", "close");
   headers.set("content-length", String(body.byteLength));
   headers.set("host", url.host);
@@ -298,6 +300,9 @@ export const createCloudflareTcpFetch = (
       rejectAborted?.(abortError());
     };
     init.signal?.addEventListener("abort", onAbort, { once: true });
+    if (Boolean(init.signal?.aborted)) {
+      onAbort();
+    }
 
     try {
       await Promise.race([socket.opened, aborted]);
