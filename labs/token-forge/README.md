@@ -64,6 +64,10 @@ usage 退款，一旦调用回退模型、失败或预留超时则保守保留�
 仓库 URL、路径或正文。SQLite Durable Object 提供原子持久化，真实货币预算由自建上游
 网关负责；实际流量仍需 Secrets、Preview 与人工 Production 验收。
 
+Preview 为真实 Provider 验收把三层每日 Token 与成本占位预算扩大到 Production 的 100
+倍，但每日请求数、分钟限流、并发、单请求预留与熔断保持生产值。Production 的预算倍率
+仍固定为 1，Preview 配置不会随自动部署进入正式环境。
+
 ## Markdown / GitHub Issue 导出
 
 [P1-005 导出核心](../../docs/token-forge-export.md) 只接收通过 v1 合同的结构化计划，生成
