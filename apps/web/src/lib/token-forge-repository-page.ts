@@ -15,6 +15,7 @@ import {
   TokenForgeFormError,
   buildTokenForgeInputFromForm,
 } from "./token-forge-page";
+import type { TokenForgeEditorSession } from "./token-forge-editor";
 import {
   type TokenForgePlanQuality,
   assessAndOrderTokenForgePlan,
@@ -245,6 +246,32 @@ const fallbackEvidence = (
   code,
   message: tokenForgeRepositoryFallbackMessages[code],
 });
+
+export const rebuildTokenForgeEditedPageResult = (
+  result: TokenForgeRepositoryPageResult,
+  session: TokenForgeEditorSession,
+  orderingMode: "quality" | "manual" = "manual",
+): TokenForgeRepositoryPageResult => {
+  const assessed = assessAndOrderTokenForgePlan(session.input, session.plan, {
+    repository_status: result.repository.status,
+    ordering_mode: orderingMode,
+  });
+
+  return {
+    ...result,
+    input: session.input,
+    plan: assessed.plan,
+    quality: assessed.quality,
+    exports: buildTokenForgeExports(session.input, assessed.plan),
+    ai:
+      result.ai.status === "not-requested"
+        ? result.ai
+        : {
+            ...result.ai,
+            plan: assessed.plan,
+          },
+  };
+};
 
 export const generateTokenForgeRepositoryPageResult = async (
   form: TokenForgeFormValues,
