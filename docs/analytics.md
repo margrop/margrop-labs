@@ -30,7 +30,8 @@ P1-006 使用独立的
 路径、状态详情、性能桶或任意自由文本。
 
 允许事件为 `lab_open`、`run_success`、`run_failure`、`export`、`blog_click` 和
-`github_click`。载入合成样例不产生事件，复制和下载共用 `export`。
+`github_click`。P1-012 的样例选择不增加独立事件；一键模板成功或失败仍只映射为
+`run_success` / `run_failure`，复制和下载共用 `export`。
 
 P4-003 完成前默认接收器为空：不发送、不存储、不记录。未来接入必须在同一 Schema 和允许
 字段映射之后进行，接收器异常不得影响 Lab 主流程。
