@@ -57,11 +57,11 @@ ADR-0003 选择 Astro 静态输出与 Cloudflare Workers Static Assets，并要�
     时，完整模板和导出继续可用。
 13. `main` 的每次 push 自动部署并 smoke test 隔离的 Preview Worker；Production 仍只允许
     仓库所有者通过 `workflow_dispatch` 人工触发，且两种部署串行执行。
-14. Production 的 Provider 传输固定使用标准 `fetch`。Preview 在
-    `global_fetch_strictly_public` 已部署但请求仍未到达 Lucky 后，改用 Workers
-    `cloudflare:sockets` 的 TLS TCP Socket 直连固定主机与 `16666` 端口；浏览器、公共 API
-    和 Provider Adapter 合同不变。
-15. Preview TCP 传输只实现该固定 OpenAI-compatible POST 所需的 HTTP/1.1 子集：强制
+14. Preview 在 `global_fetch_strictly_public` 已部署但请求仍未到达 Lucky 后，改用
+    Workers `cloudflare:sockets` 的 TLS TCP Socket 直连固定主机与 `16666` 端口。Preview
+    真实调用随后由 Lucky 日志和有效 qwen 计划共同验收，因此 Production 使用同一传输；
+    浏览器、公共 API 和 Provider Adapter 合同不变。
+15. TCP 传输只实现该固定 OpenAI-compatible POST 所需的 HTTP/1.1 子集：强制
     HTTPS/TLS、`Host`、`Content-Length` 与 `Connection: close`，复用共享中止信号，响应头
     限制 16 KiB、正文限制 64 KiB，只接受 identity 编码以及合法的 `Content-Length` 或
     chunked 响应。任何异常都沿用现有安全失败与回退模型路径。
@@ -82,7 +82,8 @@ Preview 因此不再依赖该兼容标志，而通过 Workers 原生 TCP Socket 
 主机建立 TLS 连接。该 API 支持自定义端口，但不能连接 Cloudflare IP、私网 IP 或回环
 地址；所以 Provider 主机必须继续解析到当前公网非 Cloudflare Origin。Socket 出站来源
 也不属于 Cloudflare 公布的代理 IP 段，若 Lucky、主机防火墙或路由器启用了来源白名单，
-必须单独允许实际到达的来源。Production 仍使用标准 `fetch`，未经 Preview 验收不会切换。
+必须单独允许实际到达的来源。Preview 已确认该链路到达 Lucky、New API 和 qwen 主模型，
+Production 因此使用同一受限 TCP 实现；两套 Worker、Secrets 和 Durable Object 仍隔离。
 
 Cloudflare 参考：
 
@@ -106,8 +107,8 @@ Cloudflare 参考：
   `finish_reason: length`，会失败关闭到模板，不会放宽合同；
 - Preview 与 Production 的 Durable Object、Secrets 和流量状态彼此隔离；
 - Preview 的高日预算只用于兼容性和失败路径验收，仍受相同的分钟限流、并发与熔断保护；
-- Preview TCP 传输增加了一个受测试的最小 HTTP/1.1 解析器，但不增加 Provider SDK 或
-  通用代理能力；压缩响应和其他传输编码会失败关闭；
+- TCP 传输增加了一个受测试且经 Preview 真实链路验收的最小 HTTP/1.1 解析器，但不增加
+  Provider SDK 或通用代理能力；压缩响应和其他传输编码会失败关闭；
 - 发布仍先经过 Preview，Production 只能由仓库所有者人工触发。
 
 ## 备选方案
