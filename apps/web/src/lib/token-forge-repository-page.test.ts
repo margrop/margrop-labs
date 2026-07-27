@@ -68,6 +68,17 @@ describe("Token Forge repository page orchestration", () => {
     expect(summarizeRepository).not.toHaveBeenCalled();
     expect(result.repository).toEqual({ status: "not-requested" });
     expect(result.plan.mode).toBe("template");
+    expect(result.quality).toMatchObject({
+      schema_version: "1.0",
+      status: "ready",
+      review_task_count: 0,
+      evidence: {
+        rule_id: "QF-E01",
+      },
+    });
+    expect(result.plan.tasks.map((task) => task.id)).toEqual(
+      result.quality.ordered_task_ids,
+    );
     expect(result.exports.github_issues.issues).toHaveLength(
       result.plan.tasks.length,
     );
@@ -266,9 +277,90 @@ describe("Token Forge repository page orchestration", () => {
     expect(enhancePlan).toHaveBeenCalledWith(result.input, summary);
     expect(result.ai.status).toBe("ai-assisted");
     expect(result.plan.mode).toBe("ai-assisted");
+    expect(result.quality.evidence.rule_id).toBe("QF-E02");
+    expect(result.quality.tasks).toHaveLength(result.plan.tasks.length);
     expect(result.exports.markdown.content).toContain("AI 辅助（已重新验证）");
     expect(JSON.stringify(result.repository)).not.toContain(rawPath);
     expect(JSON.stringify(result.repository)).not.toContain(rawContent);
+  });
+
+  it("uses the dependency-safe quality order for the page and both exports", async () => {
+    const result = await generateTokenForgeRepositoryPageResult(
+      { ...tokenForgeSyntheticFormValues },
+      {
+        enhancePlan: vi.fn(async () => ({
+          status: "ai-assisted" as const,
+          plan: {
+            schema_version: "1.0" as const,
+            mode: "ai-assisted" as const,
+            tasks: [
+              {
+                id: "vague-work",
+                size: "S" as const,
+                title: "优化相关功能",
+                estimated_tokens: 4_000,
+                estimated_hours: 2,
+                dependencies: [],
+                scope: {
+                  included: ["对相关功能做适当优化"],
+                  excluded: ["其他事项根据实际情况处理"],
+                },
+                prompt:
+                  "请对相关功能进行适当优化，根据实际情况处理发现的问题，并尽量让整体效果有所改善；完成后自行判断是否达到预期要求。",
+                acceptance_criteria: ["整体效果有所改善并达到预期要求"],
+              },
+              {
+                id: "quality-core",
+                size: "S" as const,
+                title: "实现可重复验证的质量规则",
+                estimated_tokens: 5_000,
+                estimated_hours: 3,
+                dependencies: [],
+                scope: {
+                  included: [
+                    "实现与页面分离的确定性评分函数",
+                    "覆盖正常、模糊和排序测试",
+                  ],
+                  excluded: ["不调用模型、网络、存储或生产写操作"],
+                },
+                prompt:
+                  "实现一个无副作用的质量评分函数，先验证输入与计划合同，再为正常、模糊和排序场景补齐单元测试，最后运行统一质量命令验证类型、测试与构建。",
+                acceptance_criteria: [
+                  "相同输入重复运行会得到完全一致的分数和任务顺序",
+                  "统一质量命令通过类型检查、单元测试、构建和静态合同验证",
+                ],
+              },
+            ],
+            unknowns: ["当前测试不读取仓库，无法判断现有实现状态。"],
+            safety_notes: ["只使用合成输入执行确定性质量规则。"],
+          },
+          gateway: {
+            usage: {
+              input_tokens: 500,
+              output_tokens: 400,
+              total_tokens: 900,
+            },
+            attempt_count: 1,
+          },
+        })),
+      },
+    );
+
+    expect(result.plan.tasks.map((task) => task.id)).toEqual([
+      "quality-core",
+      "vague-work",
+    ]);
+    expect(result.quality).toMatchObject({
+      status: "review",
+      review_task_count: 1,
+      ordered_task_ids: ["quality-core", "vague-work"],
+    });
+    expect(
+      result.exports.github_issues.issues.map((issue) => issue.task_id),
+    ).toEqual(["quality-core", "vague-work"]);
+    expect(
+      result.exports.markdown.content.indexOf("实现可重复验证的质量规则"),
+    ).toBeLessThan(result.exports.markdown.content.indexOf("优化相关功能"));
   });
 
   it("fails closed to the existing template when an enhancer throws", async () => {
@@ -289,6 +381,7 @@ describe("Token Forge repository page orchestration", () => {
       },
     });
     expect(result.plan.mode).toBe("template");
+    expect(result.quality.evidence.rule_id).toBe("QF-E01");
     expect(JSON.stringify(result)).not.toContain(rawContent);
   });
 });
