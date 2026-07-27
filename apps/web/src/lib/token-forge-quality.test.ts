@@ -162,6 +162,39 @@ describe("Token Forge deterministic quality assessment", () => {
     ).toBe(true);
   });
 
+  it("preserves an explicit dependency-safe manual order with a user rule", () => {
+    const result = assessAndOrderTokenForgePlan(
+      input,
+      planWith([vagueTask("manual-first"), strongTask("manual-second")]),
+      {
+        ordering_mode: "manual",
+      },
+    );
+
+    expect(result.quality.ordered_task_ids).toEqual([
+      "manual-first",
+      "manual-second",
+    ]);
+    expect(
+      result.quality.tasks.every((task) => task.order.rule_id === "QF-O04"),
+    ).toBe(true);
+  });
+
+  it("rejects a manual order that places a dependency after its consumer", () => {
+    expect(() =>
+      assessAndOrderTokenForgePlan(
+        input,
+        planWith([
+          strongTask("dependent-work", ["quality-core"]),
+          strongTask("quality-core"),
+        ]),
+        {
+          ordering_mode: "manual",
+        },
+      ),
+    ).toThrow(/dependencies must appear before/);
+  });
+
   it("requires review when one task concentrates over 70% of both budgets", () => {
     const concentratedInput: TokenForgeInput = {
       ...input,
