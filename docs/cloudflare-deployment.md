@@ -49,12 +49,15 @@ Preview 固定为 `100`；后者只扩大每日 Token 与成本占位，分钟�
 `api-gpt.speedtest.margrop.net` 必须保持
 Cloudflare DNS-only（灰云）；若启用橙云，应先把服务迁移到 443 或受支持的 HTTPS 端口。
 Worker 的 `compatibility_date` 晚于 `2024-09-02`，自定义端口能力已经默认启用，不再显式
-声明 `allow_custom_ports`。
+声明 `allow_custom_ports`。Preview 额外启用 `global_fetch_strictly_public`，确保同属
+`margrop.net` Zone 的 Provider 域名仍按公网 DNS 路径访问 Lucky；该标志尚未加入
+Production，正式环境配置保持不变。
 
 Bindings、变量和 Secrets 是按环境隔离的，见
 [Wrangler environments](https://developers.cloudflare.com/workers/wrangler/environments/)；
 自定义端口与代理端口限制见
 [compatibility flag](https://developers.cloudflare.com/workers/configuration/compatibility-flags/#allow-specifying-a-custom-port-when-making-a-subrequest-with-the-fetch-api)
+、[public fetch compatibility flag](https://developers.cloudflare.com/workers/configuration/compatibility-flags/#global-fetch-strictly-public)
 和 [Network ports](https://developers.cloudflare.com/fundamentals/reference/network-ports/)。
 
 ## 发布流程
