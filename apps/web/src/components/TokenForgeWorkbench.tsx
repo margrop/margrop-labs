@@ -123,7 +123,14 @@ export default function TokenForgeWorkbench({
       }
 
       setResult(nextResult);
-      if (nextResult.ai.status === "ai-assisted") {
+      if (nextResult.quality.status === "review") {
+        setStatus({
+          tone: "warning",
+          title: `计划已生成，${nextResult.quality.review_task_count} 项需人工修改`,
+          message:
+            "计划已通过 Schema、依赖和总预算合同，但确定性质量规则发现空泛、难验收或预算过度集中的任务；请展开对应任务查看规则依据。",
+        });
+      } else if (nextResult.ai.status === "ai-assisted") {
         setStatus({
           tone: "ready",
           title: "AI 增强计划已通过确定性校验",
@@ -196,6 +203,9 @@ export default function TokenForgeWorkbench({
       (total, task) => total + task.estimated_hours,
       0,
     ) ?? 0;
+  const qualityByTaskId = new Map(
+    result?.quality.tasks.map((task) => [task.task_id, task]) ?? [],
+  );
 
   return (
     <div class="token-forge-shell">
@@ -397,7 +407,7 @@ export default function TokenForgeWorkbench({
         >
           <div class="token-forge-result-heading">
             <div>
-              <p class="section-kicker">VALIDATED PLAN</p>
+              <p class="section-kicker">VALIDATED · RULE-SCORED PLAN</p>
               <h2 id="forge-result-title">
                 {result.ai.status === "ai-assisted"
                   ? "可执行的 AI 增强任务"
@@ -412,40 +422,93 @@ export default function TokenForgeWorkbench({
           </div>
 
           <div class="token-forge-tasks">
-            {result.plan.tasks.map((task) => (
-              <article class="token-forge-task" key={task.id}>
-                <div class="token-forge-task-meta">
-                  <span>{task.size}</span>
-                  <code>{task.id}</code>
-                </div>
-                <h3>{task.title}</h3>
-                <p>
-                  {task.estimated_tokens.toLocaleString()} Token ·{" "}
-                  {task.estimated_hours} 小时
-                </p>
-                <div class="token-forge-task-columns">
-                  <div>
-                    <h4>包含范围</h4>
-                    <ul>
-                      {task.scope.included.map((item) => (
-                        <li key={item}>{item}</li>
-                      ))}
-                    </ul>
+            {result.plan.tasks.map((task) => {
+              const quality = qualityByTaskId.get(task.id);
+
+              return (
+                <article class="token-forge-task" key={task.id}>
+                  <div class="token-forge-task-meta">
+                    <div class="token-forge-task-badges">
+                      <span class="token-forge-task-size">{task.size}</span>
+                      {quality ? (
+                        <span
+                          class={`token-forge-quality-badge token-forge-quality-badge--${quality.status}`}
+                        >
+                          规则评分 {quality.score}/100 ·{" "}
+                          {quality.status === "ready" ? "可执行" : "需人工修改"}
+                        </span>
+                      ) : null}
+                    </div>
+                    <code>{task.id}</code>
                   </div>
-                  <div>
-                    <h4>验收标准</h4>
-                    <ul>
-                      {task.acceptance_criteria.map((item) => (
-                        <li key={item}>{item}</li>
-                      ))}
-                    </ul>
+                  <h3>{task.title}</h3>
+                  <p>
+                    {task.estimated_tokens.toLocaleString()} Token ·{" "}
+                    {task.estimated_hours} 小时
+                  </p>
+                  <div class="token-forge-task-columns">
+                    <div>
+                      <h4>包含范围</h4>
+                      <ul>
+                        {task.scope.included.map((item) => (
+                          <li key={item}>{item}</li>
+                        ))}
+                      </ul>
+                    </div>
+                    <div>
+                      <h4>验收标准</h4>
+                      <ul>
+                        {task.acceptance_criteria.map((item) => (
+                          <li key={item}>{item}</li>
+                        ))}
+                      </ul>
+                    </div>
                   </div>
-                </div>
-              </article>
-            ))}
+                  {quality ? (
+                    <details class="token-forge-task-quality">
+                      <summary>查看评分与排序依据</summary>
+                      <ul>
+                        {quality.rules.map((item) => (
+                          <li key={item.rule_id} data-status={item.status}>
+                            <code>{item.rule_id}</code>
+                            <strong>
+                              {item.status === "pass" ? "通过" : "需改"} ·{" "}
+                              {item.points}/{item.max_points}
+                            </strong>
+                            <span>{item.message}</span>
+                          </li>
+                        ))}
+                      </ul>
+                      <p>
+                        <code>{quality.order.rule_id}</code>{" "}
+                        {quality.order.message}
+                      </p>
+                    </details>
+                  ) : null}
+                </article>
+              );
+            })}
           </div>
 
           <div class="evidence-grid token-forge-evidence">
+            <EvidenceCard
+              kind={result.quality.status === "ready" ? "rule" : "unknown"}
+              title="确定性规则质量"
+              value={`${result.quality.score}/100 · ${
+                result.quality.review_task_count === 0
+                  ? "全部可执行"
+                  : `${result.quality.review_task_count} 项需人工修改`
+              }`}
+            >
+              <p>
+                评分只使用标题、范围、验收、Prompt、预算和依赖六类规则；低于 80
+                分或同时独占超过 70% Token 与工时的任务会明确标记，不会被隐藏。
+              </p>
+              <p>
+                <code>{result.quality.evidence.rule_id}</code>{" "}
+                {result.quality.evidence.message}
+              </p>
+            </EvidenceCard>
             <EvidenceCard
               kind="input"
               title="预算边界"
