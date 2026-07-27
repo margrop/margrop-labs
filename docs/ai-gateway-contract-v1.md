@@ -134,9 +134,10 @@ P1-008 把 Token Forge 收紧为每模型 22,000 输入、2,000 输出、共享 
 ## 已知限制
 
 - 通用 Gateway 没有自动路由注册表；当前只有 Token Forge 具备生产 HTTP 适配；
-- Token Forge 使用上游标准 usage，没有本地精确 Tokenizer；
+- Token Forge 展示上游标准 usage，但本地额度按模型尝试的固定上限结算，没有本地精确
+  Tokenizer；
 - 通用请求 Schema 不能替代每个操作的输入 Schema；
 - Gateway 自身的最小秘密检测不能替代 P0-007 和各操作的允许字段脱敏；
 - 通用 Gateway 的 `request_id` 仍没有响应缓存；Token Forge 策略只提供 24 小时有限去重；
-- P4-004 不读取模型价格，也不汇总 Provider 尝试；P1-008 必须在服务端完成这两项后才能
-  提交可信结算。
+- P4-004 不读取模型价格；P1-008 在服务端按模型尝试数提交保守结算，真实货币预算仍由
+  上游网关负责。

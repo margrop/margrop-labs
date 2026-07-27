@@ -40,7 +40,8 @@ ADR-0003 选择 Astro 静态输出与 Cloudflare Workers Static Assets，并要�
 7. 使用单个 SQLite Durable Object 保存 P4-004 快照。在存储事务内完成“读取 → 准入/结算
    → 写回”，Provider 网络调用位于两个事务之间。
 8. 生产流量配置为：每请求按两个模型的最坏情况预留 48,000 Token；未回退的成功请求按
-   标准 usage 结算，一旦实际调用回退模型则按 48,000 Token 保守结算。匿名用户、Lab、
+   一个模型的 24,000 Token 上限结算，一旦实际调用回退模型则按 48,000 Token 结算。
+   Provider 报告的 usage 只用于观察，不作为 Labs 策略账本的可信输入。匿名用户、Lab、
    全站每日请求 4/50/100；60 秒请求 1/6/10；并发 1/2/3；连续失败 3 次后熔断 120 秒；
    预留 60 秒。
 9. Production 固定 `TOKEN_FORGE_AI_BUDGET_MULTIPLIER=1`。Preview 为真实兼容性验收固定
@@ -98,8 +99,9 @@ Cloudflare 参考：
 - Durable Object 成为 Token Forge AI 策略状态的唯一生产写入者；
 - 共享 NAT 用户会共用匿名限额；轮换 HMAC Secret 会切换匿名桶，但不会恢复全局预算；
 - 上游 usage 必须提供 `prompt_tokens` 和 `completion_tokens`，缺失或无效时整体降级；
-- 页面 usage 只表示最终成功模型的标准 usage；回退路径的策略结算固定采用 48,000 Token
-  下限，避免主模型无效响应缺少可信 usage 时低估消耗；
+- 页面 usage 只表示最终成功模型的 Provider 报告值，不是 Labs 的费用或额度报告；策略
+  账本按模型尝试次数采用 24,000 / 48,000 Token 下限，避免兼容网关缺失、固定或低报
+  usage 时绕过本地预算；
 - `minimax-latest` 仍受 2,000 输出 Token 和共享 45 秒窗口限制；若只返回推理正文或
   `finish_reason: length`，会失败关闭到模板，不会放宽合同；
 - Preview 与 Production 的 Durable Object、Secrets 和流量状态彼此隔离；

@@ -31,6 +31,7 @@ import {
 import { tokenForgeOpenAiSystemPrompt } from "./token-forge-ai-prompt";
 
 export const tokenForgeAiEndpointPath = "/api/token-forge/plan";
+const tokenForgeAiPrimaryAccountingTokens = 24_000;
 const tokenForgeAiFallbackAccountingTokens = 48_000;
 
 export const tokenForgeAiGatewayPolicy = Object.freeze({
@@ -322,7 +323,9 @@ export const createOpenAiCompatibleProvider = (
   return {
     adapterId: "openai-compatible",
     getAccountingTokenFloor() {
-      return fallbackAttempted ? tokenForgeAiFallbackAccountingTokens : 0;
+      return fallbackAttempted
+        ? tokenForgeAiFallbackAccountingTokens
+        : tokenForgeAiPrimaryAccountingTokens;
     },
     async generate(
       request: AiGatewayProviderRequest,

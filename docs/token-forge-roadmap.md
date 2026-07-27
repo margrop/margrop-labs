@@ -21,9 +21,10 @@ Token Forge 已有版本化输入/计划合同、确定性模板、公开 GitHub
 Provider-neutral AI 规划核心、Markdown / GitHub Issue 导出核心和可用的 Alpha 页面。
 
 当前页面已接通“输入 → 本地模板/AI 增强 → 导出”路径和可选的公开仓库覆盖证据；仓库或
-AI 失败不会阻断模板。P1-008 代码已提供固定 OpenAI-compatible Adapter、HMAC 匿名限流、
-SQLite Durable Object 原子状态与页面 AI 入口，等待 Secrets、Preview 验收和人工
-Production 激活。用户还不能编辑、锁定和重排计划，也没有面向 Coding Agent 的完整执行
+AI 失败不会阻断模板。P1-008 已提供固定 OpenAI-compatible Adapter、HMAC 匿名限流、
+SQLite Durable Object 原子状态与页面 AI 入口，并已通过 Preview 真实链路验收；Provider
+usage 不再作为本地额度账本的可信输入。当前等待人工 Production 激活。用户还不能编辑、
+锁定和重排计划，也没有面向 Coding Agent 的完整执行
 包、端到端质量基准或真实转化数据。因此产品主流程接近走通，但完整闭环仍未完成。
 
 ## 执行顺序
@@ -51,8 +52,8 @@ Production 激活。用户还不能编辑、锁定和重排计划，也没有面
 P1-008 必须依赖 P4-004，不能先上线无预算边界的真实模型调用。P4-003 只能在核心产品闭环稳定
 后接入，避免为了收集数据提前扩大隐私面。
 
-P1-007 与 P4-004 已完成；P1-008 的代码与离线验证已完成，当前唯一推荐步骤是配置
-Preview Secrets、完成真实兼容性验收，再由人工决定 Production。Production 验收通过后，
+P1-007 与 P4-004 已完成；P1-008 的代码、离线验证、Preview Secrets 和真实兼容性验收
+已完成，当前唯一推荐步骤是由人工决定并激活 Production。Production smoke 通过后，
 下一任务是 P1-009。
 
 ## “特别完善”的完成门槛

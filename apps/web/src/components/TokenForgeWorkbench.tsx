@@ -552,7 +552,7 @@ export default function TokenForgeWorkbench({
               title="模型调用"
               value={
                 result.ai.status === "ai-assisted"
-                  ? `${result.ai.gateway.usage.total_tokens.toLocaleString()} Token · ${result.ai.gateway.attempt_count} 次`
+                  ? `${result.ai.gateway.usage.total_tokens.toLocaleString()} Token（Provider 报告）· ${result.ai.gateway.attempt_count} 次`
                   : result.ai.status === "template-fallback"
                     ? `已降级 · ${result.ai.gateway.attempt_count} 次`
                     : "未调用"
@@ -560,7 +560,7 @@ export default function TokenForgeWorkbench({
             >
               <p>
                 {result.ai.status === "ai-assisted"
-                  ? "服务端固定模型已返回有效结构；API Key、模型配置和原始 Provider 错误均未进入浏览器。"
+                  ? "服务端固定模型已返回有效结构；Provider 报告用量仅供观察，不用于本地额度结算。API Key、模型配置和原始 Provider 错误均未进入浏览器。"
                   : result.ai.status === "template-fallback"
                     ? "AI 增强未通过完整边界，页面没有采用模型候选结果。"
                     : "你选择了本地模板路径，没有把目标或仓库摘要发送给模型。"}

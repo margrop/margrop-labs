@@ -96,7 +96,8 @@ npm run deploy:production --workspace @margrop-labs/web
 - 键盘可以聚焦并操作交互控件。
 - `/robots.txt` 返回 HTTP 200。
 - `/api/token-forge/plan` 对无效同源请求返回安全的 Gateway 400，不返回 HTML 或上游正文。
-- 点击“仅生成模板”不调用 AI；点击“AI 增强生成”成功时显示 usage，失败时仍能导出模板。
+- 点击“仅生成模板”不调用 AI；点击“AI 增强生成”成功时将 usage 明确标为 Provider
+  报告值，失败时仍能导出模板。
 - 连续快速请求会安全限流；浏览器源码、Network 响应和导出中都没有 API Key。
 - Preview 不响应正式域名；Production 只把正式入口指向
   `lab.margrop.net`。
