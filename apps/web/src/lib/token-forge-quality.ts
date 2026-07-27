@@ -2,6 +2,7 @@ import {
   type TokenForgeInput,
   type TokenForgePlan,
   type TokenForgeTask,
+  TokenForgeContractError,
   validateTokenForgePlan,
 } from "./token-forge-contracts";
 
@@ -19,7 +20,7 @@ export type TokenForgeQualityRule = {
 };
 
 export type TokenForgeOrderRule = {
-  rule_id: "QF-O01" | "QF-O02" | "QF-O03";
+  rule_id: "QF-O01" | "QF-O02" | "QF-O03" | "QF-O04";
   message: string;
 };
 
@@ -55,7 +56,8 @@ export type TokenForgeQualityResult = {
 };
 
 export type TokenForgeQualityContext = {
-  repository_status: TokenForgeRepositoryQualityStatus;
+  repository_status?: TokenForgeRepositoryQualityStatus;
+  ordering_mode?: "quality" | "manual";
 };
 
 type ScoredTask = {
@@ -254,7 +256,34 @@ const scoreTask = (
 
 const orderTasks = (
   scoredTasks: ScoredTask[],
+  orderingMode: TokenForgeQualityContext["ordering_mode"] = "quality",
 ): Array<ScoredTask & { order: TokenForgeOrderRule }> => {
+  if (orderingMode === "manual") {
+    const positionById = new Map(
+      scoredTasks.map((task, index) => [task.task.id, index] as const),
+    );
+
+    for (const [index, task] of scoredTasks.entries()) {
+      if (
+        task.task.dependencies.some(
+          (dependency) => (positionById.get(dependency) ?? index) >= index,
+        )
+      ) {
+        throw new TokenForgeContractError(
+          "token-forge-plan-v1 dependencies must appear before their consumers in a manual order.",
+        );
+      }
+    }
+
+    return scoredTasks.map((task) => ({
+      ...task,
+      order: {
+        rule_id: "QF-O04",
+        message: "用户已手动确认当前依赖安全顺序，质量分不覆盖该位置。",
+      },
+    }));
+  }
+
   const remaining = new Map(
     scoredTasks.map((task) => [task.task.id, task] as const),
   );
@@ -346,6 +375,7 @@ export const assessAndOrderTokenForgePlan = (
     validatedPlan.tasks.map((task, index) =>
       scoreTask(input, validatedPlan, task, index),
     ),
+    context?.ordering_mode,
   );
   const plan = validateTokenForgePlan(input, {
     ...validatedPlan,
