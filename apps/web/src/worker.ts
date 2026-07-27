@@ -3,8 +3,12 @@ import {
   type TokenForgePolicyStore,
   handleTokenForgeAiRequest,
   tokenForgeAiEndpointPath,
+  tokenForgeAiGatewayPolicy,
 } from "./server/token-forge-ai-runtime";
 import type { TokenForgeAiPolicySnapshot } from "@margrop-labs/ai-gateway/token-forge-policy";
+import { connect } from "cloudflare:sockets";
+
+import { createCloudflareTcpFetch } from "./server/cloudflare-tcp-fetch";
 
 type DurableObjectTransaction = {
   get<T>(key: string): Promise<T | undefined>;
@@ -41,6 +45,7 @@ type WorkerEnvironment = {
   TOKEN_FORGE_AI_MODEL: string;
   TOKEN_FORGE_AI_FALLBACK_MODEL: string;
   TOKEN_FORGE_AI_BUDGET_MULTIPLIER: string;
+  TOKEN_FORGE_AI_TRANSPORT: string;
   TOKEN_FORGE_AI_API_KEY: string;
   TOKEN_FORGE_ACTOR_KEY_SECRET: string;
 };
@@ -68,18 +73,29 @@ class DurableObjectPolicyStore implements TokenForgePolicyStore {
 
 export class TokenForgeAiPolicyObject {
   private readonly store: TokenForgePolicyStore;
+  private readonly providerFetch: typeof fetch;
 
   constructor(
     state: DurableObjectState,
     private readonly environment: WorkerEnvironment,
   ) {
     this.store = new DurableObjectPolicyStore(state.storage);
+    this.providerFetch =
+      environment.TOKEN_FORGE_AI_TRANSPORT === "cloudflare-tcp"
+        ? createCloudflareTcpFetch({
+            connect,
+            maxResponseBytes: tokenForgeAiGatewayPolicy.maxResponseBytes,
+          })
+        : environment.TOKEN_FORGE_AI_TRANSPORT === "fetch"
+          ? fetch
+          : () => Promise.reject(new TypeError("Invalid Provider transport."));
   }
 
   fetch(request: Request): Promise<Response> {
     return handleTokenForgeAiRequest(request, {
       store: this.store,
       environment: this.environment,
+      fetch: this.providerFetch,
     });
   }
 }
