@@ -1075,6 +1075,170 @@ a {
   line-height: 1.55;
 }
 
+.token-forge-editor {
+  display: grid;
+  gap: 1.2rem;
+  padding: clamp(1rem, 3vw, 1.5rem);
+  border: 1px solid rgba(169, 145, 255, 0.32);
+  border-radius: 1rem;
+  background:
+    linear-gradient(120deg, rgba(169, 145, 255, 0.06), transparent 42%),
+    rgba(8, 17, 31, 0.58);
+}
+
+.token-forge-editor-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1.5rem;
+}
+
+.token-forge-editor-heading h3,
+.token-forge-editor-heading p,
+.token-forge-editor-note,
+.token-forge-editor-privacy,
+.token-forge-editor-dependencies {
+  margin: 0;
+}
+
+.token-forge-editor-heading h3 {
+  font-size: clamp(1.35rem, 3vw, 1.8rem);
+}
+
+.token-forge-editor-heading > div > p:last-child,
+.token-forge-editor-heading > p,
+.token-forge-editor-note,
+.token-forge-editor-privacy,
+.token-forge-editor-dependencies {
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.6;
+}
+
+.token-forge-editor-heading > div > p:last-child {
+  margin-top: 0.45rem;
+}
+
+.token-forge-editor-heading > p {
+  flex: 0 0 auto;
+  font-family: ui-monospace, monospace;
+}
+
+.token-forge-editor-toolbar,
+.token-forge-editor-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.token-forge-editor label {
+  display: grid;
+  gap: 0.45rem;
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.token-forge-editor input,
+.token-forge-editor select,
+.token-forge-editor textarea {
+  width: 100%;
+  min-height: 44px;
+  padding: 0.72rem 0.82rem;
+  border: 1px solid var(--line);
+  border-radius: 0.65rem;
+  background: rgba(4, 13, 24, 0.76);
+  color: var(--text);
+  font: inherit;
+}
+
+.token-forge-editor textarea {
+  resize: vertical;
+  line-height: 1.55;
+}
+
+.token-forge-editor input:hover,
+.token-forge-editor select:hover,
+.token-forge-editor textarea:hover {
+  border-color: rgba(169, 145, 255, 0.58);
+}
+
+.token-forge-editor input:disabled,
+.token-forge-editor select:disabled,
+.token-forge-editor textarea:disabled {
+  cursor: not-allowed;
+  opacity: 0.62;
+}
+
+.token-forge-editor-toolbar-actions,
+.token-forge-editor-task-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+.token-forge-editor-toolbar-actions {
+  grid-column: 1 / -1;
+}
+
+.token-forge-editor-note,
+.token-forge-editor-privacy {
+  padding: 0.75rem 0.85rem;
+  border: 1px solid var(--line);
+  border-radius: 0.7rem;
+  background: rgba(4, 13, 24, 0.58);
+}
+
+.token-forge-editor-list {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.token-forge-editor-task {
+  padding: 0 1rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: 0.85rem;
+  background: rgba(4, 13, 24, 0.56);
+}
+
+.token-forge-editor-task:not([open]) {
+  padding-bottom: 0;
+}
+
+.token-forge-editor-task > summary {
+  display: flex;
+  min-height: 52px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  cursor: pointer;
+  color: var(--text);
+  font-size: 0.86rem;
+  font-weight: 700;
+}
+
+.token-forge-editor-task > summary strong {
+  color: var(--violet);
+  font-family: ui-monospace, monospace;
+  font-size: 0.7rem;
+}
+
+.token-forge-editor-task > summary:focus-visible {
+  border-radius: 0.35rem;
+  outline: 2px solid var(--violet);
+  outline-offset: 3px;
+}
+
+.token-forge-editor-task-actions,
+.token-forge-editor-fields,
+.token-forge-editor-dependencies {
+  margin-top: 1rem;
+}
+
+.token-forge-editor-field-wide {
+  grid-column: 1 / -1;
+}
+
 .token-forge-evidence {
   margin-top: 0;
 }
@@ -2527,6 +2691,7 @@ a {
   .export-panel,
   .token-forge-form-heading,
   .token-forge-result-heading,
+  .token-forge-editor-heading,
   .incident-section-heading {
     align-items: flex-start;
     flex-direction: column;
@@ -2535,12 +2700,20 @@ a {
   .token-forge-field-grid,
   .token-forge-task-columns,
   .token-forge-coverage,
-  .token-forge-task-quality li {
+  .token-forge-task-quality li,
+  .token-forge-editor-toolbar,
+  .token-forge-editor-fields {
     grid-template-columns: 1fr;
+  }
+
+  .token-forge-editor-field-wide,
+  .token-forge-editor-toolbar-actions {
+    grid-column: auto;
   }
 
   .token-forge-actions .button,
   .token-forge-next-links .button,
+  .token-forge-editor-toolbar-actions .button,
   .incident-form-actions .button,
   .incident-next-links .button {
     width: 100%;
@@ -2671,6 +2844,11 @@ a {
   .preview-controls fieldset,
   .token-forge-form input,
   .token-forge-form textarea,
+  .token-forge-editor,
+  .token-forge-editor input,
+  .token-forge-editor select,
+  .token-forge-editor textarea,
+  .token-forge-editor-task,
   .token-forge-shell,
   .token-forge-task,
   .token-forge-task-quality,
