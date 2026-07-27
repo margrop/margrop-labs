@@ -30,13 +30,14 @@ import {
 import { tokenForgeOpenAiSystemPrompt } from "./token-forge-ai-prompt";
 
 export const tokenForgeAiEndpointPath = "/api/token-forge/plan";
+const tokenForgeAiFallbackAccountingTokens = 48_000;
 
 export const tokenForgeAiGatewayPolicy = Object.freeze({
   maxRequestBytes: 64 * 1024,
   maxResponseBytes: 64 * 1024,
   maxInputTokens: 22_000,
   maxOutputTokens: 2_000,
-  providerTimeoutMs: 15_000,
+  providerTimeoutMs: 45_000,
   maxAttempts: 1,
 });
 
@@ -46,7 +47,7 @@ export const tokenForgeAiProductionTrafficPolicy: Readonly<TokenForgeAiTrafficPo
       schema_version: "1.0",
       lab_id: "token-forge",
       operation: tokenForgeAiOperationId,
-      max_request_billable_tokens: 24_000,
+      max_request_billable_tokens: tokenForgeAiFallbackAccountingTokens,
       max_request_cost_microusd: 1,
       daily_budgets: {
         actor_tokens: 96_000,
@@ -75,7 +76,7 @@ export const tokenForgeAiProductionTrafficPolicy: Readonly<TokenForgeAiTrafficPo
         open_seconds: 120,
         half_open_requests: 1,
       },
-      reservation_ttl_seconds: 45,
+      reservation_ttl_seconds: 60,
     }),
   );
 
@@ -194,7 +195,8 @@ const parseRetryAfter = (
 
 type OpenAiCompatibleProviderOptions = {
   baseUrl: string;
-  model: string;
+  primaryModel: string;
+  fallbackModel: string;
   apiKey: string;
   fetch?: typeof fetch;
   now?: () => number;
@@ -234,17 +236,41 @@ const parseProviderUsage = (candidate: unknown): AiGatewayUsage | undefined => {
   };
 };
 
+const parseProviderContent = (content: string): unknown | undefined => {
+  const trimmed = content.trim();
+  const fenced = /^```json[ \t]*\r?\n([\s\S]*?)\r?\n```$/i.exec(trimmed);
+  const candidate =
+    fenced === null
+      ? trimmed.includes("```")
+        ? undefined
+        : trimmed
+      : fenced[1];
+
+  if (candidate === undefined || candidate.length === 0) {
+    return undefined;
+  }
+
+  try {
+    return JSON.parse(candidate) as unknown;
+  } catch {
+    return undefined;
+  }
+};
+
 export const createOpenAiCompatibleProvider = (
   options: OpenAiCompatibleProviderOptions,
-): AiGatewayProviderAdapter => {
+): AiGatewayProviderAdapter & { getAccountingTokenFloor(): number } => {
   const baseUrl = new URL(options.baseUrl);
+  const models = Array.from(
+    new Set([options.primaryModel.trim(), options.fallbackModel.trim()]),
+  );
   if (
     baseUrl.protocol !== "https:" ||
     baseUrl.username.length > 0 ||
     baseUrl.password.length > 0 ||
     baseUrl.search.length > 0 ||
     baseUrl.hash.length > 0 ||
-    options.model.trim().length === 0 ||
+    models.some((model) => model.length === 0) ||
     options.apiKey.length < 8
   ) {
     throw new Error("Invalid server-side Provider configuration.");
@@ -253,107 +279,144 @@ export const createOpenAiCompatibleProvider = (
   const endpoint = `${baseUrl.toString().replace(/\/+$/, "")}/chat/completions`;
   const fetchProvider = options.fetch ?? fetch;
   const now = options.now ?? Date.now;
+  let fallbackAttempted = false;
 
   return {
     adapterId: "openai-compatible",
+    getAccountingTokenFloor() {
+      return fallbackAttempted ? tokenForgeAiFallbackAccountingTokens : 0;
+    },
     async generate(
       request: AiGatewayProviderRequest,
       context: AiGatewayProviderContext,
     ): Promise<unknown> {
-      const response = await fetchProvider(endpoint, {
-        method: "POST",
-        redirect: "error",
-        signal: context.signal,
-        headers: {
-          authorization: `Bearer ${options.apiKey}`,
-          "content-type": "application/json",
-        },
-        body: JSON.stringify({
-          model: options.model,
-          stream: false,
-          temperature: 0.2,
-          max_tokens: request.limits.max_output_tokens,
-          messages: [
-            {
-              role: "system",
-              content: tokenForgeOpenAiSystemPrompt,
-            },
-            {
-              role: "user",
-              content: JSON.stringify(request.input),
-            },
-          ],
-        }),
-      });
+      for (const [index, model] of models.entries()) {
+        const canFallback = index < models.length - 1;
+        let response: Response;
 
-      if (!response.ok) {
-        const retryAfter = parseRetryAfter(
-          response.headers.get("retry-after"),
-          now(),
-        );
-        if (response.status === 429) {
-          return providerFailure("rate_limited", retryAfter);
+        if (index > 0) {
+          fallbackAttempted = true;
         }
-        if (response.status === 402) {
-          return providerFailure("budget_exhausted");
-        }
-        if (response.status === 408 || response.status === 504) {
-          return providerFailure("timeout", retryAfter);
-        }
-        if (response.status >= 500) {
-          return providerFailure("unavailable", retryAfter);
-        }
-        return providerFailure("policy_blocked");
-      }
 
-      let parsed: unknown;
-      try {
-        const contentLength = Number(response.headers.get("content-length"));
-        if (
-          Number.isFinite(contentLength) &&
-          contentLength > tokenForgeAiGatewayPolicy.maxResponseBytes
-        ) {
+        try {
+          response = await fetchProvider(endpoint, {
+            method: "POST",
+            redirect: "error",
+            signal: context.signal,
+            headers: {
+              authorization: `Bearer ${options.apiKey}`,
+              "content-type": "application/json",
+            },
+            body: JSON.stringify({
+              model,
+              stream: false,
+              temperature: 0.2,
+              max_tokens: request.limits.max_output_tokens,
+              response_format: {
+                type: "json_object",
+              },
+              messages: [
+                {
+                  role: "system",
+                  content: tokenForgeOpenAiSystemPrompt,
+                },
+                {
+                  role: "user",
+                  content: JSON.stringify(request.input),
+                },
+              ],
+            }),
+          });
+        } catch (error) {
+          if (context.signal.aborted || !canFallback) {
+            throw error;
+          }
+          continue;
+        }
+
+        if (!response.ok) {
+          const retryAfter = parseRetryAfter(
+            response.headers.get("retry-after"),
+            now(),
+          );
+          const failure =
+            response.status === 429
+              ? providerFailure("rate_limited", retryAfter)
+              : response.status === 402
+                ? providerFailure("budget_exhausted")
+                : response.status === 408 || response.status === 504
+                  ? providerFailure("timeout", retryAfter)
+                  : response.status >= 500
+                    ? providerFailure("unavailable", retryAfter)
+                    : providerFailure("policy_blocked");
+          const retryable =
+            failure.error.code === "rate_limited" ||
+            failure.error.code === "timeout" ||
+            failure.error.code === "unavailable";
+
+          if (retryable && canFallback) {
+            continue;
+          }
+          return failure;
+        }
+
+        let parsed: unknown;
+        try {
+          const contentLength = Number(response.headers.get("content-length"));
+          if (
+            Number.isFinite(contentLength) &&
+            contentLength > tokenForgeAiGatewayPolicy.maxResponseBytes
+          ) {
+            if (canFallback) {
+              continue;
+            }
+            return undefined;
+          }
+          parsed = JSON.parse(
+            await boundedText(
+              response.body,
+              tokenForgeAiGatewayPolicy.maxResponseBytes,
+            ),
+          ) as unknown;
+        } catch {
+          if (canFallback) {
+            continue;
+          }
           return undefined;
         }
-        parsed = JSON.parse(
-          await boundedText(
-            response.body,
-            tokenForgeAiGatewayPolicy.maxResponseBytes,
-          ),
-        ) as unknown;
-      } catch {
-        return undefined;
+
+        if (
+          !isRecord(parsed) ||
+          !Array.isArray(parsed.choices) ||
+          !isRecord(parsed.choices[0]) ||
+          !isRecord(parsed.choices[0].message) ||
+          typeof parsed.choices[0].message.content !== "string"
+        ) {
+          if (canFallback) {
+            continue;
+          }
+          return undefined;
+        }
+
+        const usage = parseProviderUsage(parsed.usage);
+        const output = parseProviderContent(parsed.choices[0].message.content);
+        if (usage === undefined || output === undefined) {
+          if (canFallback) {
+            continue;
+          }
+          return undefined;
+        }
+
+        return {
+          ok: true,
+          output,
+          finish_reason:
+            parsed.choices[0].finish_reason === "stop" ? "stop" : "length",
+          usage,
+        };
       }
 
-      if (
-        !isRecord(parsed) ||
-        !Array.isArray(parsed.choices) ||
-        !isRecord(parsed.choices[0]) ||
-        !isRecord(parsed.choices[0].message) ||
-        typeof parsed.choices[0].message.content !== "string"
-      ) {
-        return undefined;
-      }
-
-      const usage = parseProviderUsage(parsed.usage);
-      if (usage === undefined) {
-        return undefined;
-      }
-
-      let output: unknown;
-      try {
-        output = JSON.parse(parsed.choices[0].message.content) as unknown;
-      } catch {
-        return undefined;
-      }
-
-      return {
-        ok: true,
-        output,
-        finish_reason:
-          parsed.choices[0].finish_reason === "stop" ? "stop" : "length",
-        usage,
-      };
+      return undefined;
     },
   };
 };
@@ -374,6 +437,7 @@ export interface TokenForgePolicyStore {
 type TokenForgeAiRuntimeEnvironment = {
   TOKEN_FORGE_AI_BASE_URL: string;
   TOKEN_FORGE_AI_MODEL: string;
+  TOKEN_FORGE_AI_FALLBACK_MODEL: string;
   TOKEN_FORGE_AI_API_KEY: string;
   TOKEN_FORGE_ACTOR_KEY_SECRET: string;
 };
@@ -443,6 +507,7 @@ const settle = async (
   requestId: string,
   nowMs: number,
   response: AiGatewayResponse<TokenForgeAiPlanJson>,
+  accountingTokenFloor: number,
 ): Promise<TokenForgeAiSettlementResult> =>
   store.mutate((snapshot) => {
     const ledger = new TokenForgeAiPolicyLedger(
@@ -456,7 +521,10 @@ const settle = async (
             now_ms: nowMs,
             outcome: {
               status: "success",
-              actual_tokens: response.usage.total_tokens,
+              actual_tokens: Math.max(
+                response.usage.total_tokens,
+                accountingTokenFloor,
+              ),
               actual_cost_microusd: 0,
             },
           }
@@ -557,7 +625,7 @@ export const handleTokenForgeAiRequest = async (
   }
 
   let actorKey: string;
-  let provider: AiGatewayProviderAdapter;
+  let provider: ReturnType<typeof createOpenAiCompatibleProvider>;
   try {
     actorKey = await deriveActorKey(
       ipAddress,
@@ -565,7 +633,8 @@ export const handleTokenForgeAiRequest = async (
     );
     provider = createOpenAiCompatibleProvider({
       baseUrl: environment.TOKEN_FORGE_AI_BASE_URL,
-      model: environment.TOKEN_FORGE_AI_MODEL,
+      primaryModel: environment.TOKEN_FORGE_AI_MODEL,
+      fallbackModel: environment.TOKEN_FORGE_AI_FALLBACK_MODEL,
       apiKey: environment.TOKEN_FORGE_AI_API_KEY,
       fetch: options.fetch,
       now: options.now,
@@ -603,6 +672,7 @@ export const handleTokenForgeAiRequest = async (
       parsed.requestId,
       now(),
       response,
+      provider.getAccountingTokenFloor(),
     );
     if (settlement.status !== "settled") {
       return gatewayResponse(
