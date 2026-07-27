@@ -5,9 +5,9 @@
   "max_request_billable_tokens": 56000,
   "max_request_cost_microusd": 100000,
   "daily_budgets": {
-    "actor_tokens": 9600000,
-    "lab_tokens": 120000000,
-    "site_tokens": 240000000,
+    "actor_tokens": 224000,
+    "lab_tokens": 2240000,
+    "site_tokens": 5600000,
     "actor_cost_microusd": 250000,
     "lab_cost_microusd": 5000000,
     "site_cost_microusd": 10000000,
