@@ -76,7 +76,7 @@ Adapter 的初始化和密钥注入属于服务端运行时；公共接口没有
 | 输入 Token            | 24,000 |
 | 服务端指令预留        |  2,000 |
 | 输出 Token            |  4,000 |
-| 单次 Provider 超时    |  15 秒 |
+| 单次 Provider 窗口    |  45 秒 |
 | 总尝试次数            |      2 |
 | JSON 深度             |      8 |
 | JSON 节点             |  1,000 |
@@ -118,9 +118,10 @@ P4-004 为 `token-forge.plan-v1` 增加 Provider-neutral 的准入状态机。�
 固定数值、快照隐私和 P1-008 接入要求见
 [Token Forge AI 流量与成本策略](./token-forge-ai-traffic-policy.md)。
 
-P1-008 在不放宽通用硬上限的前提下，把 Token Forge 收紧为 22,000 输入、2,000 输出、
-15 秒和 1 次尝试，并用 SQLite Durable Object 原子保存准入与结算快照。自建上游网关负责
-真实货币预算，因此 Labs 的金额字段只作最小合同占位。
+P1-008 把 Token Forge 收紧为每模型 22,000 输入、2,000 输出、共享 45 秒和 1 次 Gateway
+尝试，并用 SQLite Durable Object 原子保存准入与结算快照。其服务端 Adapter 固定
+`qwen-latest` 主模型和 `minimax-latest` 顺序回退模型；回退不改变公共合同，也不能由
+浏览器触发或选择。自建上游网关负责真实货币预算，因此 Labs 的金额字段只作最小合同占位。
 
 ## Fixture 与验证
 
