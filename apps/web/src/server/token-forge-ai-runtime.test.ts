@@ -1,5 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 
+import type { TokenForgeAiPolicySnapshot } from "@margrop-labs/ai-gateway/token-forge-policy";
+
 import type { TokenForgePlan } from "../lib/token-forge-contracts";
 import {
   prepareTokenForgeAiInput,
@@ -9,6 +11,7 @@ import {
   createMemoryTokenForgePolicyStore,
   createOpenAiCompatibleProvider,
   handleTokenForgeAiRequest,
+  type TokenForgePolicyStore,
   tokenForgeAiEndpointPath,
   tokenForgeAiGatewayPolicy,
   tokenForgeAiPreviewTrafficPolicy,
@@ -159,6 +162,7 @@ describe("OpenAI-compatible Token Forge Provider", () => {
         total_tokens: 1_400,
       },
     });
+    expect(provider.getAccountingTokenFloor()).toBe(24_000);
 
     const [url, init] = fetchProvider.mock.calls[0] as [string, RequestInit];
     expect(url).toBe(
@@ -465,8 +469,16 @@ describe("Token Forge AI production runtime", () => {
 
   it("admits, validates, settles, and returns a no-store Gateway response", async () => {
     const fetchProvider = vi.fn().mockResolvedValue(openAiSuccess());
+    let snapshot: TokenForgeAiPolicySnapshot | undefined;
+    const store: TokenForgePolicyStore = {
+      async mutate(mutation) {
+        const next = mutation(snapshot);
+        snapshot = next.snapshot;
+        return next.result;
+      },
+    };
     const response = await handleTokenForgeAiRequest(runtimeRequest(), {
-      store: createMemoryTokenForgePolicyStore(),
+      store,
       environment,
       fetch: fetchProvider,
       now: () => Date.UTC(2026, 6, 26, 12),
@@ -488,6 +500,13 @@ describe("Token Forge AI production runtime", () => {
         attempt_count: 1,
       },
     });
+    const settledSnapshot = snapshot as TokenForgeAiPolicySnapshot | undefined;
+    expect(settledSnapshot?.days["2026-07-26"]?.site.tokens).toBe(24_000);
+    expect(settledSnapshot?.days["2026-07-26"]?.lab.tokens).toBe(24_000);
+    expect(
+      Object.values(settledSnapshot?.days["2026-07-26"]?.actors ?? {})[0]
+        ?.tokens,
+    ).toBe(24_000);
     expect(fetchProvider).toHaveBeenCalledTimes(1);
   });
 
