@@ -841,9 +841,188 @@ a {
   box-shadow: var(--shadow);
 }
 
+.token-forge-onboarding {
+  display: grid;
+  gap: 1.25rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.token-forge-onboarding-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1.5rem;
+}
+
+.token-forge-onboarding-heading h2,
+.token-forge-onboarding-heading p,
+.token-forge-journey p,
+.token-forge-sample h3,
+.token-forge-sample p,
+.token-forge-sample dl,
+.token-forge-onboarding-note,
+.token-forge-empty h2,
+.token-forge-empty p,
+.token-forge-section-heading h3 {
+  margin: 0;
+}
+
+.token-forge-onboarding-heading h2 {
+  font-size: clamp(1.65rem, 4vw, 2.4rem);
+  letter-spacing: -0.03em;
+}
+
+.token-forge-onboarding-heading > p {
+  max-width: 430px;
+  color: var(--muted);
+  font-size: 0.82rem;
+  line-height: 1.6;
+}
+
+.token-forge-journey {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.8rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.token-forge-journey li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.75rem;
+  min-width: 0;
+  padding: 0.9rem;
+  border: 1px solid var(--line);
+  border-radius: 0.8rem;
+  background: rgba(8, 17, 31, 0.46);
+}
+
+.token-forge-journey li > span {
+  display: grid;
+  width: 2rem;
+  height: 2rem;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  color: var(--muted);
+  font-family: ui-monospace, monospace;
+  font-weight: 800;
+}
+
+.token-forge-journey li[data-state="current"] {
+  border-color: rgba(80, 227, 208, 0.48);
+}
+
+.token-forge-journey li[data-state="current"] > span,
+.token-forge-journey li[data-state="completed"] > span {
+  border-color: var(--cyan);
+  background: var(--cyan);
+  color: var(--bg);
+}
+
+.token-forge-journey strong {
+  color: var(--text);
+  font-size: 0.82rem;
+}
+
+.token-forge-journey p {
+  margin-top: 0.35rem;
+  color: var(--muted);
+  font-size: 0.72rem;
+  line-height: 1.55;
+}
+
+.token-forge-sample-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.token-forge-sample {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.85rem;
+  padding: 1.1rem;
+  border: 1px solid var(--line);
+  border-radius: 1rem;
+  background:
+    linear-gradient(135deg, rgba(80, 227, 208, 0.045), transparent 48%),
+    rgba(8, 17, 31, 0.58);
+}
+
+.token-forge-sample-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.token-forge-sample-meta span,
+.token-forge-sample-meta strong {
+  font-family: ui-monospace, monospace;
+  font-size: 0.7rem;
+}
+
+.token-forge-sample-meta span {
+  color: var(--cyan);
+}
+
+.token-forge-sample-meta strong {
+  padding: 0.3rem 0.48rem;
+  border-radius: 999px;
+  background: rgba(80, 227, 208, 0.14);
+  color: var(--text);
+}
+
+.token-forge-sample h3 {
+  font-size: 1.02rem;
+  line-height: 1.35;
+}
+
+.token-forge-sample > p,
+.token-forge-onboarding-note {
+  color: var(--muted);
+  font-size: 0.76rem;
+  line-height: 1.6;
+}
+
+.token-forge-sample dl {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.token-forge-sample dl div {
+  display: grid;
+  grid-template-columns: 3rem minmax(0, 1fr);
+  gap: 0.6rem;
+  font-size: 0.72rem;
+  line-height: 1.45;
+}
+
+.token-forge-sample dt {
+  color: var(--muted);
+}
+
+.token-forge-sample dd {
+  min-width: 0;
+  margin: 0;
+  color: var(--text);
+}
+
+.token-forge-sample .button {
+  width: 100%;
+  margin-top: auto;
+}
+
 .token-forge-form {
   display: grid;
   gap: 1.5rem;
+  padding-top: 2rem;
 }
 
 .token-forge-form-heading,
@@ -933,6 +1112,81 @@ a {
   margin-top: 2rem;
   padding-top: 2rem;
   border-top: 1px solid var(--line);
+}
+
+.token-forge-result-nav {
+  position: sticky;
+  z-index: 3;
+  top: 0.75rem;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.5rem;
+  padding: 0.55rem;
+  border: 1px solid rgba(80, 227, 208, 0.3);
+  border-radius: 0.85rem;
+  background: rgba(8, 17, 31, 0.94);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 12px 32px rgba(2, 8, 18, 0.3);
+}
+
+.token-forge-result-nav a {
+  display: grid;
+  min-width: 0;
+  min-height: 44px;
+  place-items: center;
+  padding: 0.55rem;
+  border-radius: 0.55rem;
+  color: var(--text);
+  font-size: 0.76rem;
+  font-weight: 750;
+  text-align: center;
+  text-decoration: none;
+}
+
+.token-forge-result-nav a:hover {
+  background: rgba(80, 227, 208, 0.12);
+  color: var(--cyan);
+}
+
+.token-forge-result-section {
+  display: grid;
+  gap: 1rem;
+  scroll-margin-top: 6.5rem;
+}
+
+.token-forge-section-heading h3 {
+  font-size: clamp(1.25rem, 3vw, 1.65rem);
+}
+
+.token-forge-empty {
+  display: grid;
+  gap: 0.85rem;
+  margin-top: 2rem;
+  padding: clamp(1rem, 3vw, 1.5rem);
+  border: 1px dashed var(--line);
+  border-radius: 1rem;
+  background: rgba(8, 17, 31, 0.48);
+}
+
+.token-forge-empty--error {
+  border-color: rgba(255, 125, 125, 0.5);
+}
+
+.token-forge-empty h2 {
+  font-size: clamp(1.35rem, 3vw, 1.8rem);
+}
+
+.token-forge-empty > p:not(.section-kicker) {
+  max-width: 720px;
+  color: var(--muted);
+  font-size: 0.82rem;
+  line-height: 1.65;
+}
+
+.token-forge-empty-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
 }
 
 .token-forge-tasks {
@@ -2619,6 +2873,7 @@ a {
   .lab-grid,
   .evidence-grid,
   .contract-grid,
+  .token-forge-sample-grid,
   .token-forge-tasks,
   .token-forge-export-grid,
   .incident-objectives,
@@ -2689,6 +2944,7 @@ a {
 
   .evidence-heading,
   .export-panel,
+  .token-forge-onboarding-heading,
   .token-forge-form-heading,
   .token-forge-result-heading,
   .token-forge-editor-heading,
@@ -2698,6 +2954,7 @@ a {
   }
 
   .token-forge-field-grid,
+  .token-forge-journey,
   .token-forge-task-columns,
   .token-forge-coverage,
   .token-forge-task-quality li,
@@ -2706,12 +2963,18 @@ a {
     grid-template-columns: 1fr;
   }
 
+  .token-forge-result-nav {
+    position: static;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .token-forge-editor-field-wide,
   .token-forge-editor-toolbar-actions {
     grid-column: auto;
   }
 
   .token-forge-actions .button,
+  .token-forge-empty-actions .button,
   .token-forge-next-links .button,
   .token-forge-editor-toolbar-actions .button,
   .incident-form-actions .button,
@@ -2842,6 +3105,11 @@ a {
   .status-notice,
   .evidence-card,
   .preview-controls fieldset,
+  .token-forge-onboarding,
+  .token-forge-journey li,
+  .token-forge-sample,
+  .token-forge-result-nav,
+  .token-forge-empty,
   .token-forge-form input,
   .token-forge-form textarea,
   .token-forge-editor,
