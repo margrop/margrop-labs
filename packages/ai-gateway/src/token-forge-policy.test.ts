@@ -106,6 +106,14 @@ describe("Token Forge AI traffic policy v1", () => {
       TokenForgeAiPolicyContractError,
     );
 
+    const loosenedTokenBudget = JSON.parse(
+      JSON.stringify(fixture),
+    ) as TokenForgeAiTrafficPolicy;
+    loosenedTokenBudget.daily_budgets.actor_tokens = 9_600_001;
+    expect(() =>
+      validateTokenForgeAiTrafficPolicy(loosenedTokenBudget),
+    ).toThrow(TokenForgeAiPolicyContractError);
+
     expect(() =>
       validateTokenForgeAiTrafficPolicy({
         ...(fixture as TokenForgeAiTrafficPolicy),
