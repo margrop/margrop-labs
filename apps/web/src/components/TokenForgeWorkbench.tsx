@@ -164,13 +164,13 @@ export default function TokenForgeWorkbench({
           tone: "warning",
           title: "AI 已安全降级，模板计划可用",
           message:
-            "模型、限流、超时或输出校验没有完成增强；本地模板与两种导出仍已通过验证。",
+            "模型、限流、超时或输出校验没有完成增强；本地模板与三种导出仍已通过验证。",
         });
       } else if (nextResult.repository.status === "fallback") {
         setStatus({
           tone: "warning",
           title: "仓库摘要已降级，模板计划可用",
-          message: `${nextResult.repository.message} 本地计划与两种导出仍已通过验证。`,
+          message: `${nextResult.repository.message} 本地计划与三种导出仍已通过验证。`,
         });
       } else if (nextResult.repository.status === "summarized") {
         setStatus({
@@ -763,6 +763,16 @@ export default function TokenForgeWorkbench({
                 content={result.exports.github_issues.content}
                 fileName={result.exports.github_issues.file_name}
                 label="Issue 草稿"
+                onExport={() => track("export")}
+              />
+            </section>
+            <section>
+              <h3>Coding Agent 执行包</h3>
+              <p>按依赖分阶段执行、验收和交接，不绑定具体模型或工具。</p>
+              <ExportActions
+                content={result.agent_package.artifact.content}
+                fileName={result.agent_package.artifact.file_name}
+                label="Agent 执行包"
                 onExport={() => track("export")}
               />
             </section>
