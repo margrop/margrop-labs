@@ -99,6 +99,7 @@ describe("Cloudflare TCP fetch", () => {
       "authorization: Bearer synthetic-provider-key\r\n",
     );
     expect(synthetic.requestText()).toContain("connection: close\r\n");
+    expect(synthetic.requestText()).toContain("accept-encoding: identity\r\n");
     expect(synthetic.requestText()).toContain(
       "user-agent: margrop-labs-token-forge/1\r\n",
     );
