@@ -13,8 +13,8 @@
 5. 导出 Markdown 或 GitHub Issue 文本。
 
 当前 [`/token-forge/`](https://lab.margrop.net/token-forge/) Alpha 页面代码已开放完整的
-本地模板、受限公开仓库摘要、显式 AI 增强和两种导出。仓库或 AI 失败不阻断模板与导出；
-真实 AI 流量等待 Secrets、Preview 与人工 Production 验收。
+本地模板、受限公开仓库摘要、显式 AI 增强、确定性质量评分和两种导出。仓库或 AI 失败
+不阻断模板与导出；真实 AI 流量已通过 Preview 与 Production smoke 验收。
 
 Token Forge 现为仓库唯一产品开发主线。公开仓库接入、生产 AI 成本边界、计划质量、
 本地编辑、Coding Agent 执行包、可靠性基准和上线验证将按
@@ -63,11 +63,22 @@ Token Forge 与全站三层日 Token/微美元预算、60 秒滑动限流、并�
 24,000 Token 结算，一旦调用回退模型、失败或预留超时则保守保留 48,000 Token。
 Provider 报告的 usage 仅供页面观察，不参与本地额度结算。快照不含目标、Prompt、仓库
 URL、路径或正文。SQLite Durable Object 提供原子持久化，真实货币预算由自建上游网关
-负责。Preview 真实调用已经验收；Production 仍需人工激活。
+负责。Preview 与 Production 真实调用已经验收。
 
 Preview 为真实 Provider 验收把三层每日 Token 与成本占位预算扩大到 Production 的 100
 倍，但每日请求数、分钟限流、并发、单请求预留与熔断保持生产值。Production 的预算倍率
 仍固定为 1，Preview 配置不会随自动部署进入正式环境。
+
+## 确定性任务质量
+
+[P1-009 质量层](../../docs/token-forge-quality.md) 在计划通过 v1 合同后，使用六项固定规则
+检查标题产物、范围边界、验收深度、可验证性、Prompt 可执行性和预算集中度。80 分以下的
+任务，以及同时独占超过 70% Token 与工时的任务，明确标为需人工修改，不会被隐藏或自动
+丢弃。
+
+排序只在依赖已经满足的任务之间按质量分进行，同分保留原顺序。每项任务都显示规则编号、
+得分解释和排序原因；页面与两种导出共用同一份依赖安全顺序。仓库摘要只决定证据提示，
+不参与打分，也不会触发新的网络或模型调用。
 
 ## Markdown / GitHub Issue 导出
 
