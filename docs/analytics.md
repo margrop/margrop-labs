@@ -33,5 +33,16 @@ P1-006 使用独立的
 `github_click`。P1-012 的样例选择不增加独立事件；一键模板成功或失败仍只映射为
 `run_success` / `run_failure`，复制和下载共用 `export`。
 
-P4-003 完成前默认接收器为空：不发送、不存储、不记录。未来接入必须在同一 Schema 和允许
-字段映射之后进行，接收器异常不得影响 Lab 主流程。
+P4-003 通过同源 `POST /api/token-forge/events` 接入最小接收器。浏览器使用
+`credentials: "omit"`、`referrerPolicy: "no-referrer"` 且不重试；同步或异步异常都不
+影响 Lab 主流程。
+
+Worker 重新执行同一 Schema 和允许字段映射，然后在独立 SQLite Durable Object 事务内
+立即折叠为“UTC 日期 × 事件枚举 × 粗粒度设备类别”的计数。只保留 31 天，不保存原始
+事件、单次时间戳、访客/会话 ID、来源、User-Agent 或网络标识，也不提供公共读取端点。
+持久化结构见
+[`token-forge-analytics-snapshot-v1.schema.json`](../schemas/token-forge-analytics-snapshot-v1.schema.json)，
+架构取舍见 [ADR-0007](./adr/0007-token-forge-aggregate-analytics.md)。
+
+这些数字表示事件次数而非唯一用户；刷新、重复操作与自动化可能放大计数。后续 P4-008
+只能把它作为方向性漏斗，不能用于计费、安全审计或个人行为分析。

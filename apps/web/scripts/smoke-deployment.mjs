@@ -107,4 +107,21 @@ if (apiError !== undefined) {
   throw apiError;
 }
 
+const analyticsUrl = new URL("/api/token-forge/events", baseUrl);
+const analyticsResponse = await fetch(analyticsUrl, {
+  method: "POST",
+  cache: "no-store",
+  redirect: "error",
+  headers: {
+    "cache-control": "no-cache",
+    "content-type": "application/json",
+    origin: baseUrl.origin,
+    "user-agent": "margrop-labs-deployment-smoke/1.0",
+  },
+  body: "{}",
+});
+assert.equal(analyticsResponse.status, 400);
+assert.equal(analyticsResponse.headers.get("cache-control"), "no-store");
+assert.equal(await analyticsResponse.text(), "");
+
 console.log(`Deployment smoke check passed: ${baseUrl.origin}`);

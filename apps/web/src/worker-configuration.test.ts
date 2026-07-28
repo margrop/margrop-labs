@@ -3,12 +3,20 @@ import { readFile } from "node:fs/promises";
 import { describe, expect, it } from "vitest";
 
 type WranglerConfiguration = {
+  durable_objects: {
+    bindings: Array<{ name: string; class_name: string }>;
+  };
+  exports: Record<string, { type: string; storage: string }>;
   vars: {
     TOKEN_FORGE_AI_BUDGET_MULTIPLIER: string;
     TOKEN_FORGE_AI_TRANSPORT: string;
   };
   env: {
     preview: {
+      durable_objects: {
+        bindings: Array<{ name: string; class_name: string }>;
+      };
+      exports: Record<string, { type: string; storage: string }>;
       vars: {
         TOKEN_FORGE_AI_BUDGET_MULTIPLIER: string;
         TOKEN_FORGE_AI_TRANSPORT: string;
@@ -45,5 +53,31 @@ describe("Cloudflare Worker environment configuration", () => {
     expect(
       configuration.env.preview.vars.TOKEN_FORGE_AI_BUDGET_MULTIPLIER,
     ).toBe("100");
+  });
+
+  it("isolates aggregate analytics in a dedicated SQLite Durable Object", async () => {
+    const configuration = await readWranglerConfiguration();
+    const expectedBinding = {
+      name: "TOKEN_FORGE_ANALYTICS",
+      class_name: "TokenForgeAnalyticsObject",
+    };
+    const expectedExport = {
+      type: "durable-object",
+      storage: "sqlite",
+    };
+
+    expect(configuration.durable_objects.bindings).toContainEqual(
+      expectedBinding,
+    );
+    expect(configuration.env.preview.durable_objects.bindings).toContainEqual(
+      expectedBinding,
+    );
+    expect(configuration.exports.TokenForgeAnalyticsObject).toEqual(
+      expectedExport,
+    );
+    expect(configuration.env.preview.exports.TokenForgeAnalyticsObject).toEqual(
+      expectedExport,
+    );
+    expect(expectedBinding.name).not.toBe("TOKEN_FORGE_AI_POLICY");
   });
 });

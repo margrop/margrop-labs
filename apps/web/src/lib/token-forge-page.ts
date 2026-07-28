@@ -1,12 +1,9 @@
-import Ajv2020, { type ValidateFunction } from "ajv/dist/2020.js";
-import type { AnySchema } from "ajv";
 import {
   type AllowedFieldMap,
   SanitizationError,
   sanitizeAllowedFields,
 } from "@margrop-labs/redaction";
 
-import eventSchema from "../../../../schemas/token-forge-event-v1.schema.json";
 import {
   type TokenForgeInput,
   validateTokenForgeInput,
@@ -233,119 +230,19 @@ export const buildTokenForgeInputFromForm = (
   }
 };
 
-export const tokenForgeEventNames = [
-  "lab_open",
-  "run_success",
-  "run_failure",
-  "export",
-  "blog_click",
-  "github_click",
-] as const;
-
-export type TokenForgeEventName = (typeof tokenForgeEventNames)[number];
-export type TokenForgeDeviceCategory =
-  "mobile" | "tablet" | "desktop" | "unknown";
-
-export type TokenForgeEvent = {
-  schema_version: "1.0";
-  event_name: TokenForgeEventName;
-  lab_id: "token-forge";
-  lab_version: "1.0";
-  device_category: TokenForgeDeviceCategory;
-};
-
-export class TokenForgeEventError extends Error {
-  override name = "TokenForgeEventError";
-
-  constructor() {
-    super("Token Forge event did not match the minimal analytics contract.");
-  }
-}
-
-const eventPolicy = {
-  schema_version: {
-    required: true,
-    rule: { type: "enum", values: ["1.0"] },
-  },
-  event_name: {
-    required: true,
-    rule: { type: "enum", values: tokenForgeEventNames },
-  },
-  lab_id: {
-    required: true,
-    rule: { type: "enum", values: ["token-forge"] },
-  },
-  lab_version: {
-    required: true,
-    rule: { type: "enum", values: ["1.0"] },
-  },
-  device_category: {
-    required: true,
-    rule: {
-      type: "enum",
-      values: ["mobile", "tablet", "desktop", "unknown"],
-    },
-  },
-} as const satisfies AllowedFieldMap;
-
-const eventAjv = new Ajv2020({
-  allErrors: true,
-  strict: true,
-});
-const validateEventSchema: ValidateFunction<TokenForgeEvent> = eventAjv.compile(
-  eventSchema as AnySchema,
-);
-
-export const validateTokenForgeEvent = (
-  candidate: unknown,
-): TokenForgeEvent => {
-  let sanitized: unknown;
-  try {
-    sanitized = sanitizeAllowedFields(candidate, eventPolicy).value;
-  } catch {
-    throw new TokenForgeEventError();
-  }
-
-  if (!validateEventSchema(sanitized)) {
-    throw new TokenForgeEventError();
-  }
-  return sanitized as TokenForgeEvent;
-};
-
-export const classifyTokenForgeDevice = (
-  width: unknown,
-): TokenForgeDeviceCategory => {
-  if (typeof width !== "number" || !Number.isFinite(width) || width < 0) {
-    return "unknown";
-  }
-  if (width < 768) {
-    return "mobile";
-  }
-  if (width < 1_024) {
-    return "tablet";
-  }
-  return "desktop";
-};
-
-export type TokenForgeEventSink = (event: TokenForgeEvent) => void;
-
-export const emitTokenForgeEvent = (
-  eventName: TokenForgeEventName,
-  deviceCategory: TokenForgeDeviceCategory,
-  sink: TokenForgeEventSink = () => undefined,
-): TokenForgeEvent => {
-  const event = validateTokenForgeEvent({
-    schema_version: "1.0",
-    event_name: eventName,
-    lab_id: "token-forge",
-    lab_version: "1.0",
-    device_category: deviceCategory,
-  });
-
-  try {
-    sink(event);
-  } catch {
-    // Analytics must never interrupt the local Lab flow.
-  }
-  return event;
-};
+export {
+  TokenForgeEventError,
+  classifyTokenForgeDevice,
+  emitTokenForgeEvent,
+  sendTokenForgeEvent,
+  tokenForgeAnalyticsEndpointPath,
+  tokenForgeEventNames,
+  validateTokenForgeEvent,
+} from "./token-forge-analytics";
+export type {
+  TokenForgeDeviceCategory,
+  TokenForgeEvent,
+  TokenForgeEventFetch,
+  TokenForgeEventName,
+  TokenForgeEventSink,
+} from "./token-forge-analytics";

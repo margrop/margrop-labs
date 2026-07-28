@@ -9,6 +9,13 @@ import type { TokenForgeAiPolicySnapshot } from "@margrop-labs/ai-gateway/token-
 import { connect } from "cloudflare:sockets";
 
 import { createCloudflareTcpFetch } from "./server/cloudflare-tcp-fetch";
+import {
+  type TokenForgeAnalyticsMutation,
+  type TokenForgeAnalyticsSnapshot,
+  type TokenForgeAnalyticsStore,
+  handleTokenForgeAnalyticsRequest,
+  tokenForgeAnalyticsEndpointPath,
+} from "./server/token-forge-analytics";
 
 type DurableObjectTransaction = {
   get<T>(key: string): Promise<T | undefined>;
@@ -41,6 +48,7 @@ type AssetBinding = {
 type WorkerEnvironment = {
   ASSETS: AssetBinding;
   TOKEN_FORGE_AI_POLICY: DurableObjectNamespace;
+  TOKEN_FORGE_ANALYTICS: DurableObjectNamespace;
   TOKEN_FORGE_AI_BASE_URL: string;
   TOKEN_FORGE_AI_MODEL: string;
   TOKEN_FORGE_AI_FALLBACK_MODEL: string;
@@ -52,6 +60,8 @@ type WorkerEnvironment = {
 
 const policySnapshotKey = "token-forge-ai-policy-v1";
 const policyObjectName = "token-forge-plan-v1";
+const analyticsSnapshotKey = "token-forge-analytics-snapshot-v1";
+const analyticsObjectName = "token-forge-analytics-v1";
 
 class DurableObjectPolicyStore implements TokenForgePolicyStore {
   constructor(private readonly storage: DurableObjectStorage) {}
@@ -100,12 +110,51 @@ export class TokenForgeAiPolicyObject {
   }
 }
 
+class DurableObjectAnalyticsStore implements TokenForgeAnalyticsStore {
+  constructor(private readonly storage: DurableObjectStorage) {}
+
+  mutate<T>(
+    mutation: (
+      snapshot: TokenForgeAnalyticsSnapshot | undefined,
+    ) => TokenForgeAnalyticsMutation<T>,
+  ): Promise<T> {
+    return this.storage.transaction(async (transaction) => {
+      const snapshot =
+        await transaction.get<TokenForgeAnalyticsSnapshot>(
+          analyticsSnapshotKey,
+        );
+      const next = mutation(snapshot);
+      await transaction.put(analyticsSnapshotKey, next.snapshot);
+      return next.result;
+    });
+  }
+}
+
+export class TokenForgeAnalyticsObject {
+  private readonly store: TokenForgeAnalyticsStore;
+
+  constructor(state: DurableObjectState) {
+    this.store = new DurableObjectAnalyticsStore(state.storage);
+  }
+
+  fetch(request: Request): Promise<Response> {
+    return handleTokenForgeAnalyticsRequest(request, {
+      store: this.store,
+    });
+  }
+}
+
 export default {
   fetch(request: Request, environment: WorkerEnvironment): Promise<Response> {
     const url = new URL(request.url);
     if (url.pathname === tokenForgeAiEndpointPath) {
       const id = environment.TOKEN_FORGE_AI_POLICY.idFromName(policyObjectName);
       return environment.TOKEN_FORGE_AI_POLICY.get(id).fetch(request);
+    }
+    if (url.pathname === tokenForgeAnalyticsEndpointPath) {
+      const id =
+        environment.TOKEN_FORGE_ANALYTICS.idFromName(analyticsObjectName);
+      return environment.TOKEN_FORGE_ANALYTICS.get(id).fetch(request);
     }
     if (url.pathname.startsWith("/api/")) {
       return Promise.resolve(

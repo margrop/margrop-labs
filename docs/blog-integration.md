@@ -28,4 +28,6 @@ Token Forge 已在 `/token-forge/` 建立正式文章闭环：页面顶部数据
 
 仅记录 `lab_open`、`sample_load`、`run_success`、`run_failure`、`export`、`blog_click`、`github_click`。事件属性只允许 Lab ID、版本和设备类别。
 
-Token Forge v1 是更窄的子集，不记录 `sample_load`；在 P4-003 前事件接收器保持关闭。
+Token Forge v1 是更窄的子集，不记录 `sample_load`；P4-003 接收器只保存 31 天的按日
+事件与粗设备类别计数，不保存原始事件、用户标识或正文。其他 Lab 当前仍无 Analytics
+接收器。
