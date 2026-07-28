@@ -1,0 +1,139 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lab.margrop.net/schemas/token-forge-benchmark-report-v1.schema.json",
+  "title": "Token Forge Benchmark Report v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "corpus_contract",
+    "metrics",
+    "failure_cases_by_layer",
+    "browser_critical_paths",
+    "verification_command"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "corpus_contract": {
+      "const": "token-forge-benchmark-v1"
+    },
+    "metrics": {
+      "$ref": "#/$defs/metrics"
+    },
+    "failure_cases_by_layer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ai", "network", "schema", "export"],
+      "properties": {
+        "ai": {
+          "type": "integer",
+          "minimum": 15
+        },
+        "network": {
+          "type": "integer",
+          "minimum": 9
+        },
+        "schema": {
+          "type": "integer",
+          "minimum": 7
+        },
+        "export": {
+          "type": "integer",
+          "minimum": 4
+        }
+      }
+    },
+    "browser_critical_paths": {
+      "type": "array",
+      "minItems": 4,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "local-sample-export",
+          "repository-rate-limit-fallback",
+          "ai-rate-limit-fallback",
+          "mobile-keyboard-reduced-motion"
+        ]
+      }
+    },
+    "verification_command": {
+      "const": "npm run validate"
+    }
+  },
+  "$defs": {
+    "count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "metrics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "planning_scenarios",
+        "repository_snapshots",
+        "technology_profiles",
+        "contract_passed",
+        "dag_passed",
+        "budget_passed",
+        "plans_without_unverifiable_tasks",
+        "plans_flagged_for_review",
+        "fallback_scenarios",
+        "fallback_scenarios_passed",
+        "failure_cases",
+        "failure_cases_passed",
+        "privacy_sinks"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": "1.0"
+        },
+        "planning_scenarios": {
+          "type": "integer",
+          "minimum": 30
+        },
+        "repository_snapshots": {
+          "type": "integer",
+          "minimum": 8
+        },
+        "technology_profiles": {
+          "type": "integer",
+          "minimum": 15
+        },
+        "contract_passed": {
+          "$ref": "#/$defs/count"
+        },
+        "dag_passed": {
+          "$ref": "#/$defs/count"
+        },
+        "budget_passed": {
+          "$ref": "#/$defs/count"
+        },
+        "plans_without_unverifiable_tasks": {
+          "$ref": "#/$defs/count"
+        },
+        "plans_flagged_for_review": {
+          "$ref": "#/$defs/count"
+        },
+        "fallback_scenarios": {
+          "$ref": "#/$defs/count"
+        },
+        "fallback_scenarios_passed": {
+          "$ref": "#/$defs/count"
+        },
+        "failure_cases": {
+          "type": "integer",
+          "minimum": 35
+        },
+        "failure_cases_passed": {
+          "$ref": "#/$defs/count"
+        },
+        "privacy_sinks": {
+          "const": 5
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,218 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lab.margrop.net/schemas/token-forge-benchmark-v1.schema.json",
+  "title": "Token Forge Benchmark Corpus v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "profiles",
+    "repository_snapshots",
+    "planning_scenarios",
+    "failure_matrix",
+    "privacy_sinks"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "profiles": {
+      "type": "array",
+      "minItems": 15,
+      "maxItems": 30,
+      "items": {
+        "$ref": "#/$defs/profile"
+      }
+    },
+    "repository_snapshots": {
+      "type": "array",
+      "minItems": 8,
+      "maxItems": 16,
+      "items": {
+        "$ref": "#/$defs/repositorySnapshot"
+      }
+    },
+    "planning_scenarios": {
+      "type": "array",
+      "minItems": 30,
+      "maxItems": 60,
+      "items": {
+        "$ref": "#/$defs/planningScenario"
+      }
+    },
+    "failure_matrix": {
+      "type": "array",
+      "minItems": 35,
+      "maxItems": 60,
+      "items": {
+        "$ref": "#/$defs/failureCase"
+      }
+    },
+    "privacy_sinks": {
+      "type": "array",
+      "minItems": 5,
+      "maxItems": 5,
+      "items": {
+        "enum": ["url", "log", "analytics", "ai-request", "export"]
+      }
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "minLength": 3,
+      "maxLength": 80
+    },
+    "profile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "token_budget",
+        "expires_in_days",
+        "available_hours",
+        "tech_stack",
+        "goal"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "token_budget": {
+          "type": "integer",
+          "minimum": 2000,
+          "maximum": 60000
+        },
+        "expires_in_days": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 90
+        },
+        "available_hours": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 80
+        },
+        "tech_stack": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 8,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 40
+          }
+        },
+        "goal": {
+          "type": "string",
+          "minLength": 10,
+          "maxLength": 500
+        }
+      }
+    },
+    "repositoryFile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "untrusted_text"],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120
+        },
+        "untrusted_text": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        }
+      }
+    },
+    "repositorySnapshot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "technology", "tech_signals", "files"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "technology": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 80
+        },
+        "tech_signals": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 8,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 40
+          }
+        },
+        "files": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 8,
+          "items": {
+            "$ref": "#/$defs/repositoryFile"
+          }
+        }
+      }
+    },
+    "planningScenario": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "profile_id", "pipeline"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "profile_id": {
+          "$ref": "#/$defs/id"
+        },
+        "pipeline": {
+          "enum": [
+            "template",
+            "repository",
+            "network-fallback",
+            "ai-fallback",
+            "ai-success"
+          ]
+        },
+        "snapshot_id": {
+          "$ref": "#/$defs/id"
+        },
+        "fault_code": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 80
+        }
+      }
+    },
+    "failureCase": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "layer", "code", "expected"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "layer": {
+          "enum": ["ai", "network", "schema", "export"]
+        },
+        "code": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 80
+        },
+        "expected": {
+          "enum": ["template-fallback", "rejected"]
+        }
+      }
+    }
+  }
+}

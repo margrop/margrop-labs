@@ -112,6 +112,14 @@ const fixtureContracts = [
     "schemas/token-forge-export-v1.schema.json",
   ],
   [
+    "labs/token-forge/benchmarks/corpus.json",
+    "schemas/token-forge-benchmark-v1.schema.json",
+  ],
+  [
+    "labs/token-forge/benchmarks/report.json",
+    "schemas/token-forge-benchmark-report-v1.schema.json",
+  ],
+  [
     "labs/incident-detective/fixtures/attempt.valid.json",
     "schemas/incident-detective-attempt-v1.schema.json",
   ],

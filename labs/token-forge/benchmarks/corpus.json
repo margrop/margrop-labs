@@ -1,0 +1,664 @@
+{
+  "schema_version": "1.0",
+  "profiles": [
+    {
+      "id": "typescript-vitest-small",
+      "token_budget": 6000,
+      "expires_in_days": 2,
+      "available_hours": 3,
+      "tech_stack": ["TypeScript", "Vitest"],
+      "goal": "为本地 TypeScript 工具补充输入合同、失败状态和自动化测试"
+    },
+    {
+      "id": "astro-preact-medium",
+      "token_budget": 24000,
+      "expires_in_days": 7,
+      "available_hours": 12,
+      "tech_stack": ["TypeScript", "Astro", "Preact", "Vitest"],
+      "goal": "为静态技术站实现无需登录并可本地导出的互动功能切片"
+    },
+    {
+      "id": "go-gin-large",
+      "token_budget": 40000,
+      "expires_in_days": 14,
+      "available_hours": 24,
+      "tech_stack": ["Go", "Gin", "Docker"],
+      "goal": "为公开 API 服务实现无外部写入且可重复验收的离线诊断 MVP"
+    },
+    {
+      "id": "python-fastapi-small",
+      "token_budget": 6000,
+      "expires_in_days": 3,
+      "available_hours": 4,
+      "tech_stack": ["Python", "FastAPI", "pytest"],
+      "goal": "为 FastAPI 解析端点建立确定性输入验证与错误合同测试"
+    },
+    {
+      "id": "java-spring-medium",
+      "token_budget": 16000,
+      "expires_in_days": 6,
+      "available_hours": 8,
+      "tech_stack": ["Java", "Spring Boot", "JUnit"],
+      "goal": "为 Spring 服务增加一条带有合同测试和明确非目标的功能切片"
+    },
+    {
+      "id": "rust-axum-large",
+      "token_budget": 40000,
+      "expires_in_days": 12,
+      "available_hours": 20,
+      "tech_stack": ["Rust", "Axum", "Cargo"],
+      "goal": "为 Rust Web 服务构建可离线运行并分阶段验收的诊断 MVP"
+    },
+    {
+      "id": "next-react-medium",
+      "token_budget": 24000,
+      "expires_in_days": 7,
+      "available_hours": 12,
+      "tech_stack": ["TypeScript", "Next.js", "React"],
+      "goal": "为 React 应用实现一个有边界、有测试且不要求登录的完整功能切片"
+    },
+    {
+      "id": "ruby-rails-small",
+      "token_budget": 8000,
+      "expires_in_days": 4,
+      "available_hours": 5,
+      "tech_stack": ["Ruby", "Rails", "RSpec"],
+      "goal": "为 Rails 表单流程补充失败关闭的参数合同和请求测试"
+    },
+    {
+      "id": "php-laravel-medium",
+      "token_budget": 24000,
+      "expires_in_days": 8,
+      "available_hours": 10,
+      "tech_stack": ["PHP", "Laravel", "Pest"],
+      "goal": "为 Laravel 工具实现不持久化输入并可以本地导出的功能切片"
+    },
+    {
+      "id": "dotnet-aspnet-large",
+      "token_budget": 40000,
+      "expires_in_days": 14,
+      "available_hours": 20,
+      "tech_stack": [".NET", "ASP.NET Core", "xUnit"],
+      "goal": "为 ASP.NET 服务构建带合同、核心和合成验收阶段的离线 MVP"
+    },
+    {
+      "id": "swift-vapor-small",
+      "token_budget": 6000,
+      "expires_in_days": 3,
+      "available_hours": 4,
+      "tech_stack": ["Swift", "Vapor", "XCTest"],
+      "goal": "为 Vapor 路由补充有界输入验证、稳定错误状态与合同测试"
+    },
+    {
+      "id": "kotlin-ktor-medium",
+      "token_budget": 16000,
+      "expires_in_days": 6,
+      "available_hours": 8,
+      "tech_stack": ["Kotlin", "Ktor", "JUnit"],
+      "goal": "为 Ktor 服务实现一条无需数据库且可重复验证的功能切片"
+    },
+    {
+      "id": "vue-vite-medium",
+      "token_budget": 24000,
+      "expires_in_days": 7,
+      "available_hours": 12,
+      "tech_stack": ["TypeScript", "Vue", "Vite", "Vitest"],
+      "goal": "为 Vue 工具实现移动端可用且能导出结构化结果的功能切片"
+    },
+    {
+      "id": "sveltekit-large",
+      "token_budget": 40000,
+      "expires_in_days": 12,
+      "available_hours": 20,
+      "tech_stack": ["TypeScript", "SvelteKit", "Vitest"],
+      "goal": "为 SvelteKit 应用构建无需账号并可离线验收的多阶段 MVP"
+    },
+    {
+      "id": "docker-cli-small",
+      "token_budget": 6000,
+      "expires_in_days": 2,
+      "available_hours": 3,
+      "tech_stack": ["Docker", "Shell", "Bats"],
+      "goal": "为容器诊断脚本建立输入边界、失败状态和完全合成测试"
+    }
+  ],
+  "repository_snapshots": [
+    {
+      "id": "astro-preact-static",
+      "technology": "Astro + Preact + TypeScript",
+      "tech_signals": ["TypeScript", "Astro", "Node.js"],
+      "files": [
+        {
+          "path": "package.json",
+          "untrusted_text": "{\"scripts\":{\"build\":\"astro build\",\"test\":\"vitest run\"}}"
+        },
+        {
+          "path": "src/pages/index.astro",
+          "untrusted_text": "<main><h1>Synthetic Astro fixture</h1></main>"
+        },
+        {
+          "path": "src/components/Workbench.tsx",
+          "untrusted_text": "export const Workbench = () => <button>Run fixture</button>;"
+        }
+      ]
+    },
+    {
+      "id": "python-fastapi-service",
+      "technology": "Python + FastAPI + pytest",
+      "tech_signals": ["Python", "Docker"],
+      "files": [
+        {
+          "path": "pyproject.toml",
+          "untrusted_text": "[project]\nname = \"synthetic-fastapi\"\n[tool.pytest.ini_options]"
+        },
+        {
+          "path": "app/main.py",
+          "untrusted_text": "from fastapi import FastAPI\napp = FastAPI()"
+        },
+        {
+          "path": "tests/test_health.py",
+          "untrusted_text": "def test_health():\n    assert True"
+        }
+      ]
+    },
+    {
+      "id": "go-gin-service",
+      "technology": "Go + Gin",
+      "tech_signals": ["Go", "Docker"],
+      "files": [
+        {
+          "path": "go.mod",
+          "untrusted_text": "module example.com/synthetic/gin-service\n\ngo 1.26"
+        },
+        {
+          "path": "cmd/server/main.go",
+          "untrusted_text": "package main\nfunc main() {}"
+        },
+        {
+          "path": "internal/http/router_test.go",
+          "untrusted_text": "package http\nfunc TestSyntheticRouter(t *testing.T) {}"
+        }
+      ]
+    },
+    {
+      "id": "java-spring-service",
+      "technology": "Java + Spring Boot + Maven",
+      "tech_signals": ["JVM", "Docker"],
+      "files": [
+        {
+          "path": "pom.xml",
+          "untrusted_text": "<project><artifactId>synthetic-spring</artifactId></project>"
+        },
+        {
+          "path": "src/main/java/example/Application.java",
+          "untrusted_text": "package example; public class Application {}"
+        },
+        {
+          "path": "src/test/java/example/ApplicationTest.java",
+          "untrusted_text": "package example; public class ApplicationTest {}"
+        }
+      ]
+    },
+    {
+      "id": "rust-axum-service",
+      "technology": "Rust + Axum + Cargo",
+      "tech_signals": ["Rust", "Docker"],
+      "files": [
+        {
+          "path": "Cargo.toml",
+          "untrusted_text": "[package]\nname = \"synthetic-axum\"\nversion = \"0.1.0\""
+        },
+        {
+          "path": "src/main.rs",
+          "untrusted_text": "fn main() { println!(\"synthetic\"); }"
+        },
+        {
+          "path": "tests/router.rs",
+          "untrusted_text": "#[test]\nfn synthetic_router() { assert!(true); }"
+        }
+      ]
+    },
+    {
+      "id": "next-react-app",
+      "technology": "Next.js + React + TypeScript",
+      "tech_signals": ["TypeScript", "Node.js"],
+      "files": [
+        {
+          "path": "package.json",
+          "untrusted_text": "{\"scripts\":{\"build\":\"next build\",\"test\":\"vitest run\"}}"
+        },
+        {
+          "path": "app/page.tsx",
+          "untrusted_text": "export default function Page(){return <main>Synthetic Next fixture</main>}"
+        },
+        {
+          "path": "app/page.test.tsx",
+          "untrusted_text": "test(\"synthetic page\", () => expect(true).toBe(true));"
+        }
+      ]
+    },
+    {
+      "id": "ruby-rails-app",
+      "technology": "Ruby on Rails + RSpec",
+      "tech_signals": ["Docker"],
+      "files": [
+        {
+          "path": "Gemfile",
+          "untrusted_text": "source \"https://packages.example.com\"\ngem \"rails\"\ngem \"rspec\""
+        },
+        {
+          "path": "app/controllers/tools_controller.rb",
+          "untrusted_text": "class ToolsController < ApplicationController\nend"
+        },
+        {
+          "path": "spec/requests/tools_spec.rb",
+          "untrusted_text": "RSpec.describe \"Synthetic tools\" do\nend"
+        }
+      ]
+    },
+    {
+      "id": "php-laravel-app",
+      "technology": "PHP + Laravel + Pest",
+      "tech_signals": ["Docker"],
+      "files": [
+        {
+          "path": "composer.json",
+          "untrusted_text": "{\"name\":\"example/synthetic-laravel\",\"scripts\":{\"test\":\"pest\"}}"
+        },
+        {
+          "path": "app/Http/Controllers/ToolController.php",
+          "untrusted_text": "<?php final class ToolController {}"
+        },
+        {
+          "path": "tests/Feature/ToolTest.php",
+          "untrusted_text": "<?php test('synthetic tool', fn () => expect(true)->toBeTrue());"
+        }
+      ]
+    }
+  ],
+  "planning_scenarios": [
+    {
+      "id": "local-typescript-small",
+      "profile_id": "typescript-vitest-small",
+      "pipeline": "template"
+    },
+    {
+      "id": "local-astro-medium",
+      "profile_id": "astro-preact-medium",
+      "pipeline": "template"
+    },
+    {
+      "id": "local-go-large",
+      "profile_id": "go-gin-large",
+      "pipeline": "template"
+    },
+    {
+      "id": "local-python-small",
+      "profile_id": "python-fastapi-small",
+      "pipeline": "template"
+    },
+    {
+      "id": "local-java-medium",
+      "profile_id": "java-spring-medium",
+      "pipeline": "template"
+    },
+    {
+      "id": "local-rust-large",
+      "profile_id": "rust-axum-large",
+      "pipeline": "template"
+    },
+    {
+      "id": "local-next-medium",
+      "profile_id": "next-react-medium",
+      "pipeline": "template"
+    },
+    {
+      "id": "local-ruby-small",
+      "profile_id": "ruby-rails-small",
+      "pipeline": "template"
+    },
+    {
+      "id": "local-php-medium",
+      "profile_id": "php-laravel-medium",
+      "pipeline": "template"
+    },
+    {
+      "id": "local-dotnet-large",
+      "profile_id": "dotnet-aspnet-large",
+      "pipeline": "template"
+    },
+    {
+      "id": "local-swift-small",
+      "profile_id": "swift-vapor-small",
+      "pipeline": "template"
+    },
+    {
+      "id": "local-kotlin-medium",
+      "profile_id": "kotlin-ktor-medium",
+      "pipeline": "template"
+    },
+    {
+      "id": "local-vue-medium",
+      "profile_id": "vue-vite-medium",
+      "pipeline": "template"
+    },
+    {
+      "id": "local-svelte-large",
+      "profile_id": "sveltekit-large",
+      "pipeline": "template"
+    },
+    {
+      "id": "local-docker-small",
+      "profile_id": "docker-cli-small",
+      "pipeline": "template"
+    },
+    {
+      "id": "repository-astro",
+      "profile_id": "astro-preact-medium",
+      "pipeline": "repository",
+      "snapshot_id": "astro-preact-static"
+    },
+    {
+      "id": "repository-python",
+      "profile_id": "python-fastapi-small",
+      "pipeline": "repository",
+      "snapshot_id": "python-fastapi-service"
+    },
+    {
+      "id": "repository-go",
+      "profile_id": "go-gin-large",
+      "pipeline": "repository",
+      "snapshot_id": "go-gin-service"
+    },
+    {
+      "id": "repository-java",
+      "profile_id": "java-spring-medium",
+      "pipeline": "repository",
+      "snapshot_id": "java-spring-service"
+    },
+    {
+      "id": "repository-rust",
+      "profile_id": "rust-axum-large",
+      "pipeline": "repository",
+      "snapshot_id": "rust-axum-service"
+    },
+    {
+      "id": "repository-next",
+      "profile_id": "next-react-medium",
+      "pipeline": "repository",
+      "snapshot_id": "next-react-app"
+    },
+    {
+      "id": "repository-ruby",
+      "profile_id": "ruby-rails-small",
+      "pipeline": "repository",
+      "snapshot_id": "ruby-rails-app"
+    },
+    {
+      "id": "repository-php",
+      "profile_id": "php-laravel-medium",
+      "pipeline": "repository",
+      "snapshot_id": "php-laravel-app"
+    },
+    {
+      "id": "network-rate-limited",
+      "profile_id": "astro-preact-medium",
+      "pipeline": "network-fallback",
+      "fault_code": "rate_limited"
+    },
+    {
+      "id": "network-timeout",
+      "profile_id": "python-fastapi-small",
+      "pipeline": "network-fallback",
+      "fault_code": "timeout"
+    },
+    {
+      "id": "network-unavailable",
+      "profile_id": "go-gin-large",
+      "pipeline": "network-fallback",
+      "fault_code": "network_error"
+    },
+    {
+      "id": "network-invalid-response",
+      "profile_id": "rust-axum-large",
+      "pipeline": "network-fallback",
+      "fault_code": "invalid_response"
+    },
+    {
+      "id": "ai-rate-limited",
+      "profile_id": "typescript-vitest-small",
+      "pipeline": "ai-fallback",
+      "fault_code": "gateway_rate_limited"
+    },
+    {
+      "id": "ai-timeout",
+      "profile_id": "java-spring-medium",
+      "pipeline": "ai-fallback",
+      "fault_code": "gateway_provider_timeout"
+    },
+    {
+      "id": "ai-invalid-response",
+      "profile_id": "next-react-medium",
+      "pipeline": "ai-fallback",
+      "fault_code": "gateway_invalid_provider_response"
+    },
+    {
+      "id": "ai-validated-success",
+      "profile_id": "vue-vite-medium",
+      "pipeline": "ai-success"
+    }
+  ],
+  "failure_matrix": [
+    {
+      "id": "ai-preparation-sensitive-input",
+      "layer": "ai",
+      "code": "preparation_sensitive_input",
+      "expected": "template-fallback"
+    },
+    {
+      "id": "ai-preparation-invalid-repository",
+      "layer": "ai",
+      "code": "preparation_invalid_repository_summary",
+      "expected": "template-fallback"
+    },
+    {
+      "id": "ai-preparation-input-too-large",
+      "layer": "ai",
+      "code": "preparation_input_too_large",
+      "expected": "template-fallback"
+    },
+    {
+      "id": "ai-gateway-invalid-request",
+      "layer": "ai",
+      "code": "gateway_invalid_request",
+      "expected": "template-fallback"
+    },
+    {
+      "id": "ai-gateway-request-too-large",
+      "layer": "ai",
+      "code": "gateway_request_too_large",
+      "expected": "template-fallback"
+    },
+    {
+      "id": "ai-gateway-input-limit",
+      "layer": "ai",
+      "code": "gateway_input_token_limit_exceeded",
+      "expected": "template-fallback"
+    },
+    {
+      "id": "ai-gateway-rate-limited",
+      "layer": "ai",
+      "code": "gateway_rate_limited",
+      "expected": "template-fallback"
+    },
+    {
+      "id": "ai-gateway-budget-exhausted",
+      "layer": "ai",
+      "code": "gateway_budget_exhausted",
+      "expected": "template-fallback"
+    },
+    {
+      "id": "ai-gateway-provider-timeout",
+      "layer": "ai",
+      "code": "gateway_provider_timeout",
+      "expected": "template-fallback"
+    },
+    {
+      "id": "ai-gateway-provider-unavailable",
+      "layer": "ai",
+      "code": "gateway_provider_unavailable",
+      "expected": "template-fallback"
+    },
+    {
+      "id": "ai-gateway-invalid-provider-response",
+      "layer": "ai",
+      "code": "gateway_invalid_provider_response",
+      "expected": "template-fallback"
+    },
+    {
+      "id": "ai-gateway-output-limit",
+      "layer": "ai",
+      "code": "gateway_output_token_limit_exceeded",
+      "expected": "template-fallback"
+    },
+    {
+      "id": "ai-gateway-response-too-large",
+      "layer": "ai",
+      "code": "gateway_response_too_large",
+      "expected": "template-fallback"
+    },
+    {
+      "id": "ai-gateway-policy-blocked",
+      "layer": "ai",
+      "code": "gateway_policy_blocked",
+      "expected": "template-fallback"
+    },
+    {
+      "id": "ai-gateway-internal-error",
+      "layer": "ai",
+      "code": "gateway_internal_error",
+      "expected": "template-fallback"
+    },
+    {
+      "id": "network-invalid-url",
+      "layer": "network",
+      "code": "invalid_repository_url",
+      "expected": "template-fallback"
+    },
+    {
+      "id": "network-private",
+      "layer": "network",
+      "code": "not_found_or_private",
+      "expected": "template-fallback"
+    },
+    {
+      "id": "network-not-public",
+      "layer": "network",
+      "code": "repository_not_public",
+      "expected": "template-fallback"
+    },
+    {
+      "id": "network-unavailable",
+      "layer": "network",
+      "code": "repository_unavailable",
+      "expected": "template-fallback"
+    },
+    {
+      "id": "network-rate-limited",
+      "layer": "network",
+      "code": "rate_limited",
+      "expected": "template-fallback"
+    },
+    {
+      "id": "network-timeout",
+      "layer": "network",
+      "code": "timeout",
+      "expected": "template-fallback"
+    },
+    {
+      "id": "network-error",
+      "layer": "network",
+      "code": "network_error",
+      "expected": "template-fallback"
+    },
+    {
+      "id": "network-response-too-large",
+      "layer": "network",
+      "code": "response_too_large",
+      "expected": "template-fallback"
+    },
+    {
+      "id": "network-invalid-response",
+      "layer": "network",
+      "code": "invalid_response",
+      "expected": "template-fallback"
+    },
+    {
+      "id": "schema-invalid-input",
+      "layer": "schema",
+      "code": "invalid_input_schema",
+      "expected": "rejected"
+    },
+    {
+      "id": "schema-invalid-plan",
+      "layer": "schema",
+      "code": "invalid_plan_schema",
+      "expected": "rejected"
+    },
+    {
+      "id": "schema-duplicate-task",
+      "layer": "schema",
+      "code": "duplicate_task_id",
+      "expected": "rejected"
+    },
+    {
+      "id": "schema-dangling-dependency",
+      "layer": "schema",
+      "code": "dangling_dependency",
+      "expected": "rejected"
+    },
+    {
+      "id": "schema-cycle",
+      "layer": "schema",
+      "code": "cyclic_dependency",
+      "expected": "rejected"
+    },
+    {
+      "id": "schema-token-budget",
+      "layer": "schema",
+      "code": "token_budget_exceeded",
+      "expected": "rejected"
+    },
+    {
+      "id": "schema-hour-budget",
+      "layer": "schema",
+      "code": "hour_budget_exceeded",
+      "expected": "rejected"
+    },
+    {
+      "id": "export-invalid-plan",
+      "layer": "export",
+      "code": "invalid_plan",
+      "expected": "rejected"
+    },
+    {
+      "id": "export-sensitive-content",
+      "layer": "export",
+      "code": "sensitive_content",
+      "expected": "rejected"
+    },
+    {
+      "id": "export-too-large",
+      "layer": "export",
+      "code": "export_too_large",
+      "expected": "rejected"
+    },
+    {
+      "id": "export-invalid-output",
+      "layer": "export",
+      "code": "invalid_export",
+      "expected": "rejected"
+    }
+  ],
+  "privacy_sinks": ["url", "log", "analytics", "ai-request", "export"]
+}
