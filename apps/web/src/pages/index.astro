@@ -8,7 +8,19 @@ import {
   loadLabManifests,
 } from "../lib/lab-manifests";
 
-const labs = await loadLabManifests();
+const strategicLabOrder = new Map([
+  ["token-forge", 0],
+  ["interview-workbench", 1],
+  ["incident-detective", 2],
+  ["smart-rma", 3],
+]);
+
+const labs = (await loadLabManifests()).sort(
+  (left, right) =>
+    (strategicLabOrder.get(left.id) ?? Number.MAX_SAFE_INTEGER) -
+      (strategicLabOrder.get(right.id) ?? Number.MAX_SAFE_INTEGER) ||
+    left.id.localeCompare(right.id),
+);
 
 const statusLabels: Record<LabStatus, string> = {
   proposed: "规划中",
@@ -28,6 +40,13 @@ const aiModeLabels: Record<LabAiMode, string> = {
   none: "无需 AI",
   optional: "AI 可选",
   required: "需要 AI",
+};
+
+const strategicStatusLabels: Readonly<Record<string, string>> = {
+  "token-forge": "Alpha · 主线",
+  "interview-workbench": "规划中 · 第二优先级",
+  "incident-detective": "Alpha · 维护",
+  "smart-rma": "Alpha · 暂停",
 };
 
 const accents = ["cyan", "violet", "amber"] as const;
@@ -83,7 +102,9 @@ const accents = ["cyan", "violet", "amber"] as const;
           >
             <div class="lab-card-meta">
               <span>{String(index + 1).padStart(2, "0")}</span>
-              <span class="status">{statusLabels[lab.status]}</span>
+              <span class="status">
+                {strategicStatusLabels[lab.id] ?? statusLabels[lab.status]}
+              </span>
             </div>
             <h3>{lab.title}</h3>
             <p>{lab.summary}</p>

@@ -55,7 +55,7 @@ P0-008 同时把 ESLint 更新到不再引入已知 `brace-expansion` High 风�
 
 - 编译 `schemas/` 的所有公开 Schema 和 Lab 的内部 Schema；
 - 拒绝缺少 Draft 2020-12 声明、缺少 `$id` 或 `$id` 重复；
-- 校验登记的有效 fixture、canonical 文档和三个 `lab.json`；
+- 校验登记的有效 fixture、canonical 文档和四个 `lab.json`；
 - 错误只报告合同路径，不输出 Provider Secret。
 
 新增 Schema fixture 时必须登记到脚本的 `fixtureContracts`。公共 Schema 破坏性修改仍须

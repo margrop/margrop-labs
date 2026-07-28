@@ -1,0 +1,12 @@
+{
+  "schema_version": "1.0",
+  "id": "interview-workbench",
+  "title": "AI 面试工作台",
+  "summary": "从简历与岗位匹配、结构化面试计划，到基于面试记录生成有证据边界的结论。",
+  "status": "proposed",
+  "route": "/interview-workbench/",
+  "ai_mode": "optional",
+  "input_privacy": "sensitive",
+  "sample_mode": true,
+  "related_articles": []
+}

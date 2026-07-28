@@ -44,20 +44,45 @@ const checks = [
   ["static H1", html.includes("把技术文章，变成可以")],
   [
     "static Lab cards",
-    ["Token 任务炼金炉", "AI 故障侦探", "SMART / RMA 报告机"].every((text) =>
-      html.includes(text),
-    ),
+    [
+      "Token 任务炼金炉",
+      "AI 面试工作台",
+      "AI 故障侦探",
+      "SMART / RMA 报告机",
+    ].every((text) => html.includes(text)),
   ],
   [
     "manifest routes",
-    ["/token-forge/", "/incident-detective/", "/smart-rma/"].every((route) =>
-      html.includes(route),
-    ),
+    [
+      "/token-forge/",
+      "/interview-workbench/",
+      "/incident-detective/",
+      "/smart-rma/",
+    ].every((route) => html.includes(route)),
   ],
   [
     "manifest labels",
-    ["Alpha", "公开输入", "本地优先", "AI 可选", "含合成样例"].every((label) =>
-      html.includes(label),
+    [
+      "Alpha · 主线",
+      "规划中 · 第二优先级",
+      "Alpha · 暂停",
+      "公开输入",
+      "本地优先",
+      "敏感输入",
+      "AI 可选",
+      "含合成样例",
+    ].every((label) => html.includes(label)),
+  ],
+  [
+    "strategic Lab order",
+    [
+      "Token 任务炼金炉",
+      "AI 面试工作台",
+      "AI 故障侦探",
+      "SMART / RMA 报告机",
+    ].every(
+      (title, index, titles) =>
+        index === 0 || html.indexOf(titles[index - 1]) < html.indexOf(title),
     ),
   ],
   [

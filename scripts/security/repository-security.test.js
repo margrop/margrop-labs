@@ -68,7 +68,7 @@ describe("repository schema validation", () => {
 
     expect(report.schemaCount).toBeGreaterThanOrEqual(20);
     expect(report.fixtureCount).toBeGreaterThanOrEqual(20);
-    expect(report.labManifestCount).toBe(3);
+    expect(report.labManifestCount).toBe(4);
   });
 });
 

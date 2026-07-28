@@ -9,18 +9,19 @@
 
 ## 当前产品焦点
 
-**Token 任务炼金炉是当前唯一产品开发主线。** 在它完成上线数据验证之前，AI 故障侦探
-与 SMART / RMA 报告机只接受生产故障和安全修复，不继续增加功能。
-具体顺序和解除冻结的量化门槛见
-[Token Forge 优先路线图](./docs/token-forge-roadmap.md)。
+**Token 任务炼金炉是当前唯一产品开发主线。** AI 面试工作台是它完成 Beta 出口后的
+第二优先级；AI 故障侦探只保留维护，SMART / RMA 报告机暂停并退出后续产品开发序列。
+具体顺序和解除冻结的量化门槛见 [Token Forge 优先路线图](./docs/token-forge-roadmap.md)
+与 [AI 面试工作台路线图](./docs/interview-workbench-roadmap.md)。
 
 ## 首批实验
 
-| 实验                                      | 用户价值                                             | 状态       |
-| ----------------------------------------- | ---------------------------------------------------- | ---------- |
-| [Token 任务炼金炉](./labs/token-forge/)   | 把闲置 Token、仓库上下文和目标转换为可验收的开发任务 | Alpha·主线 |
-| [AI 故障侦探](./labs/incident-detective/) | 在合成事故中练习按证据排障，而不是让 AI 猜根因       | Alpha·冻结 |
-| [SMART / RMA 报告机](./labs/smart-rma/)   | 本地解析并遮蔽硬盘标识，分离关键指标与未知项         | Alpha·冻结 |
+| 实验                                        | 用户价值                                               | 状态                |
+| ------------------------------------------- | ------------------------------------------------------ | ------------------- |
+| [Token 任务炼金炉](./labs/token-forge/)     | 把闲置 Token、仓库上下文和目标转换为可验收的开发任务   | Alpha·主线          |
+| [AI 面试工作台](./labs/interview-workbench/) | 从岗位匹配和面试计划走到有证据边界的面试结论           | Proposed·第二优先级 |
+| [AI 故障侦探](./labs/incident-detective/)   | 在合成事故中练习按证据排障，而不是让 AI 猜根因         | Alpha·维护          |
+| [SMART / RMA 报告机](./labs/smart-rma/)     | 保留本地解析与脱敏 Alpha，不继续健康判断、AI 和 RMA 导出 | Alpha·暂停          |
 
 ## 产品原则
 
@@ -64,6 +65,8 @@ Web 端采用 **Astro + TypeScript + Preact Islands**，首期生成静态 HTML�
 - CI、安全与 Schema 门：遵循 [CI 与仓库安全门](./docs/ci-security.md)。
 - Token Forge 正式页面：遵循 [页面与事件合同](./docs/token-forge-page.md)。
 - Token Forge 当前顺序与 Beta 门槛：遵循 [优先路线图](./docs/token-forge-roadmap.md)。
+- AI 面试工作台：遵循 [产品路线图](./docs/interview-workbench-roadmap.md) 与
+  [边界和 AI 复用 ADR](./docs/adr/0006-interview-workbench-boundaries.md)。
 - Incident Detective 合同：遵循 [场景与单局推理 v1](./docs/incident-detective-contract-v1.md)。
 - Incident Detective 案例：参阅 [首个完整合成事故](./docs/incident-detective-first-case.md)。
 - Incident Detective 页面：遵循 [逐步取证与时间线界面](./docs/incident-detective-page.md)。
@@ -89,8 +92,9 @@ npm run dev --workspace @margrop-labs/web
 
 开发者与 GitHub Actions 使用同一条根目录质量命令。检查内容和故障处理见 [质量门](./docs/quality-gates.md)。实验卡片由版本化清单生成，规则见 [实验清单加载器](./docs/lab-manifest-loader.md)。页面组件与交互必须遵循 [UI 与可访问性基线](./docs/ui-accessibility-baseline.md)。Token 任务炼金炉的稳定输入输出见 [v1 合同](./docs/token-forge-contract-v1.md)，无需 AI 的降级核心见 [确定性模板模式](./docs/token-forge-template-mode.md)，公开仓库的有界只读输入见 [GitHub 摘要适配器](./docs/github-public-repository-adapter.md)。所有未来 AI 能力必须通过 [Provider 中立的 Gateway 合同](./docs/ai-gateway-contract-v1.md)。
 
-当前站点进入 **alpha**，后续功能开发集中在 Token 任务炼金炉；其他两个 Lab 保留现状并
-冻结新功能。P4-001/P4-002 已完成隔离的 Preview 与 Production 部署，
+当前站点进入 **alpha**，后续功能开发集中在 Token 任务炼金炉；AI 面试工作台只完成
+Proposed 合同并排在第二优先级，AI 故障侦探保留维护，SMART / RMA 暂停后续开发。
+P4-001/P4-002 已完成隔离的 Preview 与 Production 部署，
 正式站点由 Cloudflare Workers Static Assets 和 Custom Domain 提供。P1-004 已在 P0-006
 AI Gateway 和 P0-007 脱敏边界上实现 Token Forge AI 任务拆分核心：最小仓库上下文、
 确定性输出安全检查和 P1-002 完整降级均已有合成测试。P1-005 已增加验证计划的本地
@@ -119,5 +123,6 @@ Score-only 的确定性 SVG 下载，Incident Detective MVP 六个任务全部�
 缺失字段、厂商扩展、SMART 不可用和冲突信号。P3-002 已上线浏览器端只读解析工作台和
 Parse Result v1。P3-003 已增加序列号、WWN、主机名、IP 与常见 Secret 的本地脱敏预览，
 以及不含自由文本的 Boundary Projection v1；URL、日志和 Analytics 进一步收窄为固定元数据，
-AI 与导出尚未启用，现有结果仍不构成厂商保修判断。完整顺序以 Token Forge
-优先路线图为准。
+AI 与导出尚未启用，现有结果仍不构成厂商保修判断。P5-000 已定义 AI 面试工作台的双角色
+三段主流程、敏感输入边界和公共 AI Gateway 复用方案；其功能任务仍阻塞于 P1-014。
+完整顺序以 Token Forge 优先路线图为准。
