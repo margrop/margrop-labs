@@ -5,7 +5,7 @@
 ## 验证目标
 
 - 390px 宽度下不出现强制横向滚动；
-- 导航、主按钮、三个 Lab 卡片和 Hello Lab 保持可读；
+- 导航、主按钮、四个 Lab 卡片和 Hello Lab 保持可读；
 - 所有输入有可见 Label，交互结果使用 `aria-live`；
 - 支持键盘焦点和 `prefers-reduced-motion`；
 - 首页标题、描述、H1 和 Lab 文本直接存在于静态 HTML；
