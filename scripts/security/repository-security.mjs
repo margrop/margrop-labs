@@ -108,6 +108,10 @@ const fixtureContracts = [
     "schemas/token-forge-event-v1.schema.json",
   ],
   [
+    "labs/token-forge/integrations/token-forge-cta.json",
+    "schemas/token-forge-blog-cta-v1.schema.json",
+  ],
+  [
     "labs/token-forge/fixtures/token-forge-analytics-snapshot.valid.json",
     "schemas/token-forge-analytics-snapshot-v1.schema.json",
   ],

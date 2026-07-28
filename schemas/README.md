@@ -7,6 +7,8 @@
 | [`token-forge-plan-v1.schema.json`](./token-forge-plan-v1.schema.json)                                                 | Template and AI-assisted Token Forge plans             |
 | [`token-forge-export-v1.schema.json`](./token-forge-export-v1.schema.json)                                             | Local Markdown and GitHub Issue draft exports          |
 | [`token-forge-event-v1.schema.json`](./token-forge-event-v1.schema.json)                                               | Minimal Token Forge conversion events                  |
+| [`token-forge-analytics-snapshot-v1.schema.json`](./token-forge-analytics-snapshot-v1.schema.json)                     | Aggregate-only Token Forge daily event counts          |
+| [`token-forge-blog-cta-v1.schema.json`](./token-forge-blog-cta-v1.schema.json)                                         | Stable blog CTA copy and canonical links               |
 | [`incident-detective-scenario-v1.schema.json`](./incident-detective-scenario-v1.schema.json)                           | Synthetic incident, evidence and timeline              |
 | [`incident-detective-attempt-v1.schema.json`](./incident-detective-attempt-v1.schema.json)                             | Evidence order, budget and user hypothesis             |
 | [`incident-detective-score-v1.schema.json`](./incident-detective-score-v1.schema.json)                                 | Deterministic score, dimensions and auditable findings |

@@ -1,0 +1,25 @@
+{
+  "schema_version": "1.0",
+  "lab_id": "token-forge",
+  "title": "Token 用不完，却不知道该做什么？",
+  "summary": "输入剩余额度、到期时间、技术栈和目标，获得范围清楚、可以验收的开发任务。",
+  "compact_note": "无需登录 · 可只用本地模板 · AI 失败仍可导出",
+  "proof_points": [
+    "无需登录，可直接运行 6K、24K、40K 合成样例",
+    "可以只用本地模板，AI 或公开仓库不可用时仍能导出",
+    "一次生成完整计划、GitHub Issue 草稿和 Coding Agent 执行包"
+  ],
+  "privacy_note": "公开仓库完全可选；不要填写私有仓库地址、密钥或其他敏感信息。",
+  "primary_action": {
+    "label": "打开 Token 任务炼金炉",
+    "url": "https://lab.margrop.net/token-forge/"
+  },
+  "source_action": {
+    "label": "查看源码",
+    "url": "https://github.com/margrop/margrop-labs/tree/main/labs/token-forge"
+  },
+  "offline_action": {
+    "label": "了解离线模板",
+    "url": "https://github.com/margrop/margrop-labs/blob/main/docs/token-forge-template-mode.md"
+  }
+}

@@ -64,6 +64,7 @@ Web 端采用 **Astro + TypeScript + Preact Islands**，首期生成静态 HTML�
 - Token Forge 首次体验：遵循 [三档样例与移动端闭环](./docs/token-forge-first-use.md)。
 - CI、安全与 Schema 门：遵循 [CI 与仓库安全门](./docs/ci-security.md)。
 - Token Forge 正式页面：遵循 [页面与事件合同](./docs/token-forge-page.md)。
+- Token Forge 博客入口：使用 [统一 CTA v1](./docs/token-forge-blog-cta.md)。
 - Token Forge 当前顺序与 Beta 门槛：遵循 [优先路线图](./docs/token-forge-roadmap.md)。
 - AI 面试工作台：遵循 [产品路线图](./docs/interview-workbench-roadmap.md) 与
   [边界和 AI 复用 ADR](./docs/adr/0006-interview-workbench-boundaries.md)。
@@ -110,8 +111,9 @@ Agent 执行包，逐阶段提供上下文边界、命令发现、验收、交�
 工具链、依赖扫描、Secret 扫描、Schema/fixture 验证和手动 Production 边界接入统一质量
 门。P1-013 已加入 31 个完整计划场景、8 份跨栈快照、35 个故障注入、五类隐私 sink 和
 真实 Chromium 关键路径。P4-003 已把最小事件接到独立的 SQLite Durable Object，只保留
-31 天的日期、事件和粗设备类别聚合计数，不保存原始事件、用户标识或正文。当前下一项是
-P4-005，为博客生成统一 Token Forge CTA。
+31 天的日期、事件和粗设备类别聚合计数，不保存原始事件、用户标识或正文。P4-005 已提供
+版本化的文章中段/文末 CTA，固定正式链接且不带追踪参数。当前下一项是 P4-006，在博客
+导航突出 Token Forge 入口。
 P2-001 已定义完全合成的 Incident Detective 场景/证据与单局推理
 合同；P2-002 已完成首个 MySQL + Prometheus + Loki 合成事故，包含 10 份证据、13/9
 点预算取舍、合理反证、按证据揭示的时间线和与公开场景分离的内部答案草稿。P2-003 已上线
