@@ -1,0 +1,41 @@
+{
+  "schema_version": "1.0",
+  "sensitivity": "sensitive",
+  "jd_id": "jd-synthetic-cloud-platform",
+  "role_title": "云端机器人平台工程师",
+  "level": "senior",
+  "responsibilities": [
+    "设计云端机器人系统的任务、状态和报告服务。",
+    "与产品、机器人和测试团队协作，持续提升稳定性、性能和可扩展性。"
+  ],
+  "requirements": [
+    {
+      "requirement_id": "requirement-java-go",
+      "category": "technical",
+      "priority": "must",
+      "statement": "能够使用 Java、Go 或 Python 之一交付可靠的服务端代码。",
+      "evidence_signals": ["线上服务代码", "语言生态实践", "测试与工程习惯"]
+    },
+    {
+      "requirement_id": "requirement-distributed-systems",
+      "category": "technical",
+      "priority": "must",
+      "statement": "理解 HTTP、TCP/IP、消息系统和服务稳定性设计。",
+      "evidence_signals": ["协议排障", "重试与幂等", "消息或服务治理"]
+    },
+    {
+      "requirement_id": "requirement-robotics-cloud",
+      "category": "domain",
+      "priority": "should",
+      "statement": "有机器人云平台或类似设备云服务的系统设计经验。",
+      "evidence_signals": ["设备状态", "任务调度", "云端控制链路"]
+    },
+    {
+      "requirement_id": "requirement-collaboration",
+      "category": "collaboration",
+      "priority": "should",
+      "statement": "能够与产品、研发和测试团队共同澄清问题并交付结果。",
+      "evidence_signals": ["跨团队项目", "技术文档", "冲突与取舍"]
+    }
+  ]
+}
