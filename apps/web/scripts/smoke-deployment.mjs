@@ -49,13 +49,55 @@ await fetchTextWithRetry(baseUrl, (homepage) => {
   assert.match(homepage, /Token 任务炼金炉/);
   assert.match(
     homepage,
+    /<link\s+rel="canonical"\s+href="https:\/\/lab\.margrop\.net\/"\s*\/?>/,
+  );
+  assert.match(
+    homepage,
+    /<meta\s+property="og:image"\s+content="https:\/\/lab\.margrop\.net\/social\/margrop-labs\.png"\s*\/?>/,
+  );
+  assert.match(
+    homepage,
     /<meta\s+name="viewport"\s+content="width=device-width,\s*initial-scale=1"\s*\/?>/,
   );
+});
+
+const tokenForgeUrl = new URL("/token-forge/", baseUrl);
+await fetchTextWithRetry(tokenForgeUrl, (tokenForge) => {
+  assert.match(
+    tokenForge,
+    /<link\s+rel="canonical"\s+href="https:\/\/lab\.margrop\.net\/token-forge\/"\s*\/?>/,
+  );
+  assert.match(
+    tokenForge,
+    /<meta\s+property="og:image"\s+content="https:\/\/lab\.margrop\.net\/social\/token-forge\.png"\s*\/?>/,
+  );
+  assert.match(tokenForge, /"@type":"WebApplication"/);
 });
 
 const robotsUrl = new URL("/robots.txt", baseUrl);
 await fetchTextWithRetry(robotsUrl, (robots) => {
   assert.match(robots, /User-agent:\s*\*/);
+  assert.match(
+    robots,
+    /Sitemap:\s*https:\/\/lab\.margrop\.net\/sitemap-index\.xml/,
+  );
+});
+
+const sitemapIndexUrl = new URL("/sitemap-index.xml", baseUrl);
+await fetchTextWithRetry(sitemapIndexUrl, (sitemapIndex) => {
+  assert.match(
+    sitemapIndex,
+    /<loc>https:\/\/lab\.margrop\.net\/sitemap-0\.xml<\/loc>/,
+  );
+});
+
+const sitemapUrl = new URL("/sitemap-0.xml", baseUrl);
+await fetchTextWithRetry(sitemapUrl, (sitemap) => {
+  assert.match(
+    sitemap,
+    /<loc>https:\/\/lab\.margrop\.net\/token-forge\/<\/loc>/,
+  );
+  assert.doesNotMatch(sitemap, /\/404|\/api\/|\/interview-workbench\//);
 });
 
 const apiUrl = new URL("/api/token-forge/plan", baseUrl);

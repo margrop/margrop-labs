@@ -50,11 +50,46 @@ const strategicStatusLabels: Readonly<Record<string, string>> = {
 };
 
 const accents = ["cyan", "violet", "amber"] as const;
+const description =
+  "把 AI Agent、Self-hosting、PVE、NAS 与可观测性文章变成可以立即体验和验证的互动实验。";
+const structuredData = [
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "Margrop Labs",
+    alternateName: "魔都水滴实验室",
+    url: "https://lab.margrop.net/",
+    description,
+    inLanguage: "zh-CN",
+    publisher: {
+      "@type": "Person",
+      name: "Margrop",
+      url: "https://blog.margrop.net/",
+    },
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name: "Margrop Labs 可体验实验",
+    itemListElement: labs
+      .filter((lab) => ["alpha", "beta", "stable"].includes(lab.status))
+      .map((lab, index) => ({
+        "@type": "ListItem",
+        position: index + 1,
+        name: lab.title,
+        url: new URL(lab.route, "https://lab.margrop.net").toString(),
+      })),
+  },
+] as const;
 ---
 
 <BaseLayout
   title="Margrop Labs｜魔都水滴实验室"
-  description="把 AI Agent、Self-hosting、PVE、NAS 与可观测性文章变成可以立即体验和验证的互动实验。"
+  {description}
+  socialTitle="Margrop Labs｜把技术文章变成可验证实验"
+  socialImagePath="/social/margrop-labs.png"
+  socialImageAlt="Margrop Labs：把技术文章变成可以亲手验证的实验"
+  {structuredData}
 >
   <section class="hero">
     <div class="hero-grid" aria-hidden="true"></div>

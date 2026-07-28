@@ -1,0 +1,154 @@
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  width="1200"
+  height="630"
+  viewBox="0 0 1200 630"
+  role="img"
+  aria-labelledby="title description"
+>
+  <title id="title">Margrop Labs</title>
+  <desc id="description">
+    A dark technical canvas linking articles to testable labs.
+  </desc>
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#08111f" />
+      <stop offset="1" stop-color="#111a32" />
+    </linearGradient>
+    <radialGradient id="cyan-glow">
+      <stop offset="0" stop-color="#35d9ff" stop-opacity=".34" />
+      <stop offset="1" stop-color="#35d9ff" stop-opacity="0" />
+    </radialGradient>
+    <radialGradient id="violet-glow">
+      <stop offset="0" stop-color="#9b7cff" stop-opacity=".28" />
+      <stop offset="1" stop-color="#9b7cff" stop-opacity="0" />
+    </radialGradient>
+    <pattern id="grid" width="48" height="48" patternUnits="userSpaceOnUse">
+      <path
+        d="M 48 0 L 0 0 0 48"
+        fill="none"
+        stroke="#9fb6d7"
+        stroke-opacity=".08"
+        stroke-width="1"
+      />
+    </pattern>
+  </defs>
+  <rect width="1200" height="630" fill="url(#background)" />
+  <rect width="1200" height="630" fill="url(#grid)" />
+  <circle cx="1030" cy="80" r="360" fill="url(#cyan-glow)" />
+  <circle cx="920" cy="610" r="350" fill="url(#violet-glow)" />
+
+  <g transform="translate(72 68)">
+    <rect
+      width="76"
+      height="76"
+      rx="20"
+      fill="#0f2032"
+      stroke="#35d9ff"
+      stroke-width="2"
+    />
+    <path
+      d="M19 55V21h8l11 18 11-18h8v34h-9V36L38 52 28 36v19z"
+      fill="#e9f7ff"
+    />
+    <text
+      x="98"
+      y="33"
+      fill="#f7fbff"
+      font-family="DejaVu Sans, sans-serif"
+      font-size="28"
+      font-weight="700"
+      letter-spacing="5"
+    >
+      MARGROP
+    </text>
+    <text
+      x="99"
+      y="62"
+      fill="#8ea5c4"
+      font-family="DejaVu Sans, sans-serif"
+      font-size="18"
+      font-weight="600"
+      letter-spacing="9"
+    >
+      LABS
+    </text>
+  </g>
+
+  <g transform="translate(74 246)">
+    <text
+      fill="#f7fbff"
+      font-family="DejaVu Sans, sans-serif"
+      font-size="58"
+      font-weight="700"
+      letter-spacing="-1"
+    >
+      TURN ARTICLES INTO
+    </text>
+    <text
+      y="76"
+      fill="#35d9ff"
+      font-family="DejaVu Sans, sans-serif"
+      font-size="58"
+      font-weight="700"
+      letter-spacing="-1"
+    >
+      TESTABLE LABS.
+    </text>
+    <text
+      y="137"
+      fill="#9fb0ca"
+      font-family="DejaVu Sans, sans-serif"
+      font-size="23"
+      letter-spacing=".5"
+    >
+      Deterministic core · Local-first privacy · AI fallback
+    </text>
+  </g>
+
+  <g transform="translate(824 208)">
+    <rect
+      width="298"
+      height="272"
+      rx="28"
+      fill="#0c1729"
+      fill-opacity=".88"
+      stroke="#425676"
+      stroke-width="2"
+    />
+    <circle cx="52" cy="50" r="9" fill="#35d9ff" />
+    <path
+      d="M78 50h158M52 95h194M52 127h142"
+      stroke="#7890b1"
+      stroke-width="12"
+      stroke-linecap="round"
+    />
+    <rect
+      x="52"
+      y="170"
+      width="194"
+      height="48"
+      rx="14"
+      fill="#35d9ff"
+      fill-opacity=".14"
+      stroke="#35d9ff"
+    />
+    <path
+      d="M94 194h111M267 50h0"
+      stroke="#dff9ff"
+      stroke-width="9"
+      stroke-linecap="round"
+    />
+  </g>
+
+  <text
+    x="74"
+    y="570"
+    fill="#7188a8"
+    font-family="DejaVu Sans, sans-serif"
+    font-size="19"
+    letter-spacing="1"
+  >
+    LAB.MARGROP.NET
+  </text>
+</svg>

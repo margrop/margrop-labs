@@ -141,6 +141,13 @@ Markdown 片段。链接固定指向正式 Lab、源码和离线模板说明，�
 脚本；片段本身不调用 AI、网络、Analytics 或存储。外部博客文章的实际插入保留为独立
 内容提交，博客导航入口属于 P4-006。
 
+## 搜索与分享
+
+[P4-007 SEO 与发现合同](../../docs/seo-and-discovery.md) 为 Labs 首页和 Token Forge 输出
+同源 canonical、Open Graph、Twitter、JSON-LD 和独立 1200×630 分享图，并由 Astro
+构建生成 sitemap。404、API 和尚未上线的 Proposed 路由不会进入 sitemap；元数据不读取
+表单、来源参数、运行结果或 Analytics。
+
 ## 隐私
 
 只读取公开仓库；不得要求 GitHub 私有 Token。导出不包含原始文件正文或隐藏系统 Prompt。Analytics 不记录仓库 URL 和表单内容。
