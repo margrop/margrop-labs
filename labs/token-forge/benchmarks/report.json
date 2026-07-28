@@ -1,0 +1,33 @@
+{
+  "schema_version": "1.0",
+  "corpus_contract": "token-forge-benchmark-v1",
+  "metrics": {
+    "schema_version": "1.0",
+    "planning_scenarios": 31,
+    "repository_snapshots": 8,
+    "technology_profiles": 15,
+    "contract_passed": 31,
+    "dag_passed": 31,
+    "budget_passed": 31,
+    "plans_without_unverifiable_tasks": 31,
+    "plans_flagged_for_review": 0,
+    "fallback_scenarios": 7,
+    "fallback_scenarios_passed": 7,
+    "failure_cases": 35,
+    "failure_cases_passed": 35,
+    "privacy_sinks": 5
+  },
+  "failure_cases_by_layer": {
+    "ai": 15,
+    "network": 9,
+    "schema": 7,
+    "export": 4
+  },
+  "browser_critical_paths": [
+    "local-sample-export",
+    "repository-rate-limit-fallback",
+    "ai-rate-limit-fallback",
+    "mobile-keyboard-reduced-motion"
+  ],
+  "verification_command": "npm run validate"
+}
