@@ -17,9 +17,10 @@
 AI 失败不阻断模板与导出；真实 AI 流量已通过 Preview 与 Production smoke 验收。
 
 Token Forge 现为仓库唯一产品开发主线。公开仓库接入、生产 AI 成本边界、计划质量、
-本地编辑、Coding Agent 执行包、首次使用、CI 安全门禁和可靠性基准已经完成；最小化
-Analytics 与上线验证继续按 [优先路线图](../../docs/token-forge-roadmap.md) 推进。其他
-Lab 在路线图出口评审前保持功能冻结。
+本地编辑、Coding Agent 执行包、首次使用、CI 安全门禁、可靠性基准、最小化 Analytics
+和博客 CTA 已经完成；导航、SEO 与上线验证继续按
+[优先路线图](../../docs/token-forge-roadmap.md) 推进。其他 Lab 在路线图出口评审前保持
+功能冻结。
 
 ## v1 合同
 
@@ -132,6 +133,13 @@ reduced-motion；浏览器测试已进入根目录统一 `npm run validate`，�
 粒度设备类别。P4-003 已接入同源最小接收器，Worker 只保存 31 天的按日聚合计数，不保存
 原始事件、单次时间戳、访客/会话 ID、来源、User-Agent、网络标识或任何正文。统计失败
 不影响 Lab 主流程。
+
+## 博客 CTA
+
+[P4-005 博客 CTA](../../docs/token-forge-blog-cta.md) 使用 v1 合同生成文章中段和文末两种
+Markdown 片段。链接固定指向正式 Lab、源码和离线模板说明，不带查询参数、用户输入或
+脚本；片段本身不调用 AI、网络、Analytics 或存储。外部博客文章的实际插入保留为独立
+内容提交，博客导航入口属于 P4-006。
 
 ## 隐私
 

@@ -51,7 +51,7 @@
   - 产物：lint/type/test/build、依赖扫描、秘密扫描、Schema 验证。
   - 验收：PR 必须通过；版本固定；不自动部署生产。
   - 当前：Node/npm/Actions 与依赖已固定；统一 `validate` 会扫描完整依赖树、当前文本与
-    PR 新增历史，并编译 24 个 Schema、验证 24 份登记 fixture 和 4 个 Lab 清单。
+    PR 新增历史，并编译 26 个 Schema、验证 26 份登记 fixture 和 4 个 Lab 清单。
 
 ## P1：Token 任务炼金炉（当前唯一产品主线）
 
@@ -185,7 +185,11 @@
   - 验收：Provider 调用前覆盖最多两次尝试的最坏成本；可信成功结算退回差额，失败或预留
     超时全额计费；重复请求不重复预留；半开只允许一个探针；快照不包含目标、Prompt、仓库
     URL、路径、正文、原始网络标识或 Provider 错误；无网络、存储和日志副作用。
-- [ ] **P4-005 [S] 为博客生成 Token Forge 统一 CTA 片段**
+- [x] **P4-005 [S] 为博客生成 Token Forge 统一 CTA 片段**
+  - 产物：`token-forge-blog-cta-v1`、文章中段/文末 Markdown 片段、稳定替换标记和
+    Content Bridge 使用说明。
+  - 验收：CTA 只包含固定正式 Lab、源码和离线模板 HTTPS 链接；无查询/追踪参数、占位符、
+    脚本或用户派生字段；合同、已提交片段与 renderer 精确一致；不调用网络、AI 或存储。
 - [ ] **P4-006 [S] 在博客导航突出 Token Forge 入口**
 - [ ] **P4-007 [M] 建立 Labs 首页与 Token Forge 的 SEO、Open Graph 和 sitemap**
 - [ ] **P4-008 [M] 复盘 Token Forge 打开率、运行率、导出率、失败原因和 GitHub 点击率**
@@ -233,4 +237,4 @@
 
 ## 推荐下一项任务
 
-接下来只完成 **P4-005**：为博客生成 Token Forge 统一 CTA 片段。每次仍只处理一个任务。
+接下来只完成 **P4-006**：在博客导航突出 Token Forge 入口。每次仍只处理一个任务。
