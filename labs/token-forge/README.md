@@ -17,7 +17,7 @@
 AI 失败不阻断模板与导出；真实 AI 流量已通过 Preview 与 Production smoke 验收。
 
 Token Forge 现为仓库唯一产品开发主线。公开仓库接入、生产 AI 成本边界、计划质量、
-本地编辑、Coding Agent 执行包和首次使用已经完成；CI 安全门禁、可靠性基准和上线验证
+本地编辑、Coding Agent 执行包、首次使用和 CI 安全门禁已经完成；可靠性基准和上线验证
 继续按 [优先路线图](../../docs/token-forge-roadmap.md) 推进。其他 Lab 在路线图出口评审前
 保持功能冻结。
 

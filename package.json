@@ -2,27 +2,33 @@
   "name": "margrop-labs",
   "version": "0.0.0",
   "private": true,
+  "packageManager": "npm@11.9.0",
   "engines": {
-    "node": ">=22.12.0",
-    "npm": ">=10.0.0"
+    "node": "24.14.0",
+    "npm": "11.9.0"
   },
   "workspaces": [
     "apps/*",
     "packages/*"
   ],
   "scripts": {
-    "format": "prettier --write apps/web/src apps/web/public apps/web/scripts apps/web/*.json apps/web/*.jsonc apps/web/*.mjs packages \"labs/**/*.json\" \"schemas/**/*.json\" package.json eslint.config.mjs prettier.config.mjs vitest.config.ts .github/workflows",
-    "format:check": "prettier --check apps/web/src apps/web/public apps/web/scripts apps/web/*.json apps/web/*.jsonc apps/web/*.mjs packages \"labs/**/*.json\" \"schemas/**/*.json\" package.json eslint.config.mjs prettier.config.mjs vitest.config.ts .github/workflows",
+    "format": "prettier --write apps/web/src apps/web/public apps/web/scripts apps/web/*.json apps/web/*.jsonc apps/web/*.mjs packages scripts \"labs/**/*.json\" \"schemas/**/*.json\" package.json eslint.config.mjs prettier.config.mjs vitest.config.ts .github/workflows",
+    "format:check": "prettier --check apps/web/src apps/web/public apps/web/scripts apps/web/*.json apps/web/*.jsonc apps/web/*.mjs packages scripts \"labs/**/*.json\" \"schemas/**/*.json\" package.json eslint.config.mjs prettier.config.mjs vitest.config.ts .github/workflows",
     "lint": "eslint .",
     "typecheck": "npm run check --workspace @margrop-labs/web && npm run typecheck --workspace @margrop-labs/ai-gateway && npm run typecheck --workspace @margrop-labs/redaction",
     "test": "vitest run",
     "build": "npm run build --workspace @margrop-labs/web",
     "verify:static": "npm run verify:static --workspace @margrop-labs/web",
-    "validate": "npm run format:check && npm run lint && npm run typecheck && npm run test && npm run build && npm run verify:static"
+    "security:repository": "node scripts/security/repository-security.mjs",
+    "security:dependencies": "npm audit --audit-level=high",
+    "security": "npm run security:repository && npm run security:dependencies",
+    "validate": "npm run format:check && npm run security && npm run lint && npm run typecheck && npm run test && npm run build && npm run verify:static"
   },
   "devDependencies": {
-    "@eslint/js": "9.39.5",
-    "eslint": "9.39.5",
+    "@eslint/js": "10.0.1",
+    "ajv": "8.20.0",
+    "ajv-formats": "3.0.1",
+    "eslint": "10.8.0",
     "eslint-plugin-astro": "1.6.0",
     "globals": "17.7.0",
     "prettier": "3.9.6",
