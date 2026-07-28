@@ -190,8 +190,13 @@
     Content Bridge 使用说明。
   - 验收：CTA 只包含固定正式 Lab、源码和离线模板 HTTPS 链接；无查询/追踪参数、占位符、
     脚本或用户派生字段；合同、已提交片段与 renderer 精确一致；不调用网络、AI 或存储。
-- [ ] **P4-006 [S] 在博客导航突出 Token Forge 入口**
-- [ ] **P4-007 [M] 建立 Labs 首页与 Token Forge 的 SEO、Open Graph 和 sitemap**
+- [ ] **P4-006 [S] [按仓库所有者决定暂缓] 在博客导航突出 Token Forge 入口**
+- [x] **P4-007 [M] 建立 Labs 首页与 Token Forge 的 SEO、Open Graph 和 sitemap**
+  - 产物：同源 canonical/OG/Twitter/JSON-LD 元数据合同、首页与 Token Forge 的
+    1200×630 PNG、构建时 sitemap index/urlset、robots 发现声明和静态回归检查。
+  - 验收：首页与 Token Forge 使用独立标题、描述、图片与结构化数据；404 明确 noindex
+    且不进入 sitemap；Proposed 路由和 API 不进入 sitemap；图片固定同源、无追踪参数、
+    用户派生字段、脚本或远程资源；合同、构建产物与图片尺寸自动验证。
 - [ ] **P4-008 [M] 复盘 Token Forge 打开率、运行率、导出率、失败原因和 GitHub 点击率**
 
 ## P5：AI 面试工作台（第二优先级，P1-014 前阻塞）
@@ -237,4 +242,6 @@
 
 ## 推荐下一项任务
 
-接下来只完成 **P4-006**：在博客导航突出 Token Forge 入口。每次仍只处理一个任务。
+P4-006 已按仓库所有者决定暂缓。接下来进入 **P4-008** 的上线观察期：连续收集至少 14 天、
+50 次有效运行和 10 次导出后，再复盘 Token Forge 打开率、运行率、导出率、失败原因和
+GitHub 点击率。证据门槛达到前不提前执行 P1-014 或解锁 P5。

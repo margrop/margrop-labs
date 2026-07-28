@@ -1,0 +1,173 @@
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  width="1200"
+  height="630"
+  viewBox="0 0 1200 630"
+  role="img"
+  aria-labelledby="title description"
+>
+  <title id="title">Token Task Forge</title>
+  <desc id="description">
+    Idle coding tokens are forged into bounded, shippable tasks.
+  </desc>
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#08111f" />
+      <stop offset=".58" stop-color="#121a2d" />
+      <stop offset="1" stop-color="#211628" />
+    </linearGradient>
+    <linearGradient id="hot-metal" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#35d9ff" />
+      <stop offset=".5" stop-color="#9b7cff" />
+      <stop offset="1" stop-color="#ffb454" />
+    </linearGradient>
+    <radialGradient id="forge-glow">
+      <stop offset="0" stop-color="#ff9d3f" stop-opacity=".38" />
+      <stop offset="1" stop-color="#ff9d3f" stop-opacity="0" />
+    </radialGradient>
+    <pattern id="grid" width="48" height="48" patternUnits="userSpaceOnUse">
+      <path
+        d="M 48 0 L 0 0 0 48"
+        fill="none"
+        stroke="#9fb6d7"
+        stroke-opacity=".07"
+        stroke-width="1"
+      />
+    </pattern>
+  </defs>
+  <rect width="1200" height="630" fill="url(#background)" />
+  <rect width="1200" height="630" fill="url(#grid)" />
+  <circle cx="1030" cy="460" r="380" fill="url(#forge-glow)" />
+
+  <g transform="translate(72 62)">
+    <rect
+      width="62"
+      height="62"
+      rx="17"
+      fill="#0f2032"
+      stroke="#35d9ff"
+      stroke-width="2"
+    />
+    <path
+      d="M15 45V17h7l9 15 9-15h7v28h-8V29l-8 13-8-13v16z"
+      fill="#e9f7ff"
+    />
+    <text
+      x="82"
+      y="39"
+      fill="#f7fbff"
+      font-family="DejaVu Sans, sans-serif"
+      font-size="24"
+      font-weight="700"
+      letter-spacing="4"
+    >
+      MARGROP LABS
+    </text>
+  </g>
+
+  <g transform="translate(74 211)">
+    <text
+      fill="#ffb454"
+      font-family="DejaVu Sans, sans-serif"
+      font-size="22"
+      font-weight="700"
+      letter-spacing="6"
+    >
+      TOKEN TASK FORGE
+    </text>
+    <text
+      y="82"
+      fill="#f7fbff"
+      font-family="DejaVu Sans, sans-serif"
+      font-size="58"
+      font-weight="700"
+      letter-spacing="-1"
+    >
+      IDLE TOKENS IN.
+    </text>
+    <text
+      y="157"
+      fill="#35d9ff"
+      font-family="DejaVu Sans, sans-serif"
+      font-size="58"
+      font-weight="700"
+      letter-spacing="-1"
+    >
+      SHIPPABLE WORK OUT.
+    </text>
+    <text
+      y="220"
+      fill="#9fb0ca"
+      font-family="DejaVu Sans, sans-serif"
+      font-size="22"
+      letter-spacing=".3"
+    >
+      Bounded scope · Explicit acceptance · Agent-ready exports
+    </text>
+  </g>
+
+  <g transform="translate(824 140)">
+    <path
+      d="M10 69h110M10 139h110M10 209h110"
+      stroke="url(#hot-metal)"
+      stroke-width="20"
+      stroke-linecap="round"
+    />
+    <path
+      d="M145 68h42M145 138h42M145 208h42"
+      stroke="#8da1be"
+      stroke-width="4"
+      stroke-linecap="round"
+    />
+    <path
+      d="M174 52l20 16-20 16M174 122l20 16-20 16M174 192l20 16-20 16"
+      fill="none"
+      stroke="#d8e4f5"
+      stroke-width="5"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
+    <g transform="translate(221)">
+      <rect
+        width="254"
+        height="278"
+        rx="27"
+        fill="#0c1729"
+        stroke="#ffb454"
+        stroke-width="2"
+      />
+      <circle cx="42" cy="46" r="9" fill="#ffb454" />
+      <path
+        d="M68 46h132M42 88h165M42 119h126M42 166h165M42 197h102"
+        stroke="#7990af"
+        stroke-width="11"
+        stroke-linecap="round"
+      />
+      <path
+        d="M42 238l14 14 31-35"
+        fill="none"
+        stroke="#35d9ff"
+        stroke-width="8"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+      <path
+        d="M103 238h104"
+        stroke="#dff9ff"
+        stroke-width="9"
+        stroke-linecap="round"
+      />
+    </g>
+  </g>
+
+  <text
+    x="74"
+    y="570"
+    fill="#7188a8"
+    font-family="DejaVu Sans, sans-serif"
+    font-size="19"
+    letter-spacing="1"
+  >
+    LAB.MARGROP.NET/TOKEN-FORGE/
+  </text>
+</svg>

@@ -15,11 +15,47 @@ const articleUrl = lab.related_articles[0];
 if (!articleUrl) {
   throw new Error("Token Forge requires a related article.");
 }
+
+const description =
+  "把闲置 Coding Token、可投入时间与技术目标转换成范围清楚、预算受限、可直接导出的任务计划。";
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  name: "Token 任务炼金炉",
+  alternateName: "Token Task Forge",
+  url: "https://lab.margrop.net/token-forge/",
+  description,
+  applicationCategory: "DeveloperApplication",
+  operatingSystem: "Any",
+  browserRequirements: "Requires a modern browser",
+  inLanguage: "zh-CN",
+  isAccessibleForFree: true,
+  featureList: [
+    "无需登录的确定性任务模板",
+    "可选的受限 AI 增强",
+    "公开 GitHub 仓库只读摘要",
+    "Markdown、GitHub Issue 与 Coding Agent 执行包导出",
+  ],
+  offers: {
+    "@type": "Offer",
+    price: "0",
+    priceCurrency: "CNY",
+  },
+  creator: {
+    "@type": "Person",
+    name: "Margrop",
+    url: "https://blog.margrop.net/",
+  },
+};
 ---
 
 <BaseLayout
   title="Token 任务炼金炉｜Margrop Labs"
-  description="把闲置 Coding Token、可投入时间与技术目标转换成范围清楚、预算受限、可直接导出的任务计划。"
+  {description}
+  socialTitle="Token 任务炼金炉｜把闲置 Token 锻造成可验收任务"
+  socialImagePath="/social/token-forge.png"
+  socialImageAlt="Token 任务炼金炉：把闲置 Token 锻造成可以验收的任务"
+  {structuredData}
 >
   <section class="lab-page">
     <header class="lab-page-hero">

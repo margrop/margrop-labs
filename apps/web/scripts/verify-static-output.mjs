@@ -11,6 +11,18 @@ const incidentDetectiveUrl = new URL(
   import.meta.url,
 );
 const smartRmaUrl = new URL("../dist/smart-rma/index.html", import.meta.url);
+const notFoundUrl = new URL("../dist/404.html", import.meta.url);
+const robotsUrl = new URL("../dist/robots.txt", import.meta.url);
+const sitemapIndexUrl = new URL("../dist/sitemap-index.xml", import.meta.url);
+const sitemapUrl = new URL("../dist/sitemap-0.xml", import.meta.url);
+const homeSocialImageUrl = new URL(
+  "../dist/social/margrop-labs.png",
+  import.meta.url,
+);
+const tokenForgeSocialImageUrl = new URL(
+  "../dist/social/token-forge.png",
+  import.meta.url,
+);
 const stylesUrl = new URL("../src/styles/global.css", import.meta.url);
 const assetsUrl = new URL("../dist/_astro/", import.meta.url);
 const html = await readFile(fileURLToPath(indexUrl), "utf8");
@@ -20,6 +32,14 @@ const incidentDetectiveHtml = await readFile(
   "utf8",
 );
 const smartRmaHtml = await readFile(fileURLToPath(smartRmaUrl), "utf8");
+const notFoundHtml = await readFile(fileURLToPath(notFoundUrl), "utf8");
+const robots = await readFile(fileURLToPath(robotsUrl), "utf8");
+const sitemapIndex = await readFile(fileURLToPath(sitemapIndexUrl), "utf8");
+const sitemap = await readFile(fileURLToPath(sitemapUrl), "utf8");
+const homeSocialImage = await readFile(fileURLToPath(homeSocialImageUrl));
+const tokenForgeSocialImage = await readFile(
+  fileURLToPath(tokenForgeSocialImageUrl),
+);
 const styles = await readFile(fileURLToPath(stylesUrl), "utf8");
 const assetNames = await readdir(fileURLToPath(assetsUrl));
 const clientJavaScript = (
@@ -29,6 +49,15 @@ const clientJavaScript = (
       .map((name) => readFile(fileURLToPath(new URL(name, assetsUrl)), "utf8")),
   )
 ).join("\n");
+
+function isSocialPreviewPng(bytes) {
+  return (
+    bytes.subarray(0, 8).toString("hex") === "89504e470d0a1a0a" &&
+    bytes.readUInt32BE(16) === 1200 &&
+    bytes.readUInt32BE(20) === 630 &&
+    bytes.length >= 20_000
+  );
+}
 
 const checks = [
   ["Chinese language", html.includes('lang="zh-CN"')],
@@ -40,6 +69,56 @@ const checks = [
     "meta description",
     html.includes('name="description"') &&
       html.includes("把 AI Agent、Self-hosting、PVE、NAS 与可观测性文章"),
+  ],
+  [
+    "homepage canonical and social metadata",
+    [
+      '<meta name="robots" content="index, follow">',
+      '<link rel="canonical" href="https://lab.margrop.net/">',
+      '<meta property="og:type" content="website">',
+      '<meta property="og:site_name" content="Margrop Labs">',
+      '<meta property="og:locale" content="zh_CN">',
+      '<meta property="og:url" content="https://lab.margrop.net/">',
+      '<meta property="og:title" content="Margrop Labs｜把技术文章变成可验证实验">',
+      '<meta property="og:image" content="https://lab.margrop.net/social/margrop-labs.png">',
+      '<meta property="og:image:width" content="1200">',
+      '<meta property="og:image:height" content="630">',
+      '<meta name="twitter:card" content="summary_large_image">',
+    ].every((metadata) => html.includes(metadata)),
+  ],
+  [
+    "homepage structured discovery data",
+    html.includes('type="application/ld+json"') &&
+      html.includes('"@type":"WebSite"') &&
+      html.includes('"@type":"ItemList"') &&
+      html.includes('"name":"Token 任务炼金炉"') &&
+      !html.includes('"name":"AI 面试工作台","url"'),
+  ],
+  [
+    "social preview image contract",
+    isSocialPreviewPng(homeSocialImage) &&
+      isSocialPreviewPng(tokenForgeSocialImage),
+  ],
+  [
+    "sitemap discovery contract",
+    robots.includes("Sitemap: https://lab.margrop.net/sitemap-index.xml") &&
+      sitemapIndex.includes(
+        "<loc>https://lab.margrop.net/sitemap-0.xml</loc>",
+      ) &&
+      [
+        "https://lab.margrop.net/",
+        "https://lab.margrop.net/token-forge/",
+        "https://lab.margrop.net/incident-detective/",
+        "https://lab.margrop.net/smart-rma/",
+      ].every((url) => sitemap.includes(`<loc>${url}</loc>`)) &&
+      !sitemap.includes("/404") &&
+      !sitemap.includes("/api/") &&
+      !sitemap.includes("/interview-workbench/"),
+  ],
+  [
+    "404 excluded from search",
+    notFoundHtml.includes('<meta name="robots" content="noindex, nofollow">') &&
+      !sitemap.includes("https://lab.margrop.net/404"),
   ],
   ["static H1", html.includes("把技术文章，变成可以")],
   [
@@ -76,13 +155,15 @@ const checks = [
   [
     "strategic Lab order",
     [
-      "Token 任务炼金炉",
-      "AI 面试工作台",
-      "AI 故障侦探",
-      "SMART / RMA 报告机",
+      "token-forge",
+      "interview-workbench",
+      "incident-detective",
+      "smart-rma",
     ].every(
-      (title, index, titles) =>
-        index === 0 || html.indexOf(titles[index - 1]) < html.indexOf(title),
+      (id, index, ids) =>
+        index === 0 ||
+        html.indexOf(`data-lab-id="${ids[index - 1]}"`) <
+          html.indexOf(`data-lab-id="${id}"`),
     ),
   ],
   [
@@ -173,6 +254,19 @@ const checks = [
     tokenForgeHtml.includes("<title>Token 任务炼金炉｜Margrop Labs</title>") &&
       tokenForgeHtml.includes("把闲置 Token") &&
       tokenForgeHtml.includes("可以验收"),
+  ],
+  [
+    "Token Forge canonical and social metadata",
+    [
+      '<link rel="canonical" href="https://lab.margrop.net/token-forge/">',
+      '<meta property="og:url" content="https://lab.margrop.net/token-forge/">',
+      '<meta property="og:title" content="Token 任务炼金炉｜把闲置 Token 锻造成可验收任务">',
+      '<meta property="og:image" content="https://lab.margrop.net/social/token-forge.png">',
+      '<meta name="twitter:image" content="https://lab.margrop.net/social/token-forge.png">',
+      '"@type":"WebApplication"',
+      '"isAccessibleForFree":true',
+      '"公开 GitHub 仓库只读摘要"',
+    ].every((metadata) => tokenForgeHtml.includes(metadata)),
   ],
   [
     "Token Forge native form",
