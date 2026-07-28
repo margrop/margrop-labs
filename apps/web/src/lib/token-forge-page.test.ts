@@ -8,6 +8,7 @@ import {
   emitTokenForgeEvent,
   TokenForgeEventError,
   TokenForgeFormError,
+  tokenForgeAnalyticsEndpointPath,
   tokenForgeSyntheticFormValues,
   validateTokenForgeEvent,
 } from "./token-forge-page";
@@ -163,7 +164,7 @@ describe("Token Forge minimal events", () => {
     expect(classifyTokenForgeDevice(width)).toBe(expected);
   });
 
-  it("emits only the validated event and ignores sink failures", () => {
+  it("emits only the validated event and ignores sync or async sink failures", async () => {
     const sink = vi.fn();
     const event = emitTokenForgeEvent("run_success", "desktop", sink);
 
@@ -173,16 +174,38 @@ describe("Token Forge minimal events", () => {
         throw new Error("synthetic sink failure");
       }),
     ).not.toThrow();
+    expect(() =>
+      emitTokenForgeEvent("run_failure", "unknown", async () => {
+        throw new Error("synthetic async sink failure");
+      }),
+    ).not.toThrow();
+    await Promise.resolve();
   });
 
-  it("does not use network, storage or console for the default sink", () => {
-    const fetchMock = vi.fn();
+  it("posts only the minimal event with privacy-preserving request options", async () => {
+    const fetchMock = vi.fn().mockResolvedValue(new Response(null));
     const consoleMock = vi.spyOn(console, "log").mockImplementation(() => {});
     vi.stubGlobal("fetch", fetchMock);
 
     try {
       emitTokenForgeEvent("lab_open", "desktop");
-      expect(fetchMock).not.toHaveBeenCalled();
+      await Promise.resolve();
+      expect(fetchMock).toHaveBeenCalledWith(tokenForgeAnalyticsEndpointPath, {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({
+          schema_version: "1.0",
+          event_name: "lab_open",
+          lab_id: "token-forge",
+          lab_version: "1.0",
+          device_category: "desktop",
+        }),
+        credentials: "omit",
+        keepalive: true,
+        referrerPolicy: "no-referrer",
+      });
       expect(consoleMock).not.toHaveBeenCalled();
     } finally {
       vi.unstubAllGlobals();

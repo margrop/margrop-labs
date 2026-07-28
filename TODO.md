@@ -173,7 +173,12 @@
 - [x] **P4-002 [M] 配置 `lab.margrop.net` 正式部署**
   - Production：`https://lab.margrop.net`。
   - 验收：Custom Domain、HTTPS、首页、核心内容和 `robots.txt` 在线检查通过；生产发布保持手动触发。
-- [ ] **P4-003 [M] 为 Token Forge 建立不采集输入正文的 Analytics**
+- [x] **P4-003 [M] 为 Token Forge 建立不采集输入正文的 Analytics**
+  - 产物：`token-forge-analytics-snapshot-v1`、同源 `/api/token-forge/events`、独立
+    SQLite Durable Object、31 天按日聚合和 Preview/Production 隔离 binding。
+  - 验收：浏览器只发送事件、Lab ID/版本和粗设备类别；Worker 重新执行 allowlist 与
+    Schema，未知字段丢弃；不保存原始事件、单次时间戳、访客/会话 ID、来源、User-Agent、
+    网络标识或正文；1 KiB 请求和 31 天存储硬上限；上报失败不影响主流程；无公共读 API。
 - [x] **P4-004 [M] 建立 Token Forge AI 日/用户预算、限流与熔断**
   - 产物：`token-forge-ai-policy-v1`、匿名用户/Lab/全站三层 Token 与微美元日预算、滑动
     限流、并发预留、熔断状态机、可验证隐私快照和 Gateway 安全失败映射。
@@ -228,5 +233,4 @@
 
 ## 推荐下一项任务
 
-接下来只完成 **P4-003**：为 Token Forge 建立不采集输入正文的 Analytics。每次仍只处理
-一个任务。
+接下来只完成 **P4-005**：为博客生成 Token Forge 统一 CTA 片段。每次仍只处理一个任务。

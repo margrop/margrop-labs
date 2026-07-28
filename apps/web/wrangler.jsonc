@@ -32,10 +32,18 @@
         "name": "TOKEN_FORGE_AI_POLICY",
         "class_name": "TokenForgeAiPolicyObject",
       },
+      {
+        "name": "TOKEN_FORGE_ANALYTICS",
+        "class_name": "TokenForgeAnalyticsObject",
+      },
     ],
   },
   "exports": {
     "TokenForgeAiPolicyObject": {
+      "type": "durable-object",
+      "storage": "sqlite",
+    },
+    "TokenForgeAnalyticsObject": {
       "type": "durable-object",
       "storage": "sqlite",
     },
@@ -61,10 +69,18 @@
             "name": "TOKEN_FORGE_AI_POLICY",
             "class_name": "TokenForgeAiPolicyObject",
           },
+          {
+            "name": "TOKEN_FORGE_ANALYTICS",
+            "class_name": "TokenForgeAnalyticsObject",
+          },
         ],
       },
       "exports": {
         "TokenForgeAiPolicyObject": {
+          "type": "durable-object",
+          "storage": "sqlite",
+        },
+        "TokenForgeAnalyticsObject": {
           "type": "durable-object",
           "storage": "sqlite",
         },

@@ -1,0 +1,20 @@
+{
+  "schema_version": "1.0",
+  "days": [
+    {
+      "date": "2026-07-27",
+      "counts": [
+        {
+          "event_name": "lab_open",
+          "device_category": "desktop",
+          "count": 8
+        },
+        {
+          "event_name": "run_success",
+          "device_category": "desktop",
+          "count": 5
+        }
+      ]
+    }
+  ]
+}
