@@ -1,0 +1,99 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lab.margrop.net/schemas/interview-resume-v1.schema.json",
+  "title": "Interview Workbench Resume v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "sensitivity",
+    "resume_id",
+    "headline",
+    "experiences",
+    "skills"
+  ],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "sensitivity": { "const": "sensitive" },
+    "resume_id": { "$ref": "#/$defs/id" },
+    "headline": { "$ref": "#/$defs/shortText" },
+    "experiences": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 12,
+      "items": { "$ref": "#/$defs/experience" }
+    },
+    "skills": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 40,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/shortText" }
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "maxLength": 80
+    },
+    "shortText": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 240,
+      "pattern": "\\S"
+    },
+    "paragraph": {
+      "type": "string",
+      "minLength": 10,
+      "maxLength": 800,
+      "pattern": "\\S"
+    },
+    "experience": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "experience_id",
+        "role",
+        "domain",
+        "summary",
+        "technologies",
+        "scope",
+        "achievements"
+      ],
+      "properties": {
+        "experience_id": { "$ref": "#/$defs/id" },
+        "role": { "$ref": "#/$defs/shortText" },
+        "domain": { "$ref": "#/$defs/shortText" },
+        "summary": { "$ref": "#/$defs/paragraph" },
+        "technologies": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 20,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/shortText" }
+        },
+        "scope": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["team_size", "ownership", "scale"],
+          "properties": {
+            "team_size": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 10000
+            },
+            "ownership": { "$ref": "#/$defs/shortText" },
+            "scale": { "$ref": "#/$defs/shortText" }
+          }
+        },
+        "achievements": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 8,
+          "items": { "$ref": "#/$defs/paragraph" }
+        }
+      }
+    }
+  }
+}

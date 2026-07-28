@@ -67,9 +67,10 @@ Interview Workbench，保证现有 Production 行为不变。
 
 ### 优先级
 
-本 ADR 和 Proposed Manifest 只记录已批准的产品方向，不解锁功能开发。Token Forge 仍按
-既定路线图完成 P4-003、P4-005 至 P4-008 和 P1-014。P1-014 通过后，默认只解锁 AI
-面试工作台；AI 故障侦探与 SMART / RMA 继续冻结，除非仓库所有者再次明确调整优先级。
+本 ADR 和 Proposed Manifest 原本只记录已批准的产品方向，不解锁功能开发。2026-07-28，
+仓库所有者明确批准绕过 Token Forge 真实观察门槛的风险例外，解锁 P5-001 及其后续顺序；
+该例外不改变 P1-014 的 NO-GO 记录，也不代表 Token Forge 已达到 Beta。AI 故障侦探与
+SMART / RMA 继续冻结，除非仓库所有者再次明确调整优先级。
 
 ## 后果
 

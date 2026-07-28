@@ -1,0 +1,9 @@
+{
+  "schema_version": "1.0",
+  "sensitivity": "sensitive",
+  "requirement_id": "requirement-java-go",
+  "category": "technical",
+  "priority": "must",
+  "statement": "能够使用 Java、Go 或 Python 之一交付可靠的服务端代码。",
+  "evidence_signals": ["线上服务代码", "语言生态实践", "测试与工程习惯"]
+}

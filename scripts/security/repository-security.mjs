@@ -64,6 +64,22 @@ const safeCandidateMarkers = [
 
 const fixtureContracts = [
   [
+    "labs/interview-workbench/fixtures/resume.valid.json",
+    "schemas/interview-resume-v1.schema.json",
+  ],
+  [
+    "labs/interview-workbench/fixtures/jd.valid.json",
+    "schemas/interview-jd-v1.schema.json",
+  ],
+  [
+    "labs/interview-workbench/fixtures/requirement.valid.json",
+    "schemas/interview-requirement-v1.schema.json",
+  ],
+  [
+    "labs/interview-workbench/fixtures/evidence.valid.json",
+    "schemas/interview-evidence-v1.schema.json",
+  ],
+  [
     "labs/token-forge/fixtures/ai-gateway-request.valid.json",
     "schemas/ai-gateway-request-v1.schema.json",
   ],

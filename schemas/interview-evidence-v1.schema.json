@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lab.margrop.net/schemas/interview-evidence-v1.schema.json",
+  "title": "Interview Workbench Evidence v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "sensitivity",
+    "evidence_id",
+    "source",
+    "kind",
+    "summary",
+    "requirement_ids",
+    "support"
+  ],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "sensitivity": { "const": "sensitive" },
+    "evidence_id": { "$ref": "#/$defs/id" },
+    "source": {
+      "enum": ["resume", "interview_record", "candidate_preparation"]
+    },
+    "kind": {
+      "enum": ["experience", "project", "skill", "behavior", "unknown"]
+    },
+    "summary": { "$ref": "#/$defs/paragraph" },
+    "requirement_ids": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 8,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/id" }
+    },
+    "support": { "enum": ["direct", "partial", "conflict", "unknown"] }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "maxLength": 80
+    },
+    "paragraph": {
+      "type": "string",
+      "minLength": 10,
+      "maxLength": 800,
+      "pattern": "\\S"
+    }
+  }
+}

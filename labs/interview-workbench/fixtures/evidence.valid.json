@@ -1,0 +1,10 @@
+{
+  "schema_version": "1.0",
+  "sensitivity": "sensitive",
+  "evidence_id": "evidence-platform-java",
+  "source": "resume",
+  "kind": "experience",
+  "summary": "平台经历明确提到 Java 服务、任务调度和报告流水线交付。",
+  "requirement_ids": ["requirement-java-go"],
+  "support": "direct"
+}

@@ -1,0 +1,46 @@
+{
+  "schema_version": "1.0",
+  "sensitivity": "sensitive",
+  "resume_id": "resume-synthetic-001",
+  "headline": "云平台与机器人系统工程师",
+  "experiences": [
+    {
+      "experience_id": "experience-platform",
+      "role": "云平台工程师",
+      "domain": "机器人云服务",
+      "summary": "负责任务调度、报告流水线和开放接口等平台能力的设计与交付。",
+      "technologies": ["Java", "Go", "Kafka", "MySQL", "Kubernetes"],
+      "scope": {
+        "team_size": 6,
+        "ownership": "平台服务与接口稳定性",
+        "scale": "多租户机器人任务系统"
+      },
+      "achievements": [
+        "将报告上传成功率提升到 99.99% 左右。",
+        "通过幂等、重试和可观测性建设减少线上事故。"
+      ]
+    },
+    {
+      "experience_id": "experience-observability",
+      "role": "可观测性项目负责人",
+      "domain": "平台可靠性",
+      "summary": "建设指标、日志、黑盒和数据库证据链，支持跨团队故障排查。",
+      "technologies": ["Prometheus", "Grafana", "Loki", "Docker"],
+      "scope": {
+        "team_size": 4,
+        "ownership": "监控规范与排障流程",
+        "scale": "多环境服务与基础设施"
+      },
+      "achievements": ["为高频故障建立可复现的指标、日志和 Runbook 证据链。"]
+    }
+  ],
+  "skills": [
+    "Java",
+    "Go",
+    "Spring",
+    "Kafka",
+    "MySQL",
+    "Kubernetes",
+    "Prometheus"
+  ]
+}
