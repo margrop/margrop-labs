@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lab.margrop.net/schemas/lab-analytics-snapshot-v1.schema.json",
+  "title": "Lab aggregate analytics snapshot v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "days"],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "days": {
+      "type": "array",
+      "maxItems": 31,
+      "items": { "$ref": "#/$defs/day" }
+    }
+  },
+  "$defs": {
+    "day": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["date", "counts"],
+      "properties": {
+        "date": {
+          "type": "string",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+        },
+        "counts": {
+          "type": "array",
+          "maxItems": 52,
+          "items": { "$ref": "#/$defs/count" }
+        }
+      }
+    },
+    "count": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["lab_id", "event_name", "device_category", "count"],
+          "properties": {
+            "lab_id": { "const": "token-forge" },
+            "event_name": {
+              "enum": [
+                "lab_open",
+                "run_success",
+                "run_failure",
+                "export",
+                "blog_click",
+                "github_click"
+              ]
+            },
+            "device_category": {
+              "enum": ["mobile", "tablet", "desktop", "unknown"]
+            },
+            "count": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["lab_id", "event_name", "device_category", "count"],
+          "properties": {
+            "lab_id": { "const": "interview-workbench" },
+            "event_name": {
+              "enum": [
+                "lab_open",
+                "match_complete",
+                "plan_complete",
+                "conclusion_complete",
+                "ai_success",
+                "ai_fallback",
+                "export"
+              ]
+            },
+            "device_category": {
+              "enum": ["mobile", "tablet", "desktop", "unknown"]
+            },
+            "count": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            }
+          }
+        }
+      ]
+    }
+  }
+}

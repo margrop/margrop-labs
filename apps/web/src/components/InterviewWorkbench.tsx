@@ -1,4 +1,4 @@
-import { useMemo, useState } from "preact/hooks";
+import { useEffect, useMemo, useState } from "preact/hooks";
 
 import type { InterviewBoundaryProjection } from "../lib/interview-contracts";
 import type {
@@ -18,6 +18,10 @@ import { buildInterviewConclusion } from "../lib/interview-recording";
 import { validateInterviewRecord } from "../lib/interview-recording";
 import { ExportActions } from "./ui/ExportActions";
 import { StatusNotice, type StatusTone } from "./ui/StatusNotice";
+import {
+  classifyInterviewDevice,
+  emitInterviewAnalyticsEvent,
+} from "../lib/interview-analytics";
 
 type InterviewWorkbenchProps = {
   initialRun: InterviewSyntheticLoopRun;
@@ -285,6 +289,18 @@ export default function InterviewWorkbench({
     conclusion: initialAiNotice(),
   });
   const [aiBusy, setAiBusy] = useState<AiAction | null>(null);
+  const deviceCategory = useMemo(
+    () =>
+      classifyInterviewDevice(
+        typeof window === "undefined" ? undefined : window.innerWidth,
+      ),
+    [],
+  );
+
+  useEffect(() => {
+    emitInterviewAnalyticsEvent("lab_open", deviceCategory);
+    emitInterviewAnalyticsEvent("match_complete", deviceCategory);
+  }, [deviceCategory]);
 
   const stage = run.roles[role];
   const requirementLabels = useMemo(
@@ -304,9 +320,21 @@ export default function InterviewWorkbench({
     message: string,
   ): void => setStatus({ tone, title, message });
 
+  const moveToStep = (nextStep: InterviewStep): void => {
+    setStep(nextStep);
+    emitInterviewAnalyticsEvent(
+      nextStep === 1
+        ? "match_complete"
+        : nextStep === 2
+          ? "plan_complete"
+          : "conclusion_complete",
+      deviceCategory,
+    );
+  };
+
   const changeRole = (nextRole: InterviewSyntheticRole): void => {
     setRole(nextRole);
-    setStep(1);
+    moveToStep(1);
     setWorkbenchStatus(
       "info",
       `${roleLabels[nextRole]}视角已切换`,
@@ -317,7 +345,7 @@ export default function InterviewWorkbench({
   const restoreSample = (): void => {
     setRun(initialRun);
     setRole("interviewer");
-    setStep(1);
+    moveToStep(1);
     setAiNotices({
       match: initialAiNotice(),
       plan: initialAiNotice(),
@@ -460,6 +488,7 @@ export default function InterviewWorkbench({
         throw new Error("gateway-failure");
       }
       const message = summarizeAiResult(action, payload.result);
+      emitInterviewAnalyticsEvent("ai_success", deviceCategory);
       setAiNotices((current) => ({
         ...current,
         [action]: { state: "ready", title: "AI 结果已安全返回", message },
@@ -470,6 +499,7 @@ export default function InterviewWorkbench({
         "AI 结果只作为可审阅建议显示；确定性内核、人工确认和安全导出边界保持不变。",
       );
     } catch {
+      emitInterviewAnalyticsEvent("ai_fallback", deviceCategory);
       setAiNotices((current) => ({
         ...current,
         [action]: {
@@ -842,6 +872,7 @@ export default function InterviewWorkbench({
         <ExportActions
           content={renderInterviewSafeExportMarkdown(stage.export)}
           fileName={`interview-${role}-summary.md`}
+          onExport={() => emitInterviewAnalyticsEvent("export", deviceCategory)}
         />
       </div>
     </section>
@@ -896,7 +927,7 @@ export default function InterviewWorkbench({
             type="button"
             class={step === value ? "is-active" : ""}
             aria-current={step === value ? "step" : undefined}
-            onClick={() => setStep(value)}
+            onClick={() => moveToStep(value)}
             key={value}
           >
             <span>0{value}</span>
@@ -913,7 +944,7 @@ export default function InterviewWorkbench({
           class="button button--secondary"
           type="button"
           disabled={step === 1}
-          onClick={() => setStep(Math.max(1, step - 1) as InterviewStep)}
+          onClick={() => moveToStep(Math.max(1, step - 1) as InterviewStep)}
         >
           上一步
         </button>
@@ -921,7 +952,7 @@ export default function InterviewWorkbench({
           class="button button--primary"
           type="button"
           disabled={step === 3}
-          onClick={() => setStep(Math.min(3, step + 1) as InterviewStep)}
+          onClick={() => moveToStep(Math.min(3, step + 1) as InterviewStep)}
         >
           下一步：
           {step < 3 ? stepLabels[(step + 1) as InterviewStep].title : "完成"}

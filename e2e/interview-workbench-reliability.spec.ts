@@ -4,6 +4,10 @@ test("degrades all three AI actions to the deterministic loop on provider failur
   page,
 }) => {
   await page.route("**/api/interview-workbench/*", async (route) => {
+    if (new URL(route.request().url()).pathname.endsWith("/events")) {
+      await route.fulfill({ status: 204 });
+      return;
+    }
     await route.fulfill({
       status: 503,
       contentType: "application/json",

@@ -3,6 +3,13 @@ import { expect, test } from "@playwright/test";
 test("runs the dual-role three-step sample and preserves a safe export", async ({
   page,
 }) => {
+  const events: Array<Record<string, unknown>> = [];
+  await page.route("**/api/interview-workbench/events", async (route) => {
+    events.push(
+      (await route.request().postDataJSON()) as Record<string, unknown>,
+    );
+    await route.fulfill({ status: 204 });
+  });
   await page.route("**/api/interview-workbench/match", async (route) => {
     await route.fulfill({
       status: 429,
@@ -55,6 +62,51 @@ test("runs the dual-role three-step sample and preserves a safe export", async (
   await page.getByRole("button", { name: "下载 Markdown" }).click();
   const download = await downloadPromise;
   expect(download.suggestedFilename()).toBe("interview-candidate-summary.md");
+  await expect.poll(() => events.length).toBeGreaterThanOrEqual(6);
+  expect(events).toContainEqual(
+    expect.objectContaining({ event_name: "lab_open" }),
+  );
+  expect(events).toContainEqual(
+    expect.objectContaining({ event_name: "match_complete" }),
+  );
+  expect(events).toContainEqual(
+    expect.objectContaining({ event_name: "plan_complete" }),
+  );
+  expect(events).toContainEqual(
+    expect.objectContaining({ event_name: "conclusion_complete" }),
+  );
+  expect(events).toContainEqual(
+    expect.objectContaining({ event_name: "ai_fallback" }),
+  );
+  expect(events).toContainEqual(
+    expect.objectContaining({ event_name: "export" }),
+  );
+  expect(JSON.stringify(events)).not.toMatch(
+    /candidate|interviewer|resume|\bjd\b|question|record|prompt|response|error/iu,
+  );
+});
+
+test("keeps the local flow usable when analytics is unavailable", async ({
+  page,
+}) => {
+  await page.route("**/api/interview-workbench/events", async (route) => {
+    await route.fulfill({ status: 503 });
+  });
+  await page.route("**/api/interview-workbench/match", async (route) => {
+    await route.fulfill({ status: 503, body: "{}" });
+  });
+
+  await page.goto("/interview-workbench/");
+  await page.locator(".interview-stepper").getByRole("button").nth(2).click();
+  await page.getByRole("button", { name: "AI 结论草稿" }).click();
+  await expect(
+    page.getByText("AI 不可用，已保留本地结果", { exact: true }),
+  ).toBeVisible();
+  const downloadPromise = page.waitForEvent("download");
+  await page.getByRole("button", { name: "下载 Markdown" }).click();
+  expect((await downloadPromise).suggestedFilename()).toBe(
+    "interview-interviewer-summary.md",
+  );
 });
 
 test.use({
@@ -81,4 +133,31 @@ test("keeps the workbench usable at 320px with reduced motion", async ({
       () => window.matchMedia("(prefers-reduced-motion: reduce)").matches,
     ),
   ).toBe(true);
+});
+
+test("publishes only the indexable synthetic Alpha surface", async ({
+  page,
+}) => {
+  await page.goto("/interview-workbench/");
+
+  await expect(page.locator('meta[name="robots"]')).toHaveAttribute(
+    "content",
+    "index, follow",
+  );
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+    "href",
+    "https://lab.margrop.net/interview-workbench/",
+  );
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute(
+    "content",
+    "https://lab.margrop.net/social/interview-workbench.png",
+  );
+  await expect(page.getByText("INTERVIEW WORKBENCH · ALPHA")).toBeVisible();
+  await expect(
+    page.getByText("当前是完全合成样例；真实文本尚未接入页面。"),
+  ).toBeVisible();
+  await expect(page.locator('input[type="file"]')).toHaveCount(0);
+  await expect(
+    page.locator('textarea[name*="resume" i], textarea[name*="jd" i]'),
+  ).toHaveCount(0);
 });

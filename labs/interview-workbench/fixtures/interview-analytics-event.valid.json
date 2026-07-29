@@ -1,0 +1,7 @@
+{
+  "schema_version": "1.0",
+  "event_name": "match_complete",
+  "lab_id": "interview-workbench",
+  "lab_version": "1.0",
+  "device_category": "desktop"
+}

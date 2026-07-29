@@ -2,47 +2,50 @@
 
 ## 目标
 
-回答：读者是否从文章进入 Lab、是否完成第一次运行、是否导出、是否访问源码或返回文章。
+仅回答固定产品阶段是否被触发，不识别用户，不保存正文，也不把 Analytics 当作计费、审计
+或个人行为分析依据。
 
-## 允许采集
+## 共享 v1 合同
 
-- 事件名、Lab ID、Lab 版本；
-- 页面路径；
-- 粗粒度设备类别；
-- 成功/失败/降级状态；
-- 不含正文的粗粒度性能桶。
+浏览器事件使用
+[`lab-analytics-event-v1.schema.json`](../schemas/lab-analytics-event-v1.schema.json)，只允许：
+
+- `schema_version`；
+- `lab_id` 与 `lab_version`；
+- Lab 专属固定 `event_name`；
+- `mobile`、`tablet`、`desktop`、`unknown` 四类粗设备类别。
+
+禁止页面路径之外的自由文本、角色、步骤编号、要求/证据/记录 ID、错误码、Provider、文件名、
+访客或会话 ID。请求最大 1 KiB，使用 `credentials: "omit"`、
+`referrerPolicy: "no-referrer"`、`keepalive: true` 且不重试；同步、异步或服务端失败都不得影响
+Lab 主流程。
+
+## 路由与事件
+
+- `POST /api/token-forge/events`：`lab_open`、`run_success`、`run_failure`、`export`、
+  `blog_click`、`github_click`；
+- `POST /api/interview-workbench/events`：`lab_open`、`match_complete`、`plan_complete`、
+  `conclusion_complete`、`ai_success`、`ai_fallback`、`export`。
+
+两个路由执行同源和 Lab 绑定校验。Token Forge 路由不能接收面试事件，面试路由不能接收
+Token Forge 事件。
+
+## 聚合与迁移
+
+Worker 在现有 `TOKEN_FORGE_ANALYTICS` SQLite Durable Object 中立即折叠为“UTC 日期 × Lab ×
+事件枚举 × 粗设备类别”计数，只保留 31 天，不提供公共读取端点。持久化合同见
+[`lab-analytics-snapshot-v1.schema.json`](../schemas/lab-analytics-snapshot-v1.schema.json)。
+
+旧 `token-forge-analytics-snapshot-v1` 在首次写入时补入 `lab_id: token-forge` 并迁移到
+`lab-analytics-snapshot-v1` key；旧 Token Forge API、事件构造函数和旧快照 facade 保持兼容。
+架构见 [ADR-0008](./adr/0008-shared-lab-aggregate-analytics.md)。
 
 ## 禁止采集
 
+- 简历、岗位说明、问题、回答、记录、结论、导出正文；
 - 表单值、仓库 URL、日志、SMART 输出；
-- AI Prompt、AI Response；
-- IP、域名、主机名、序列号；
-- 导出文件内容；
-- 输入长度等可用于推断敏感信息的高精度字段。
+- AI Prompt、AI Response 或 Provider 元数据；
+- IP、域名、主机名、序列号、Cookie、凭据；
+- 输入长度、精确性能或其他可推断敏感信息的高基数字段。
 
-Analytics 不是发布阻塞项；无法满足最小化要求时保持关闭。
-
-## Token Forge v1
-
-P1-006 使用独立的
-[`token-forge-event-v1.schema.json`](../schemas/token-forge-event-v1.schema.json) 收紧
-首个正式 Lab 的事件面。它只保留事件名、Lab ID、Lab 版本和粗粒度设备类别，不包含页面
-路径、状态详情、性能桶或任意自由文本。
-
-允许事件为 `lab_open`、`run_success`、`run_failure`、`export`、`blog_click` 和
-`github_click`。P1-012 的样例选择不增加独立事件；一键模板成功或失败仍只映射为
-`run_success` / `run_failure`，复制和下载共用 `export`。
-
-P4-003 通过同源 `POST /api/token-forge/events` 接入最小接收器。浏览器使用
-`credentials: "omit"`、`referrerPolicy: "no-referrer"` 且不重试；同步或异步异常都不
-影响 Lab 主流程。
-
-Worker 重新执行同一 Schema 和允许字段映射，然后在独立 SQLite Durable Object 事务内
-立即折叠为“UTC 日期 × 事件枚举 × 粗粒度设备类别”的计数。只保留 31 天，不保存原始
-事件、单次时间戳、访客/会话 ID、来源、User-Agent 或网络标识，也不提供公共读取端点。
-持久化结构见
-[`token-forge-analytics-snapshot-v1.schema.json`](../schemas/token-forge-analytics-snapshot-v1.schema.json)，
-架构取舍见 [ADR-0007](./adr/0007-token-forge-aggregate-analytics.md)。
-
-这些数字表示事件次数而非唯一用户；刷新、重复操作与自动化可能放大计数。后续 P4-008
-只能把它作为方向性漏斗，不能用于计费、安全审计或个人行为分析。
+这些计数表示事件次数而非唯一用户；刷新、重复操作和自动化会放大数字。

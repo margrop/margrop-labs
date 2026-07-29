@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lab.margrop.net/schemas/lab-analytics-event-v1.schema.json",
+  "title": "Lab Analytics Event v1",
+  "oneOf": [
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "event_name",
+        "lab_id",
+        "lab_version",
+        "device_category"
+      ],
+      "properties": {
+        "schema_version": { "const": "1.0" },
+        "event_name": {
+          "enum": [
+            "lab_open",
+            "run_success",
+            "run_failure",
+            "export",
+            "blog_click",
+            "github_click"
+          ]
+        },
+        "lab_id": { "const": "token-forge" },
+        "lab_version": { "const": "1.0" },
+        "device_category": {
+          "enum": ["mobile", "tablet", "desktop", "unknown"]
+        }
+      }
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "event_name",
+        "lab_id",
+        "lab_version",
+        "device_category"
+      ],
+      "properties": {
+        "schema_version": { "const": "1.0" },
+        "event_name": {
+          "enum": [
+            "lab_open",
+            "match_complete",
+            "plan_complete",
+            "conclusion_complete",
+            "ai_success",
+            "ai_fallback",
+            "export"
+          ]
+        },
+        "lab_id": { "const": "interview-workbench" },
+        "lab_version": { "const": "1.0" },
+        "device_category": {
+          "enum": ["mobile", "tablet", "desktop", "unknown"]
+        }
+      }
+    }
+  ]
+}

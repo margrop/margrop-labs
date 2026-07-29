@@ -26,6 +26,7 @@ import {
   buildInterviewSyntheticLoop,
   renderInterviewSafeExportMarkdown,
 } from "./interview-synthetic";
+import { validateLabAnalyticsEvent } from "./lab-analytics";
 
 const fixtureUrl = (name: string): URL =>
   new URL(
@@ -212,6 +213,39 @@ describe("Interview Workbench P5-008 reliability baseline", () => {
     expect(JSON.stringify(planInput)).not.toContain("事实只能停留");
     expect(JSON.stringify(conclusionInput)).not.toContain("keep-out");
     expect(errorText).toContain("prohibited");
+  });
+
+  it("keeps every interview analytics event free of content dimensions", () => {
+    const eventNames = [
+      "lab_open",
+      "match_complete",
+      "plan_complete",
+      "conclusion_complete",
+      "ai_success",
+      "ai_fallback",
+      "export",
+    ] as const;
+    const serialized = JSON.stringify(
+      eventNames.map((eventName) =>
+        validateLabAnalyticsEvent({
+          schema_version: "1.0",
+          event_name: eventName,
+          lab_id: "interview-workbench",
+          lab_version: "1.0",
+          device_category: "desktop",
+          resume: "林隐私样例",
+          jd: "requirement-platform",
+          record: "candidate-entry-1",
+          prompt: "must-not-cross",
+          response: "must-not-cross",
+          protected_attribute: "年龄",
+        }),
+      ),
+    );
+
+    expect(serialized).not.toMatch(
+      /林隐私样例|requirement-platform|candidate-entry-1|must-not-cross|年龄|resume|jd|record|prompt|response|protected_attribute/iu,
+    );
   });
 
   it("fails closed for protected text and automatic decisions", async () => {

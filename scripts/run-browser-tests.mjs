@@ -1,4 +1,5 @@
 import { spawnSync } from "node:child_process";
+import { existsSync } from "node:fs";
 import { mkdir, readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 
@@ -32,18 +33,42 @@ const playwrightCli = resolve(
   "test",
   "cli.js",
 );
-const runPlaywright = async (arguments_) => {
+const localBrowserCandidates = [
+  "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+  "/Applications/Chromium.app/Contents/MacOS/Chromium",
+];
+
+const resolveBrowserExecutable = async () => {
+  if (process.env.TOKEN_FORGE_BROWSER_PATH) {
+    return process.env.TOKEN_FORGE_BROWSER_PATH;
+  }
+  if (process.platform === "darwin") {
+    const localBrowser = localBrowserCandidates.find((candidate) =>
+      existsSync(candidate),
+    );
+    if (!localBrowser) {
+      throw new Error(
+        "Chrome or Chromium is required for local browser tests.",
+      );
+    }
+    return localBrowser;
+  }
+
   const getuid = process.getuid;
   process.getuid = () => 1_000;
-  let executablePath;
   try {
-    executablePath = await chromium.executablePath();
+    return await chromium.executablePath();
   } finally {
     process.getuid = getuid;
   }
+};
+
+const runPlaywright = async (arguments_) => {
+  const executablePath = await resolveBrowserExecutable();
   const environment = {
     ...process.env,
     TOKEN_FORGE_BROWSER_PATH: executablePath,
+    TOKEN_FORGE_BROWSER_LOCAL: process.platform === "darwin" ? "1" : "0",
     XDG_CACHE_HOME: browserCache,
   };
   const result = spawnSync(process.execPath, [playwrightCli, ...arguments_], {

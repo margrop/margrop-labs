@@ -16,12 +16,17 @@ import { connect } from "cloudflare:sockets";
 
 import { createCloudflareTcpFetch } from "./server/cloudflare-tcp-fetch";
 import {
-  type TokenForgeAnalyticsMutation,
   type TokenForgeAnalyticsSnapshot,
-  type TokenForgeAnalyticsStore,
-  handleTokenForgeAnalyticsRequest,
   tokenForgeAnalyticsEndpointPath,
 } from "./server/token-forge-analytics";
+import { interviewAnalyticsEndpointPath } from "./lib/interview-analytics";
+import {
+  handleLabAnalyticsRequest,
+  migrateTokenForgeAnalyticsSnapshot,
+  type LabAnalyticsMutation,
+  type LabAnalyticsSnapshot,
+  type LabAnalyticsStore,
+} from "./server/lab-analytics";
 
 type DurableObjectTransaction = {
   get<T>(key: string): Promise<T | undefined>;
@@ -68,7 +73,8 @@ type WorkerEnvironment = {
 const policySnapshotKey = "token-forge-ai-policy-v1";
 const policyObjectName = "token-forge-plan-v1";
 const interviewPolicySnapshotKey = "interview-ai-policy-v1";
-const analyticsSnapshotKey = "token-forge-analytics-snapshot-v1";
+const legacyAnalyticsSnapshotKey = "token-forge-analytics-snapshot-v1";
+const analyticsSnapshotKey = "lab-analytics-snapshot-v1";
 const analyticsObjectName = "token-forge-analytics-v1";
 
 class DurableObjectPolicyStore implements TokenForgePolicyStore {
@@ -166,19 +172,24 @@ export class InterviewAiPolicyObject {
   }
 }
 
-class DurableObjectAnalyticsStore implements TokenForgeAnalyticsStore {
+class DurableObjectAnalyticsStore implements LabAnalyticsStore {
   constructor(private readonly storage: DurableObjectStorage) {}
 
   mutate<T>(
     mutation: (
-      snapshot: TokenForgeAnalyticsSnapshot | undefined,
-    ) => TokenForgeAnalyticsMutation<T>,
+      snapshot: LabAnalyticsSnapshot | undefined,
+    ) => LabAnalyticsMutation<T>,
   ): Promise<T> {
     return this.storage.transaction(async (transaction) => {
+      const sharedSnapshot =
+        await transaction.get<LabAnalyticsSnapshot>(analyticsSnapshotKey);
+      const legacySnapshot = sharedSnapshot
+        ? undefined
+        : await transaction.get<TokenForgeAnalyticsSnapshot>(
+            legacyAnalyticsSnapshotKey,
+          );
       const snapshot =
-        await transaction.get<TokenForgeAnalyticsSnapshot>(
-          analyticsSnapshotKey,
-        );
+        sharedSnapshot ?? migrateTokenForgeAnalyticsSnapshot(legacySnapshot);
       const next = mutation(snapshot);
       await transaction.put(analyticsSnapshotKey, next.snapshot);
       return next.result;
@@ -187,16 +198,37 @@ class DurableObjectAnalyticsStore implements TokenForgeAnalyticsStore {
 }
 
 export class TokenForgeAnalyticsObject {
-  private readonly store: TokenForgeAnalyticsStore;
+  private readonly store: LabAnalyticsStore;
 
   constructor(state: DurableObjectState) {
     this.store = new DurableObjectAnalyticsStore(state.storage);
   }
 
   fetch(request: Request): Promise<Response> {
-    return handleTokenForgeAnalyticsRequest(request, {
-      store: this.store,
-    });
+    const pathname = new URL(request.url).pathname;
+    if (pathname === tokenForgeAnalyticsEndpointPath) {
+      return handleLabAnalyticsRequest(
+        request,
+        { store: this.store },
+        "token-forge",
+      );
+    }
+    if (pathname === interviewAnalyticsEndpointPath) {
+      return handleLabAnalyticsRequest(
+        request,
+        { store: this.store },
+        "interview-workbench",
+      );
+    }
+    return Promise.resolve(
+      new Response(null, {
+        status: 404,
+        headers: {
+          "cache-control": "no-store",
+          "x-content-type-options": "nosniff",
+        },
+      }),
+    );
   }
 }
 
@@ -214,7 +246,10 @@ export default {
       );
       return environment.INTERVIEW_AI_POLICY.get(id).fetch(request);
     }
-    if (url.pathname === tokenForgeAnalyticsEndpointPath) {
+    if (
+      url.pathname === tokenForgeAnalyticsEndpointPath ||
+      url.pathname === interviewAnalyticsEndpointPath
+    ) {
       const id =
         environment.TOKEN_FORGE_ANALYTICS.idFromName(analyticsObjectName);
       return environment.TOKEN_FORGE_ANALYTICS.get(id).fetch(request);

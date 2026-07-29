@@ -26,8 +26,9 @@ canonical 会丢弃查询参数和 fragment。分享图片必须与
 | --- | --- | --- | --- |
 | `/` | `Margrop Labs｜把技术文章变成可验证实验` | `/social/margrop-labs.png` | `WebSite` + 已上线 Lab 的 `ItemList` |
 | `/token-forge/` | `Token 任务炼金炉｜把闲置 Token 锻造成可验收任务` | `/social/token-forge.png` | `WebApplication` |
+| `/interview-workbench/` | `AI 面试工作台｜把面试判断变成可追溯证据链` | `/social/interview-workbench.png` | `WebApplication` |
 
-两张 PNG 固定为 1200×630。可编辑 SVG 源文件位于
+三张 PNG 固定为 1200×630。可编辑 SVG 源文件位于
 `apps/web/src/assets/social/`；发布图片位于 `apps/web/public/social/`。图片只有固定品牌
 文案和抽象界面，不含用户输入、Analytics 标识或远程资源。
 
@@ -38,8 +39,9 @@ canonical 会丢弃查询参数和 fragment。分享图片必须与
 - `/sitemap-index.xml`；
 - `/sitemap-0.xml`。
 
-sitemap 只包含实际生成且可索引的正式页面。404、Worker API 和尚未上线的 Proposed
-路由不会进入列表。`robots.txt` 允许正常抓取，并声明正式 sitemap index。
+sitemap 只包含实际生成且可索引的正式页面。AI 面试工作台在 P5-009 成为仅合成数据的
+Alpha 后进入列表；404 和 Worker API 不进入列表。`robots.txt` 允许正常抓取，并声明正式
+sitemap index。
 
 不写入虚构的 `lastmod`、更新频率或优先级；后续如果有可靠的内容发布日期，再通过构建数据
 显式提供。
@@ -50,9 +52,9 @@ sitemap 只包含实际生成且可索引的正式页面。404、Worker API 和�
 
 1. canonical 去除查询参数和 fragment；
 2. 外部分享图片与缺失 `Astro.site` 失败关闭；
-3. 首页和 Token Forge 的 canonical、OG、Twitter 与 JSON-LD；
-4. 两张 PNG 的签名、1200×630 尺寸和非空内容；
-5. robots、sitemap index、实际路由 allowlist 与 404/API/Proposed 路由排除。
+3. 首页、Token Forge 和 AI 面试工作台的 canonical、OG、Twitter 与 JSON-LD；
+4. 三张 PNG 的签名、1200×630 尺寸和非空内容；
+5. robots、sitemap index、实际路由 allowlist 与 404/API 路由排除。
 
 部署后仍需用 Production smoke 检查这些静态文件返回 HTTP 200。搜索收录与社交平台缓存是
 外部系统行为，不由构建成功保证。

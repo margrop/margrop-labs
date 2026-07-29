@@ -114,3 +114,16 @@ Workflow 的在线 smoke test 会自动检查 HTTP 状态、核心首页内容�
 - Production 失败时先保留失败日志和 Version ID，再在 Cloudflare 的 Worker
   `margrop-labs` 中回滚到最近一次已验证版本。
 - Custom Domain 初次签发证书可能需要短暂传播时间；smoke test 最多等待一分钟。
+
+## 共享 Lab Analytics 路由
+
+Production 与 Preview 继续只使用现有 `TOKEN_FORGE_ANALYTICS` binding 和
+`TokenForgeAnalyticsObject` SQLite Durable Object，不新增 `INTERVIEW_ANALYTICS` binding、
+Secret、变量或配置文件：
+
+- `POST /api/token-forge/events`；
+- `POST /api/interview-workbench/events`。
+
+两个路由都要求同源 JSON、最大 1 KiB，并由 Durable Object 按路由绑定 Lab ID。部署 smoke
+只向两条路由发送空对象并要求空正文 `400` 与 `cache-control: no-store`，避免在每次发布时
+写入有效统计。旧 Token Forge 快照会在首次真实写入时迁移到共享 key。

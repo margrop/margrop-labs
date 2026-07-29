@@ -79,6 +79,12 @@ describe("Cloudflare Worker environment configuration", () => {
       expectedExport,
     );
     expect(expectedBinding.name).not.toBe("TOKEN_FORGE_AI_POLICY");
+    expect(
+      configuration.durable_objects.bindings.filter(
+        ({ class_name }) => class_name === "TokenForgeAnalyticsObject",
+      ),
+    ).toHaveLength(1);
+    expect(JSON.stringify(configuration)).not.toContain("INTERVIEW_ANALYTICS");
   });
 
   it("gives Interview AI a separate operation-scoped SQLite policy namespace", async () => {

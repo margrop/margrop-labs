@@ -3,6 +3,8 @@
 | Schema                                                                                                                 | Consumer                                               |
 | ---------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------ |
 | [`lab-manifest-v1.schema.json`](./lab-manifest-v1.schema.json)                                                         | Build-time Lab manifest loader                         |
+| [`lab-analytics-event-v1.schema.json`](./lab-analytics-event-v1.schema.json)                                           | Shared minimal Lab analytics event                     |
+| [`lab-analytics-snapshot-v1.schema.json`](./lab-analytics-snapshot-v1.schema.json)                                     | Shared aggregate-only daily Lab counts                 |
 | [`interview-resume-v1.schema.json`](./interview-resume-v1.schema.json)                                                 | Local sensitive resume contract                        |
 | [`interview-jd-v1.schema.json`](./interview-jd-v1.schema.json)                                                         | Local sensitive job description contract               |
 | [`interview-requirement-v1.schema.json`](./interview-requirement-v1.schema.json)                                       | Requirement registry and evidence targets              |
@@ -17,6 +19,7 @@
 | [`interview-ai-match-input-v1.schema.json`](./interview-ai-match-input-v1.schema.json)                                   | Match operation input and fairness safeguards          |
 | [`interview-ai-plan-input-v1.schema.json`](./interview-ai-plan-input-v1.schema.json)                                     | Plan operation input and user-selected early gate     |
 | [`interview-ai-conclusion-input-v1.schema.json`](./interview-ai-conclusion-input-v1.schema.json)                         | Conclusion operation ID/status projection              |
+| [`interview-workbench-blog-cta-v1.schema.json`](./interview-workbench-blog-cta-v1.schema.json)                         | Stable interview blog CTA and canonical links          |
 | [`token-forge-input-v1.schema.json`](./token-forge-input-v1.schema.json)                                               | Token Forge input validation                           |
 | [`token-forge-plan-v1.schema.json`](./token-forge-plan-v1.schema.json)                                                 | Template and AI-assisted Token Forge plans             |
 | [`token-forge-export-v1.schema.json`](./token-forge-export-v1.schema.json)                                             | Local Markdown and GitHub Issue draft exports          |

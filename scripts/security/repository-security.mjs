@@ -64,6 +64,18 @@ const safeCandidateMarkers = [
 
 const fixtureContracts = [
   [
+    "labs/interview-workbench/integrations/interview-workbench-cta.json",
+    "schemas/interview-workbench-blog-cta-v1.schema.json",
+  ],
+  [
+    "labs/interview-workbench/fixtures/interview-analytics-event.valid.json",
+    "schemas/lab-analytics-event-v1.schema.json",
+  ],
+  [
+    "labs/interview-workbench/fixtures/interview-analytics-snapshot.valid.json",
+    "schemas/lab-analytics-snapshot-v1.schema.json",
+  ],
+  [
     "labs/interview-workbench/fixtures/ai-match-input.valid.json",
     "schemas/interview-ai-match-input-v1.schema.json",
   ],

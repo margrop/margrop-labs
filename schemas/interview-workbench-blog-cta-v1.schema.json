@@ -1,0 +1,90 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lab.margrop.net/schemas/interview-workbench-blog-cta-v1.schema.json",
+  "title": "Interview Workbench blog CTA v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "lab_id",
+    "title",
+    "summary",
+    "proof_points",
+    "primary_action",
+    "source_action",
+    "method_action",
+    "privacy_note",
+    "compact_note"
+  ],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "lab_id": { "const": "interview-workbench" },
+    "title": { "$ref": "#/$defs/copy" },
+    "summary": { "$ref": "#/$defs/copy" },
+    "proof_points": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/copy" }
+    },
+    "primary_action": {
+      "$ref": "#/$defs/primaryAction"
+    },
+    "source_action": {
+      "$ref": "#/$defs/sourceAction"
+    },
+    "method_action": {
+      "$ref": "#/$defs/methodAction"
+    },
+    "privacy_note": { "$ref": "#/$defs/copy" },
+    "compact_note": { "$ref": "#/$defs/copy" }
+  },
+  "$defs": {
+    "copy": {
+      "type": "string",
+      "minLength": 4,
+      "maxLength": 160,
+      "pattern": "^[^\\r\\n<>\\[\\]]+$"
+    },
+    "label": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 30,
+      "pattern": "^[^\\r\\n<>\\[\\]()]+$"
+    },
+    "primaryAction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["label", "url"],
+      "properties": {
+        "label": { "$ref": "#/$defs/label" },
+        "url": {
+          "const": "https://lab.margrop.net/interview-workbench/"
+        }
+      }
+    },
+    "sourceAction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["label", "url"],
+      "properties": {
+        "label": { "$ref": "#/$defs/label" },
+        "url": {
+          "const": "https://github.com/margrop/margrop-labs/tree/main/labs/interview-workbench"
+        }
+      }
+    },
+    "methodAction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["label", "url"],
+      "properties": {
+        "label": { "$ref": "#/$defs/label" },
+        "url": {
+          "const": "https://github.com/margrop/margrop-labs/blob/main/docs/interview-workbench-roadmap.md"
+        }
+      }
+    }
+  }
+}

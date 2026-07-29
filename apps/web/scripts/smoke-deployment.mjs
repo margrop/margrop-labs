@@ -74,6 +74,23 @@ await fetchTextWithRetry(tokenForgeUrl, (tokenForge) => {
   assert.match(tokenForge, /"@type":"WebApplication"/);
 });
 
+const interviewWorkbenchUrl = new URL("/interview-workbench/", baseUrl);
+await fetchTextWithRetry(interviewWorkbenchUrl, (interviewWorkbench) => {
+  assert.match(
+    interviewWorkbench,
+    /<link\s+rel="canonical"\s+href="https:\/\/lab\.margrop\.net\/interview-workbench\/"\s*\/?>/,
+  );
+  assert.match(
+    interviewWorkbench,
+    /<meta\s+name="robots"\s+content="index, follow"\s*\/?>/,
+  );
+  assert.match(
+    interviewWorkbench,
+    /<meta\s+property="og:image"\s+content="https:\/\/lab\.margrop\.net\/social\/interview-workbench\.png"\s*\/?>/,
+  );
+  assert.match(interviewWorkbench, /"@type":"WebApplication"/);
+});
+
 const robotsUrl = new URL("/robots.txt", baseUrl);
 await fetchTextWithRetry(robotsUrl, (robots) => {
   assert.match(robots, /User-agent:\s*\*/);
@@ -97,7 +114,11 @@ await fetchTextWithRetry(sitemapUrl, (sitemap) => {
     sitemap,
     /<loc>https:\/\/lab\.margrop\.net\/token-forge\/<\/loc>/,
   );
-  assert.doesNotMatch(sitemap, /\/404|\/api\/|\/interview-workbench\//);
+  assert.match(
+    sitemap,
+    /<loc>https:\/\/lab\.margrop\.net\/interview-workbench\/<\/loc>/,
+  );
+  assert.doesNotMatch(sitemap, /\/404|\/api\//);
 });
 
 const apiUrl = new URL("/api/token-forge/plan", baseUrl);
@@ -149,21 +170,26 @@ if (apiError !== undefined) {
   throw apiError;
 }
 
-const analyticsUrl = new URL("/api/token-forge/events", baseUrl);
-const analyticsResponse = await fetch(analyticsUrl, {
-  method: "POST",
-  cache: "no-store",
-  redirect: "error",
-  headers: {
-    "cache-control": "no-cache",
-    "content-type": "application/json",
-    origin: baseUrl.origin,
-    "user-agent": "margrop-labs-deployment-smoke/1.0",
-  },
-  body: "{}",
-});
-assert.equal(analyticsResponse.status, 400);
-assert.equal(analyticsResponse.headers.get("cache-control"), "no-store");
-assert.equal(await analyticsResponse.text(), "");
+for (const analyticsPath of [
+  "/api/token-forge/events",
+  "/api/interview-workbench/events",
+]) {
+  const analyticsUrl = new URL(analyticsPath, baseUrl);
+  const analyticsResponse = await fetch(analyticsUrl, {
+    method: "POST",
+    cache: "no-store",
+    redirect: "error",
+    headers: {
+      "cache-control": "no-cache",
+      "content-type": "application/json",
+      origin: baseUrl.origin,
+      "user-agent": "margrop-labs-deployment-smoke/1.0",
+    },
+    body: "{}",
+  });
+  assert.equal(analyticsResponse.status, 400);
+  assert.equal(analyticsResponse.headers.get("cache-control"), "no-store");
+  assert.equal(await analyticsResponse.text(), "");
+}
 
 console.log(`Deployment smoke check passed: ${baseUrl.origin}`);

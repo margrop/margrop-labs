@@ -1,0 +1,16 @@
+{
+  "schema_version": "1.0",
+  "days": [
+    {
+      "date": "2026-07-29",
+      "counts": [
+        {
+          "lab_id": "interview-workbench",
+          "event_name": "match_complete",
+          "device_category": "desktop",
+          "count": 3
+        }
+      ]
+    }
+  ]
+}

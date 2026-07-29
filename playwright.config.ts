@@ -2,6 +2,7 @@ import { defineConfig, devices } from "@playwright/test";
 import chromium from "@sparticuz/chromium";
 
 const executablePath = process.env.TOKEN_FORGE_BROWSER_PATH;
+const localBrowser = process.env.TOKEN_FORGE_BROWSER_LOCAL === "1";
 
 if (!executablePath) {
   throw new Error(
@@ -20,7 +21,9 @@ export default defineConfig({
   use: {
     baseURL: "http://127.0.0.1:4321",
     launchOptions: {
-      args: chromium.args.filter((argument) => argument !== "--single-process"),
+      args: localBrowser
+        ? []
+        : chromium.args.filter((argument) => argument !== "--single-process"),
       executablePath,
     },
     trace: "off",

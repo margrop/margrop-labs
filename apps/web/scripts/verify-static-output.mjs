@@ -27,6 +27,10 @@ const tokenForgeSocialImageUrl = new URL(
   "../dist/social/token-forge.png",
   import.meta.url,
 );
+const interviewWorkbenchSocialImageUrl = new URL(
+  "../dist/social/interview-workbench.png",
+  import.meta.url,
+);
 const stylesUrl = new URL("../src/styles/global.css", import.meta.url);
 const assetsUrl = new URL("../dist/_astro/", import.meta.url);
 const html = await readFile(fileURLToPath(indexUrl), "utf8");
@@ -47,6 +51,9 @@ const sitemap = await readFile(fileURLToPath(sitemapUrl), "utf8");
 const homeSocialImage = await readFile(fileURLToPath(homeSocialImageUrl));
 const tokenForgeSocialImage = await readFile(
   fileURLToPath(tokenForgeSocialImageUrl),
+);
+const interviewWorkbenchSocialImage = await readFile(
+  fileURLToPath(interviewWorkbenchSocialImageUrl),
 );
 const styles = await readFile(fileURLToPath(stylesUrl), "utf8");
 const assetNames = await readdir(fileURLToPath(assetsUrl));
@@ -100,12 +107,13 @@ const checks = [
       html.includes('"@type":"WebSite"') &&
       html.includes('"@type":"ItemList"') &&
       html.includes('"name":"Token 任务炼金炉"') &&
-      !html.includes('"name":"AI 面试工作台","url"'),
+      html.includes('"name":"AI 面试工作台"'),
   ],
   [
     "social preview image contract",
     isSocialPreviewPng(homeSocialImage) &&
-      isSocialPreviewPng(tokenForgeSocialImage),
+      isSocialPreviewPng(tokenForgeSocialImage) &&
+      isSocialPreviewPng(interviewWorkbenchSocialImage),
   ],
   [
     "sitemap discovery contract",
@@ -118,10 +126,10 @@ const checks = [
         "https://lab.margrop.net/token-forge/",
         "https://lab.margrop.net/incident-detective/",
         "https://lab.margrop.net/smart-rma/",
+        "https://lab.margrop.net/interview-workbench/",
       ].every((url) => sitemap.includes(`<loc>${url}</loc>`)) &&
       !sitemap.includes("/404") &&
-      !sitemap.includes("/api/") &&
-      !sitemap.includes("/interview-workbench/"),
+      !sitemap.includes("/api/"),
   ],
   [
     "404 excluded from search",
@@ -151,7 +159,7 @@ const checks = [
     "manifest labels",
     [
       "Alpha · 主线",
-      "规划中 · 第二优先级",
+      "Alpha · 合成样例",
       "Alpha · 暂停",
       "公开输入",
       "本地优先",
@@ -537,13 +545,20 @@ const checks = [
       styles.includes(".smart-rma-redaction-counts"),
   ],
   [
-    "Interview Workbench noindex page",
+    "Interview Workbench indexable Alpha page",
     interviewWorkbenchHtml.includes(
       "<title>AI 面试工作台｜Margrop Labs</title>",
     ) &&
       interviewWorkbenchHtml.includes(
-        '<meta name="robots" content="noindex, nofollow">',
+        '<meta name="robots" content="index, follow">',
       ) &&
+      interviewWorkbenchHtml.includes(
+        '<link rel="canonical" href="https://lab.margrop.net/interview-workbench/">',
+      ) &&
+      interviewWorkbenchHtml.includes(
+        '<meta property="og:image" content="https://lab.margrop.net/social/interview-workbench.png">',
+      ) &&
+      interviewWorkbenchHtml.includes("INTERVIEW WORKBENCH · ALPHA") &&
       interviewWorkbenchHtml.includes("把面试判断，变成") &&
       interviewWorkbenchHtml.includes("可追溯的证据链"),
   ],
