@@ -1,0 +1,61 @@
+{
+  "schema_version": "1.0",
+  "sensitivity": "sensitive",
+  "export_id": "export-candidate-loop-synthetic-001",
+  "loop_id": "loop-synthetic-001",
+  "role": "candidate",
+  "match": {
+    "status": "partial",
+    "match_band": "partial_match",
+    "score": 100,
+    "known_requirement_count": 1,
+    "unknown_requirement_count": 3,
+    "conflict_requirement_count": 0
+  },
+  "plan": {
+    "duration_minutes": 45,
+    "segment_count": 5,
+    "question_count": 7,
+    "early_gate_enabled": false
+  },
+  "record": {
+    "status": "draft",
+    "entry_count": 4,
+    "answered_entry_count": 1,
+    "partial_entry_count": 0,
+    "unknown_entry_count": 3,
+    "counterevidence_count": 0
+  },
+  "conclusion": {
+    "status": "partial",
+    "recommendation": "partial_signal",
+    "judgment_count": 4,
+    "supported_count": 1,
+    "partial_count": 0,
+    "unknown_count": 3,
+    "conflict_count": 0,
+    "unassessed_count": 0
+  },
+  "redacted_fields": [
+    "resume_text",
+    "jd_text",
+    "question_text",
+    "follow_up_text",
+    "fact_text",
+    "counterevidence_text",
+    "personal_identifiers",
+    "provider_metadata"
+  ],
+  "local_only": true,
+  "contains_personal_text": false,
+  "human_review": {
+    "required": true,
+    "confirmed": false,
+    "reasons": [
+      "unknown_requirements",
+      "draft_requires_user_confirmation",
+      "no_automatic_decision"
+    ]
+  },
+  "automatic_decision": false
+}

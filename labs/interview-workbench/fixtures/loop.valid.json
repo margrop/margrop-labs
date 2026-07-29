@@ -1,0 +1,32 @@
+{
+  "schema_version": "1.0",
+  "sensitivity": "sensitive",
+  "loop_id": "loop-synthetic-001",
+  "scenario_kind": "synthetic",
+  "match_id": "match-loop-synthetic-001",
+  "roles": {
+    "interviewer": {
+      "role": "interviewer",
+      "plan_id": "plan-interviewer-loop-synthetic-001",
+      "record_id": "record-interviewer-loop-synthetic-001",
+      "conclusion_id": "conclusion-interviewer-loop-synthetic-001",
+      "export_id": "export-interviewer-loop-synthetic-001",
+      "status": "draft"
+    },
+    "candidate": {
+      "role": "candidate",
+      "plan_id": "plan-candidate-loop-synthetic-001",
+      "record_id": "record-candidate-loop-synthetic-001",
+      "conclusion_id": "conclusion-candidate-loop-synthetic-001",
+      "export_id": "export-candidate-loop-synthetic-001",
+      "status": "draft"
+    }
+  },
+  "local_only": true,
+  "human_review": {
+    "required": true,
+    "confirmed": false,
+    "reasons": ["draft_requires_user_confirmation", "no_automatic_decision"]
+  },
+  "automatic_decision": false
+}

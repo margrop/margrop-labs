@@ -96,6 +96,18 @@ const fixtureContracts = [
     "schemas/interview-conclusion-v1.schema.json",
   ],
   [
+    "labs/interview-workbench/fixtures/loop.valid.json",
+    "schemas/interview-loop-v1.schema.json",
+  ],
+  [
+    "labs/interview-workbench/fixtures/export-interviewer.valid.json",
+    "schemas/interview-export-v1.schema.json",
+  ],
+  [
+    "labs/interview-workbench/fixtures/export-candidate.valid.json",
+    "schemas/interview-export-v1.schema.json",
+  ],
+  [
     "labs/token-forge/fixtures/ai-gateway-request.valid.json",
     "schemas/ai-gateway-request-v1.schema.json",
   ],

@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lab.margrop.net/schemas/interview-loop-v1.schema.json",
+  "title": "Interview Workbench Synthetic Dual-Role Loop v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "sensitivity",
+    "loop_id",
+    "scenario_kind",
+    "match_id",
+    "roles",
+    "local_only",
+    "human_review",
+    "automatic_decision"
+  ],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "sensitivity": { "const": "sensitive" },
+    "loop_id": { "$ref": "#/$defs/id" },
+    "scenario_kind": { "const": "synthetic" },
+    "match_id": { "$ref": "#/$defs/id" },
+    "roles": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["interviewer", "candidate"],
+      "properties": {
+        "interviewer": { "$ref": "#/$defs/roleStage" },
+        "candidate": { "$ref": "#/$defs/roleStage" }
+      }
+    },
+    "local_only": { "const": true },
+    "human_review": { "$ref": "#/$defs/humanReview" },
+    "automatic_decision": { "const": false }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "maxLength": 80
+    },
+    "roleStage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "role",
+        "plan_id",
+        "record_id",
+        "conclusion_id",
+        "export_id",
+        "status"
+      ],
+      "properties": {
+        "role": { "enum": ["interviewer", "candidate"] },
+        "plan_id": { "$ref": "#/$defs/id" },
+        "record_id": { "$ref": "#/$defs/id" },
+        "conclusion_id": { "$ref": "#/$defs/id" },
+        "export_id": { "$ref": "#/$defs/id" },
+        "status": { "const": "draft" }
+      }
+    },
+    "humanReview": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["required", "confirmed", "reasons"],
+      "properties": {
+        "required": { "const": true },
+        "confirmed": { "const": false },
+        "reasons": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "draft_requires_user_confirmation",
+              "no_automatic_decision"
+            ]
+          }
+        }
+      }
+    }
+  }
+}
