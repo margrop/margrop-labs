@@ -4,11 +4,13 @@
 | ---------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------ |
 | [`lab-manifest-v1.schema.json`](./lab-manifest-v1.schema.json)                                                         | Build-time Lab manifest loader                         |
 | [`interview-resume-v1.schema.json`](./interview-resume-v1.schema.json)                                                 | Local sensitive resume contract                        |
-| [`interview-jd-v1.schema.json`](./interview-jd-v1.schema.json)                                                       | Local sensitive job description contract               |
-| [`interview-requirement-v1.schema.json`](./interview-requirement-v1.schema.json)                                     | Requirement registry and evidence targets              |
-| [`interview-evidence-v1.schema.json`](./interview-evidence-v1.schema.json)                                           | Evidence references, support and unknown state         |
-| [`interview-match-v1.schema.json`](./interview-match-v1.schema.json)                                                 | Deterministic match result, scores and review boundary |
-| [`interview-plan-v1.schema.json`](./interview-plan-v1.schema.json)                                                   | 30/45/60 minute plan and human-review boundary         |
+| [`interview-jd-v1.schema.json`](./interview-jd-v1.schema.json)                                                         | Local sensitive job description contract               |
+| [`interview-requirement-v1.schema.json`](./interview-requirement-v1.schema.json)                                       | Requirement registry and evidence targets              |
+| [`interview-evidence-v1.schema.json`](./interview-evidence-v1.schema.json)                                             | Evidence references, support and unknown state         |
+| [`interview-match-v1.schema.json`](./interview-match-v1.schema.json)                                                   | Deterministic match result, scores and review boundary |
+| [`interview-plan-v1.schema.json`](./interview-plan-v1.schema.json)                                                     | 30/45/60 minute plan and human-review boundary         |
+| [`interview-record-v1.schema.json`](./interview-record-v1.schema.json)                                                 | Local interview facts, counterevidence and unknowns    |
+| [`interview-conclusion-v1.schema.json`](./interview-conclusion-v1.schema.json)                                         | Evidence-cited conclusion draft and review boundary    |
 | [`token-forge-input-v1.schema.json`](./token-forge-input-v1.schema.json)                                               | Token Forge input validation                           |
 | [`token-forge-plan-v1.schema.json`](./token-forge-plan-v1.schema.json)                                                 | Template and AI-assisted Token Forge plans             |
 | [`token-forge-export-v1.schema.json`](./token-forge-export-v1.schema.json)                                             | Local Markdown and GitHub Issue draft exports          |

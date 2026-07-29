@@ -1,0 +1,209 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lab.margrop.net/schemas/interview-conclusion-v1.schema.json",
+  "title": "Interview Workbench Conclusion Draft v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "sensitivity",
+    "conclusion_id",
+    "record_id",
+    "status",
+    "overall",
+    "judgments",
+    "unassessed_requirement_ids",
+    "unknown_requirement_ids",
+    "conflict_requirement_ids",
+    "evidence_summary",
+    "next_steps",
+    "human_review",
+    "automatic_decision"
+  ],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "sensitivity": { "const": "sensitive" },
+    "conclusion_id": { "$ref": "#/$defs/id" },
+    "record_id": { "$ref": "#/$defs/id" },
+    "status": { "enum": ["draft", "confirmed"] },
+    "overall": { "$ref": "#/$defs/overall" },
+    "judgments": {
+      "type": "array",
+      "maxItems": 30,
+      "items": { "$ref": "#/$defs/judgment" }
+    },
+    "unassessed_requirement_ids": {
+      "type": "array",
+      "maxItems": 30,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/id" }
+    },
+    "unknown_requirement_ids": {
+      "type": "array",
+      "maxItems": 30,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/id" }
+    },
+    "conflict_requirement_ids": {
+      "type": "array",
+      "maxItems": 30,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/id" }
+    },
+    "evidence_summary": { "$ref": "#/$defs/evidenceSummary" },
+    "next_steps": {
+      "type": "array",
+      "maxItems": 30,
+      "items": { "$ref": "#/$defs/nextStep" }
+    },
+    "human_review": { "$ref": "#/$defs/humanReview" },
+    "automatic_decision": { "const": false }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "maxLength": 80
+    },
+    "status": {
+      "enum": ["supported", "partial", "conflict", "unknown", "not_assessed"]
+    },
+    "recommendation": {
+      "enum": [
+        "supportive_signal",
+        "partial_signal",
+        "requires_more_evidence",
+        "conflicted",
+        "not_assessed"
+      ]
+    },
+    "overall": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "recommendation", "judgment_ids"],
+      "properties": {
+        "status": { "$ref": "#/$defs/status" },
+        "recommendation": { "$ref": "#/$defs/recommendation" },
+        "judgment_ids": {
+          "type": "array",
+          "maxItems": 30,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/id" }
+        }
+      }
+    },
+    "judgment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "judgment_id",
+        "requirement_id",
+        "status",
+        "record_entry_ids",
+        "fact_ids",
+        "counterevidence_ids",
+        "inference_code",
+        "review_state"
+      ],
+      "properties": {
+        "judgment_id": { "$ref": "#/$defs/id" },
+        "requirement_id": { "$ref": "#/$defs/id" },
+        "status": { "$ref": "#/$defs/status" },
+        "record_entry_ids": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 8,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/id" }
+        },
+        "fact_ids": {
+          "type": "array",
+          "maxItems": 8,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/id" }
+        },
+        "counterevidence_ids": {
+          "type": "array",
+          "maxItems": 8,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/id" }
+        },
+        "inference_code": {
+          "enum": [
+            "fact_supported",
+            "partial_facts",
+            "conflicting_facts",
+            "not_enough_evidence",
+            "not_assessed"
+          ]
+        },
+        "review_state": { "const": "draft" }
+      }
+    },
+    "evidenceSummary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "fact_ids",
+        "counterevidence_ids",
+        "unknown_requirement_ids"
+      ],
+      "properties": {
+        "fact_ids": {
+          "type": "array",
+          "maxItems": 240,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/id" }
+        },
+        "counterevidence_ids": {
+          "type": "array",
+          "maxItems": 240,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/id" }
+        },
+        "unknown_requirement_ids": {
+          "type": "array",
+          "maxItems": 30,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/id" }
+        }
+      }
+    },
+    "nextStep": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["requirement_id", "action", "source"],
+      "properties": {
+        "requirement_id": { "$ref": "#/$defs/id" },
+        "action": {
+          "enum": ["ask_follow_up", "verify_artifact", "review_conflict"]
+        },
+        "source": { "enum": ["record_gap", "unknown", "conflict"] }
+      }
+    },
+    "humanReview": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["required", "confirmed", "reasons"],
+      "properties": {
+        "required": { "const": true },
+        "confirmed": { "type": "boolean" },
+        "reasons": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 5,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "unassessed_requirements",
+              "unknown_requirements",
+              "conflicting_evidence",
+              "draft_requires_user_confirmation",
+              "no_automatic_decision"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

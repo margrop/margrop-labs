@@ -1,0 +1,152 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lab.margrop.net/schemas/interview-record-v1.schema.json",
+  "title": "Interview Workbench Interview Record v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "sensitivity",
+    "record_id",
+    "plan_id",
+    "mode",
+    "duration_minutes",
+    "status",
+    "entries",
+    "local_only",
+    "human_review"
+  ],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "sensitivity": { "const": "sensitive" },
+    "record_id": { "$ref": "#/$defs/id" },
+    "plan_id": { "$ref": "#/$defs/id" },
+    "mode": { "enum": ["interviewer", "candidate"] },
+    "duration_minutes": { "enum": [30, 45, 60] },
+    "status": { "enum": ["draft", "confirmed"] },
+    "entries": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 40,
+      "items": { "$ref": "#/$defs/entry" }
+    },
+    "local_only": { "const": true },
+    "human_review": { "$ref": "#/$defs/humanReview" }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "maxLength": 80
+    },
+    "paragraph": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 800,
+      "pattern": "\\S"
+    },
+    "fact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["fact_id", "kind", "text"],
+      "properties": {
+        "fact_id": { "$ref": "#/$defs/id" },
+        "kind": {
+          "enum": [
+            "candidate_statement",
+            "interviewer_observation",
+            "verifiable_artifact"
+          ]
+        },
+        "text": { "$ref": "#/$defs/paragraph" }
+      }
+    },
+    "counterevidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["counterevidence_id", "text"],
+      "properties": {
+        "counterevidence_id": { "$ref": "#/$defs/id" },
+        "text": { "$ref": "#/$defs/paragraph" }
+      }
+    },
+    "entry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "entry_id",
+        "question_id",
+        "requirement_ids",
+        "response_status",
+        "facts",
+        "counterevidence",
+        "unknown_reason",
+        "user_confirmed"
+      ],
+      "properties": {
+        "entry_id": { "$ref": "#/$defs/id" },
+        "question_id": { "$ref": "#/$defs/id" },
+        "requirement_ids": {
+          "type": "array",
+          "maxItems": 8,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/id" }
+        },
+        "response_status": {
+          "enum": [
+            "answered",
+            "partially_answered",
+            "not_asked",
+            "declined",
+            "unknown"
+          ]
+        },
+        "facts": {
+          "type": "array",
+          "maxItems": 8,
+          "items": { "$ref": "#/$defs/fact" }
+        },
+        "counterevidence": {
+          "type": "array",
+          "maxItems": 8,
+          "items": { "$ref": "#/$defs/counterevidence" }
+        },
+        "unknown_reason": {
+          "oneOf": [
+            {
+              "enum": [
+                "not_asked",
+                "no_answer",
+                "not_verified",
+                "not_applicable"
+              ]
+            },
+            { "type": "null" }
+          ]
+        },
+        "user_confirmed": { "type": "boolean" }
+      }
+    },
+    "humanReview": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["required", "confirmed", "reasons"],
+      "properties": {
+        "required": { "const": true },
+        "confirmed": { "type": "boolean" },
+        "reasons": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 2,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "draft_requires_user_confirmation",
+              "no_automatic_decision"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

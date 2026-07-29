@@ -255,8 +255,12 @@ const validatePlanReferences = (
     }
   }
 
+  const questionRequirementIds = unique(
+    plan.questions.flatMap(({ requirement_ids }) => requirement_ids),
+  );
   const requirementIds = new Set(
-    bundle?.requirements.map(({ requirement_id }) => requirement_id) ?? [],
+    bundle?.requirements.map(({ requirement_id }) => requirement_id) ??
+      questionRequirementIds,
   );
   if (bundle) {
     const validatedBundle = validateInterviewInputBundle(bundle);
@@ -310,22 +314,38 @@ const validatePlanReferences = (
         "Early-gate references must target known requirements and questions.",
       );
     }
-    const requirementsById = new Map(
-      bundle?.requirements.map((requirement) => [
-        requirement.requirement_id,
-        requirement,
-      ]),
-    );
-    for (const requirementId of earlyGate.requirement_ids) {
-      const requirement = requirementsById.get(requirementId);
-      if (
-        !requirement ||
-        requirement.category !== "must_have" ||
-        requirement.priority !== "must"
-      ) {
-        throw new InterviewPlanError(
-          "Early gate may use only user-selected must-have requirements.",
-        );
+    if (
+      earlyGate.requirement_ids.some(
+        (requirementId) =>
+          !earlyGate.question_ids.some((questionId) =>
+            questionsById
+              .get(questionId)
+              ?.requirement_ids.includes(requirementId),
+          ),
+      )
+    ) {
+      throw new InterviewPlanError(
+        "Early-gate requirements must have a matching qualification question.",
+      );
+    }
+    if (bundle) {
+      const requirementsById = new Map(
+        bundle.requirements.map((requirement) => [
+          requirement.requirement_id,
+          requirement,
+        ]),
+      );
+      for (const requirementId of earlyGate.requirement_ids) {
+        const requirement = requirementsById.get(requirementId);
+        if (
+          !requirement ||
+          requirement.category !== "must_have" ||
+          requirement.priority !== "must"
+        ) {
+          throw new InterviewPlanError(
+            "Early gate may use only user-selected must-have requirements.",
+          );
+        }
       }
     }
     if (

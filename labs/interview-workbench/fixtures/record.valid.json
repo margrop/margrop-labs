@@ -1,0 +1,80 @@
+{
+  "schema_version": "1.0",
+  "sensitivity": "sensitive",
+  "record_id": "record-synthetic-001",
+  "plan_id": "plan-synthetic-001",
+  "mode": "interviewer",
+  "duration_minutes": 45,
+  "status": "draft",
+  "entries": [
+    {
+      "entry_id": "entry-java",
+      "question_id": "question-qualification-1",
+      "requirement_ids": ["requirement-java-go"],
+      "response_status": "answered",
+      "facts": [
+        {
+          "fact_id": "fact-java-service",
+          "kind": "candidate_statement",
+          "text": "合成候选人说明自己负责 Java 服务的关键设计，并能说明结果指标。"
+        }
+      ],
+      "counterevidence": [],
+      "unknown_reason": null,
+      "user_confirmed": false
+    },
+    {
+      "entry_id": "entry-distributed",
+      "question_id": "question-deep-dive-1",
+      "requirement_ids": ["requirement-distributed-systems"],
+      "response_status": "partially_answered",
+      "facts": [
+        {
+          "fact_id": "fact-distributed-partial",
+          "kind": "candidate_statement",
+          "text": "合成候选人描述了分布式项目的方案，但没有完整说明失败恢复指标。"
+        }
+      ],
+      "counterevidence": [],
+      "unknown_reason": null,
+      "user_confirmed": false
+    },
+    {
+      "entry_id": "entry-robotics",
+      "question_id": "question-deep-dive-2",
+      "requirement_ids": ["requirement-robotics-cloud"],
+      "response_status": "unknown",
+      "facts": [],
+      "counterevidence": [],
+      "unknown_reason": "not_verified",
+      "user_confirmed": false
+    },
+    {
+      "entry_id": "entry-collaboration",
+      "question_id": "question-deep-dive-3",
+      "requirement_ids": ["requirement-collaboration"],
+      "response_status": "answered",
+      "facts": [
+        {
+          "fact_id": "fact-collaboration",
+          "kind": "interviewer_observation",
+          "text": "合成面试记录观察到候选人能描述跨团队协作中的行动和结果。"
+        }
+      ],
+      "counterevidence": [
+        {
+          "counterevidence_id": "counter-collaboration",
+          "text": "记录中没有可独立验证的协作结果材料。"
+        }
+      ],
+      "unknown_reason": null,
+      "user_confirmed": false
+    }
+  ],
+  "local_only": true,
+  "human_review": {
+    "required": true,
+    "confirmed": false,
+    "reasons": ["draft_requires_user_confirmation", "no_automatic_decision"]
+  }
+}

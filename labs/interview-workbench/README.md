@@ -82,4 +82,7 @@ P5-002 的 Match Result v1、确定性规则和人工确认边界见
 P5-003 的 Interview Plan v1、时间闭合、提前结束和面试者模式边界见
 [完整面试计划](../../docs/interview-workbench-plan-v1.md)。
 
+P5-004 的 Interview Record/Conclusion v1、事实/反证/未知分离和结论草稿边界见
+[面试记录与结论草稿](../../docs/interview-workbench-recording-v1.md)。
+
 完整任务见 [AI 面试工作台路线图](../../docs/interview-workbench-roadmap.md)。
