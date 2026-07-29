@@ -1,0 +1,146 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lab.margrop.net/schemas/interview-ai-conclusion-input-v1.schema.json",
+  "title": "Interview Workbench AI Conclusion Input v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "plan_projection",
+    "record_projection",
+    "safeguards"
+  ],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "plan_projection": { "$ref": "#/$defs/plan" },
+    "record_projection": { "$ref": "#/$defs/record" },
+    "safeguards": { "$ref": "#/$defs/safeguards" }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "maxLength": 80
+    },
+    "plan": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["plan_id", "mode", "duration_minutes", "questions"],
+      "properties": {
+        "plan_id": { "$ref": "#/$defs/id" },
+        "mode": { "enum": ["interviewer", "candidate"] },
+        "duration_minutes": { "enum": [30, 45, 60] },
+        "questions": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 40,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["question_id", "requirement_ids"],
+            "properties": {
+              "question_id": { "$ref": "#/$defs/id" },
+              "requirement_ids": {
+                "type": "array",
+                "maxItems": 30,
+                "uniqueItems": true,
+                "items": { "$ref": "#/$defs/id" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "record": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "record_id",
+        "plan_id",
+        "mode",
+        "duration_minutes",
+        "status",
+        "entries"
+      ],
+      "properties": {
+        "record_id": { "$ref": "#/$defs/id" },
+        "plan_id": { "$ref": "#/$defs/id" },
+        "mode": { "enum": ["interviewer", "candidate"] },
+        "duration_minutes": { "enum": [30, 45, 60] },
+        "status": { "enum": ["draft", "confirmed"] },
+        "entries": {
+          "type": "array",
+          "maxItems": 40,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "entry_id",
+              "question_id",
+              "requirement_ids",
+              "response_status",
+              "fact_ids",
+              "counterevidence_ids",
+              "unknown_reason"
+            ],
+            "properties": {
+              "entry_id": { "$ref": "#/$defs/id" },
+              "question_id": { "$ref": "#/$defs/id" },
+              "requirement_ids": {
+                "type": "array",
+                "maxItems": 30,
+                "uniqueItems": true,
+                "items": { "$ref": "#/$defs/id" }
+              },
+              "response_status": {
+                "enum": [
+                  "answered",
+                  "partially_answered",
+                  "not_asked",
+                  "declined",
+                  "unknown"
+                ]
+              },
+              "fact_ids": {
+                "type": "array",
+                "maxItems": 30,
+                "uniqueItems": true,
+                "items": { "$ref": "#/$defs/id" }
+              },
+              "counterevidence_ids": {
+                "type": "array",
+                "maxItems": 30,
+                "uniqueItems": true,
+                "items": { "$ref": "#/$defs/id" }
+              },
+              "unknown_reason": {
+                "type": ["string", "null"],
+                "enum": [
+                  "not_asked",
+                  "no_answer",
+                  "not_verified",
+                  "not_applicable",
+                  null
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "safeguards": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "unknown_is_not_negative",
+        "protected_attribute_inference",
+        "automatic_decision"
+      ],
+      "properties": {
+        "unknown_is_not_negative": { "const": true },
+        "protected_attribute_inference": { "const": false },
+        "automatic_decision": { "const": false }
+      }
+    }
+  }
+}

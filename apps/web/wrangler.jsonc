@@ -33,6 +33,10 @@
         "class_name": "TokenForgeAiPolicyObject",
       },
       {
+        "name": "INTERVIEW_AI_POLICY",
+        "class_name": "InterviewAiPolicyObject",
+      },
+      {
         "name": "TOKEN_FORGE_ANALYTICS",
         "class_name": "TokenForgeAnalyticsObject",
       },
@@ -40,6 +44,10 @@
   },
   "exports": {
     "TokenForgeAiPolicyObject": {
+      "type": "durable-object",
+      "storage": "sqlite",
+    },
+    "InterviewAiPolicyObject": {
       "type": "durable-object",
       "storage": "sqlite",
     },
@@ -70,6 +78,10 @@
             "class_name": "TokenForgeAiPolicyObject",
           },
           {
+            "name": "INTERVIEW_AI_POLICY",
+            "class_name": "InterviewAiPolicyObject",
+          },
+          {
             "name": "TOKEN_FORGE_ANALYTICS",
             "class_name": "TokenForgeAnalyticsObject",
           },
@@ -77,6 +89,10 @@
       },
       "exports": {
         "TokenForgeAiPolicyObject": {
+          "type": "durable-object",
+          "storage": "sqlite",
+        },
+        "InterviewAiPolicyObject": {
           "type": "durable-object",
           "storage": "sqlite",
         },

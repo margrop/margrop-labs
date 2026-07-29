@@ -2,13 +2,14 @@ import Ajv2020, { type ErrorObject } from "ajv/dist/2020.js";
 import type { AnySchema } from "ajv";
 import addFormats from "ajv-formats";
 
+import genericPolicySchema from "../../../schemas/ai-traffic-policy-v1.schema.json";
 import policySchema from "../../../schemas/token-forge-ai-policy-v1.schema.json";
 import type { AiGatewayErrorCode, AiGatewayFailureResponse } from "./index";
 
-export type TokenForgeAiTrafficPolicy = {
+export type AiTrafficPolicy = {
   schema_version: "1.0";
-  lab_id: "token-forge";
-  operation: "token-forge.plan-v1";
+  lab_id: string;
+  operation: string;
   max_request_billable_tokens: number;
   max_request_cost_microusd: number;
   daily_budgets: {
@@ -39,6 +40,14 @@ export type TokenForgeAiTrafficPolicy = {
     half_open_requests: 1;
   };
   reservation_ttl_seconds: number;
+};
+
+export type TokenForgeAiTrafficPolicy = Omit<
+  AiTrafficPolicy,
+  "lab_id" | "operation"
+> & {
+  lab_id: "token-forge";
+  operation: "token-forge.plan-v1";
 };
 
 type UsageCounter = {
@@ -86,8 +95,8 @@ export type TokenForgeAiPolicySnapshot = {
 export type TokenForgeAiAdmissionRequest = {
   request_id: string;
   actor_key: string;
-  lab_id: "token-forge";
-  operation: "token-forge.plan-v1";
+  lab_id: string;
+  operation: string;
   now_ms: number;
   reserved_tokens: number;
   reserved_cost_microusd: number;
@@ -238,6 +247,9 @@ addFormats(ajv);
 const policyValidator = ajv.compile<TokenForgeAiTrafficPolicy>(
   policySchema as AnySchema,
 );
+const genericPolicyValidator = ajv.compile<AiTrafficPolicy>(
+  genericPolicySchema as AnySchema,
+);
 const textEncoder = new TextEncoder();
 const maxSnapshotBytes = 256 * 1024;
 const completedRequestTtlMs = 24 * 60 * 60 * 1_000;
@@ -330,17 +342,7 @@ const assertScopeOrder = (
   }
 };
 
-export const validateTokenForgeAiTrafficPolicy = (
-  candidate: unknown,
-): TokenForgeAiTrafficPolicy => {
-  const cloned = cloneJson(candidate, "Token Forge AI traffic policy");
-  if (!policyValidator(cloned)) {
-    throw new TokenForgeAiPolicyContractError(
-      `token-forge-ai-policy-v1 validation failed: ${formatValidationErrors(policyValidator.errors)}`,
-    );
-  }
-
-  const policy = cloned as TokenForgeAiTrafficPolicy;
+const validatePolicySemantics = (policy: AiTrafficPolicy): AiTrafficPolicy => {
   assertScopeOrder(
     policy.daily_budgets.actor_tokens,
     policy.daily_budgets.lab_tokens,
@@ -378,6 +380,43 @@ export const validateTokenForgeAiTrafficPolicy = (
   ) {
     throw new TokenForgeAiPolicyContractError(
       "Per-request reservations must fit inside the actor daily budget.",
+    );
+  }
+
+  return policy;
+};
+
+export const validateAiTrafficPolicy = (
+  candidate: unknown,
+): AiTrafficPolicy => {
+  const cloned = cloneJson(candidate, "AI traffic policy");
+  if (!genericPolicyValidator(cloned)) {
+    throw new TokenForgeAiPolicyContractError(
+      `ai-traffic-policy-v1 validation failed: ${formatValidationErrors(genericPolicyValidator.errors)}`,
+    );
+  }
+
+  return validatePolicySemantics(cloned as AiTrafficPolicy);
+};
+
+export const validateTokenForgeAiTrafficPolicy = (
+  candidate: unknown,
+): TokenForgeAiTrafficPolicy => {
+  const cloned = cloneJson(candidate, "Token Forge AI traffic policy");
+  if (!policyValidator(cloned)) {
+    throw new TokenForgeAiPolicyContractError(
+      `token-forge-ai-policy-v1 validation failed: ${formatValidationErrors(policyValidator.errors)}`,
+    );
+  }
+
+  const policy = cloned as TokenForgeAiTrafficPolicy;
+  validatePolicySemantics(policy);
+  if (
+    policy.lab_id !== "token-forge" ||
+    policy.operation !== "token-forge.plan-v1"
+  ) {
+    throw new TokenForgeAiPolicyContractError(
+      "Token Forge AI traffic policy must use the Token Forge lab and operation.",
     );
   }
 
@@ -576,7 +615,7 @@ const admissionDenial = (
 
 const validateAdmissionRequest = (
   candidate: unknown,
-  policy: TokenForgeAiTrafficPolicy,
+  policy: AiTrafficPolicy,
 ): candidate is TokenForgeAiAdmissionRequest =>
   isRecord(candidate) &&
   hasExactKeys(candidate, [
@@ -699,8 +738,8 @@ const previewBudgetMarker = Symbol("token-forge-preview-budget");
 const previewDailyBudgetMultiplier = 100;
 
 const expandPreviewDailyBudgets = (
-  policy: TokenForgeAiTrafficPolicy,
-): Readonly<TokenForgeAiTrafficPolicy> => {
+  policy: AiTrafficPolicy,
+): Readonly<AiTrafficPolicy> => {
   const previewPolicy = cloneJson(
     policy,
     "Token Forge AI Preview traffic policy",
@@ -717,7 +756,7 @@ const expandPreviewDailyBudgets = (
 };
 
 export class TokenForgeAiPolicyLedger {
-  readonly policy: Readonly<TokenForgeAiTrafficPolicy>;
+  readonly policy: Readonly<AiTrafficPolicy>;
   private state: TokenForgeAiPolicySnapshot;
 
   constructor(
@@ -725,7 +764,7 @@ export class TokenForgeAiPolicyLedger {
     snapshot?: unknown,
     previewMarker?: symbol,
   ) {
-    const validatedPolicy = validateTokenForgeAiTrafficPolicy(policy);
+    const validatedPolicy = validateAiTrafficPolicy(policy);
     this.policy =
       previewMarker === previewBudgetMarker
         ? expandPreviewDailyBudgets(validatedPolicy)
@@ -1138,6 +1177,20 @@ export class TokenForgeAiPolicyLedger {
 }
 
 export const createTokenForgeAiPreviewPolicyLedger = (
+  policy: unknown,
+  snapshot?: unknown,
+): TokenForgeAiPolicyLedger & {
+  readonly policy: Readonly<TokenForgeAiTrafficPolicy>;
+} =>
+  new TokenForgeAiPolicyLedger(
+    policy,
+    snapshot,
+    previewBudgetMarker,
+  ) as TokenForgeAiPolicyLedger & {
+    readonly policy: Readonly<TokenForgeAiTrafficPolicy>;
+  };
+
+export const createAiPreviewPolicyLedger = (
   policy: unknown,
   snapshot?: unknown,
 ): TokenForgeAiPolicyLedger =>

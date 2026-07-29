@@ -232,11 +232,15 @@ const parseRetryAfter = (
   return Math.min(Math.max(1, Math.ceil((date - nowMs) / 1_000)), 3_600);
 };
 
-type OpenAiCompatibleProviderOptions = {
+export type OpenAiCompatibleProviderOptions = {
   baseUrl: string;
   primaryModel: string;
   fallbackModel: string;
   apiKey: string;
+  systemPrompt?: string;
+  maxResponseBytes?: number;
+  primaryAccountingTokens?: number;
+  fallbackAccountingTokens?: number;
   fetch?: typeof fetch;
   now?: () => number;
 };
@@ -318,14 +322,21 @@ export const createOpenAiCompatibleProvider = (
   const endpoint = `${baseUrl.toString().replace(/\/+$/, "")}/chat/completions`;
   const fetchProvider = options.fetch ?? fetch;
   const now = options.now ?? Date.now;
+  const maxResponseBytes =
+    options.maxResponseBytes ?? tokenForgeAiGatewayPolicy.maxResponseBytes;
+  const primaryAccountingTokens =
+    options.primaryAccountingTokens ?? tokenForgeAiPrimaryAccountingTokens;
+  const fallbackAccountingTokens =
+    options.fallbackAccountingTokens ?? tokenForgeAiFallbackAccountingTokens;
+  const systemPrompt = options.systemPrompt ?? tokenForgeOpenAiSystemPrompt;
   let fallbackAttempted = false;
 
   return {
     adapterId: "openai-compatible",
     getAccountingTokenFloor() {
       return fallbackAttempted
-        ? tokenForgeAiFallbackAccountingTokens
-        : tokenForgeAiPrimaryAccountingTokens;
+        ? fallbackAccountingTokens
+        : primaryAccountingTokens;
     },
     async generate(
       request: AiGatewayProviderRequest,
@@ -359,7 +370,7 @@ export const createOpenAiCompatibleProvider = (
               messages: [
                 {
                   role: "system",
-                  content: tokenForgeOpenAiSystemPrompt,
+                  content: systemPrompt,
                 },
                 {
                   role: "user",
@@ -406,7 +417,7 @@ export const createOpenAiCompatibleProvider = (
           const contentLength = Number(response.headers.get("content-length"));
           if (
             Number.isFinite(contentLength) &&
-            contentLength > tokenForgeAiGatewayPolicy.maxResponseBytes
+            contentLength > maxResponseBytes
           ) {
             if (canFallback) {
               continue;
@@ -414,10 +425,7 @@ export const createOpenAiCompatibleProvider = (
             return undefined;
           }
           parsed = JSON.parse(
-            await boundedText(
-              response.body,
-              tokenForgeAiGatewayPolicy.maxResponseBytes,
-            ),
+            await boundedText(response.body, maxResponseBytes),
           ) as unknown;
         } catch {
           if (canFallback) {
@@ -491,7 +499,7 @@ type TokenForgeAiRuntimeOptions = {
   now?: () => number;
 };
 
-const deriveActorKey = async (
+export const deriveAiActorKey = async (
   ipAddress: string,
   secret: string,
 ): Promise<string> => {
@@ -664,7 +672,7 @@ export const handleTokenForgeAiRequest = async (
   let provider: ReturnType<typeof createOpenAiCompatibleProvider>;
   let trafficPolicyMode: TokenForgeAiTrafficPolicyMode;
   try {
-    actorKey = await deriveActorKey(
+    actorKey = await deriveAiActorKey(
       ipAddress,
       environment.TOKEN_FORGE_ACTOR_KEY_SECRET,
     );

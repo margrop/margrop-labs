@@ -1,0 +1,131 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lab.margrop.net/schemas/ai-traffic-policy-v1.schema.json",
+  "title": "Margrop Labs AI Traffic Policy v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "lab_id",
+    "operation",
+    "max_request_billable_tokens",
+    "max_request_cost_microusd",
+    "daily_budgets",
+    "rate_limit",
+    "concurrency",
+    "circuit_breaker",
+    "reservation_ttl_seconds"
+  ],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "lab_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
+    "operation": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 96,
+      "pattern": "^[a-z0-9]+(?:[.-][a-z0-9]+)*$"
+    },
+    "max_request_billable_tokens": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 56000
+    },
+    "max_request_cost_microusd": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 100000
+    },
+    "daily_budgets": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "actor_tokens",
+        "lab_tokens",
+        "site_tokens",
+        "actor_cost_microusd",
+        "lab_cost_microusd",
+        "site_cost_microusd",
+        "actor_requests",
+        "lab_requests",
+        "site_requests"
+      ],
+      "properties": {
+        "actor_tokens": { "type": "integer", "minimum": 1, "maximum": 224000 },
+        "lab_tokens": { "type": "integer", "minimum": 1, "maximum": 2240000 },
+        "site_tokens": { "type": "integer", "minimum": 1, "maximum": 5600000 },
+        "actor_cost_microusd": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 250000
+        },
+        "lab_cost_microusd": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 5000000
+        },
+        "site_cost_microusd": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10000000
+        },
+        "actor_requests": { "type": "integer", "minimum": 1, "maximum": 12 },
+        "lab_requests": { "type": "integer", "minimum": 1, "maximum": 200 },
+        "site_requests": { "type": "integer", "minimum": 1, "maximum": 400 }
+      }
+    },
+    "rate_limit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "window_seconds",
+        "actor_requests",
+        "lab_requests",
+        "site_requests"
+      ],
+      "properties": {
+        "window_seconds": { "type": "integer", "minimum": 60, "maximum": 3600 },
+        "actor_requests": { "type": "integer", "minimum": 1, "maximum": 2 },
+        "lab_requests": { "type": "integer", "minimum": 1, "maximum": 20 },
+        "site_requests": { "type": "integer", "minimum": 1, "maximum": 40 }
+      }
+    },
+    "concurrency": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["actor_in_flight", "lab_in_flight", "site_in_flight"],
+      "properties": {
+        "actor_in_flight": { "type": "integer", "minimum": 1, "maximum": 1 },
+        "lab_in_flight": { "type": "integer", "minimum": 1, "maximum": 4 },
+        "site_in_flight": { "type": "integer", "minimum": 1, "maximum": 6 }
+      }
+    },
+    "circuit_breaker": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "consecutive_failures",
+        "open_seconds",
+        "half_open_requests"
+      ],
+      "properties": {
+        "consecutive_failures": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 5
+        },
+        "open_seconds": { "type": "integer", "minimum": 60, "maximum": 3600 },
+        "half_open_requests": { "const": 1 }
+      }
+    },
+    "reservation_ttl_seconds": {
+      "type": "integer",
+      "minimum": 5,
+      "maximum": 60
+    }
+  }
+}

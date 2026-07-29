@@ -1,0 +1,37 @@
+{
+  "schema_version": "1.0",
+  "plan_projection": {
+    "plan_id": "plan-synthetic-001",
+    "mode": "interviewer",
+    "duration_minutes": 45,
+    "questions": [
+      {
+        "question_id": "question-java",
+        "requirement_ids": ["requirement-java-go"]
+      }
+    ]
+  },
+  "record_projection": {
+    "record_id": "record-synthetic-001",
+    "plan_id": "plan-synthetic-001",
+    "mode": "interviewer",
+    "duration_minutes": 45,
+    "status": "draft",
+    "entries": [
+      {
+        "entry_id": "entry-java",
+        "question_id": "question-java",
+        "requirement_ids": ["requirement-java-go"],
+        "response_status": "unknown",
+        "fact_ids": [],
+        "counterevidence_ids": [],
+        "unknown_reason": "not_verified"
+      }
+    ]
+  },
+  "safeguards": {
+    "unknown_is_not_negative": true,
+    "protected_attribute_inference": false,
+    "automatic_decision": false
+  }
+}

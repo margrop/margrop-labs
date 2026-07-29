@@ -227,11 +227,14 @@
 - [x] **P5-005 [M] 按顺序建立无需 AI 的双角色合成闭环**
   - 产物：面试官/面试者合成样例、规则化匹配、计划、记录、结论和安全导出。
   - 验收：无需登录、真实简历、网络或 AI，三分钟内跑通三段流程。
-- [ ] **P5-006 [L] [下一项] 按顺序复用生产 AI 运行时**
+- [x] **P5-006 [L] 按顺序复用生产 AI 运行时**
   - 产物：通用 `lab_id + operation` 注册外壳，三个面试操作的独立端点、Prompt、Schema、
     Token/频率/并发/熔断策略和 Preview 验收。
   - 验收：Token Forge Production 端点、Secrets、预算和降级行为不变；共用 OpenAI-compatible
     Provider、DDNS 主机、`qwen-latest` 和 `minimax-latest`；浏览器不能选择模型或发送密钥。
+  - 当前：已完成通用策略校验与注册表、三个同源端点、独立 `INTERVIEW_AI_POLICY` Durable Object、
+    脱敏输入/输出合同、qwen→minimax 回退、浏览器控制字段拒绝和合成运行时测试；需在 PR CI
+    和 Preview smoke 中完成最终发布验收。
 - [ ] **P5-007 [L] 按顺序实现双角色三步工作台**
   - 产物：`/interview-workbench/` 页面、步骤导航、本地编辑、失败恢复、导出和隐私披露。
   - 验收：320px、键盘和 reduced motion 通过；AI 不可用时保留完整合成与规则化结果。

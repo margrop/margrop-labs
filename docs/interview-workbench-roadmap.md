@@ -93,6 +93,8 @@ AI 结论默认为 `draft`，只有用户显式确认后才能导出为最终版
 5. 继续使用 `qwen-latest` 主模型和 `minimax-latest` 回退模型，除非独立质量基准支持变更；
 6. 上游网关负责真实货币预算，Labs 保留保守的 Token、频率、并发、超时和熔断上限。
 
+P5-006 的实现说明见 [AI 运行时 v1](./interview-workbench-ai-runtime-v1.md)。
+
 ## Alpha 出口门槛
 
 - 两种角色都能在三分钟内跑通无需登录、无需 AI 的合成样例；

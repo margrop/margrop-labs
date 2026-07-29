@@ -1,0 +1,152 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lab.margrop.net/schemas/interview-boundary-projection-v1.schema.json",
+  "title": "Interview Workbench AI Boundary Projection v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "projection_version",
+    "resume",
+    "job",
+    "evidence",
+    "omitted_fields"
+  ],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "projection_version": { "const": "1.0" },
+    "resume": { "$ref": "#/$defs/resume" },
+    "job": { "$ref": "#/$defs/job" },
+    "evidence": {
+      "type": "array",
+      "maxItems": 60,
+      "items": { "$ref": "#/$defs/evidence" }
+    },
+    "omitted_fields": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "type": "string", "minLength": 1, "maxLength": 100 }
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "maxLength": 80
+    },
+    "paragraph": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 160,
+      "pattern": "\\S"
+    },
+    "category": {
+      "enum": ["must_have", "technical", "domain", "scope", "collaboration"]
+    },
+    "priority": { "enum": ["must", "should", "nice"] },
+    "level": { "enum": ["junior", "mid", "senior", "lead", "unknown"] },
+    "source": {
+      "enum": ["resume", "interview_record", "candidate_preparation"]
+    },
+    "kind": {
+      "enum": ["experience", "project", "skill", "behavior", "unknown"]
+    },
+    "support": { "enum": ["direct", "partial", "conflict", "unknown"] },
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["team_size", "ownership", "scale"],
+      "properties": {
+        "team_size": { "type": "integer", "minimum": 0, "maximum": 100000 },
+        "ownership": { "$ref": "#/$defs/paragraph" },
+        "scale": { "$ref": "#/$defs/paragraph" }
+      }
+    },
+    "experience": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["experience_id", "role", "domain", "technologies", "scope"],
+      "properties": {
+        "experience_id": { "$ref": "#/$defs/id" },
+        "role": { "$ref": "#/$defs/paragraph" },
+        "domain": { "$ref": "#/$defs/paragraph" },
+        "technologies": {
+          "type": "array",
+          "maxItems": 30,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/paragraph" }
+        },
+        "scope": { "$ref": "#/$defs/scope" }
+      }
+    },
+    "resume": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["experience_signals", "skills"],
+      "properties": {
+        "experience_signals": {
+          "type": "array",
+          "maxItems": 30,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/experience" }
+        },
+        "skills": {
+          "type": "array",
+          "maxItems": 60,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/paragraph" }
+        }
+      }
+    },
+    "requirement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["requirement_id", "category", "priority"],
+      "properties": {
+        "requirement_id": { "$ref": "#/$defs/id" },
+        "category": { "$ref": "#/$defs/category" },
+        "priority": { "$ref": "#/$defs/priority" }
+      }
+    },
+    "job": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["role_title", "level", "requirement_signals"],
+      "properties": {
+        "role_title": { "$ref": "#/$defs/paragraph" },
+        "level": { "$ref": "#/$defs/level" },
+        "requirement_signals": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 30,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/requirement" }
+        }
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "evidence_id",
+        "source",
+        "kind",
+        "requirement_ids",
+        "support"
+      ],
+      "properties": {
+        "evidence_id": { "$ref": "#/$defs/id" },
+        "source": { "$ref": "#/$defs/source" },
+        "kind": { "$ref": "#/$defs/kind" },
+        "requirement_ids": {
+          "type": "array",
+          "maxItems": 30,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/id" }
+        },
+        "support": { "$ref": "#/$defs/support" }
+      }
+    }
+  }
+}
