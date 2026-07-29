@@ -89,6 +89,10 @@ await fetchTextWithRetry(interviewWorkbenchUrl, (interviewWorkbench) => {
     /<meta\s+property="og:image"\s+content="https:\/\/lab\.margrop\.net\/social\/interview-workbench\.png"\s*\/?>/,
   );
   assert.match(interviewWorkbench, /"@type":"WebApplication"/);
+  assert.match(interviewWorkbench, /录入简历与岗位 JD/);
+  assert.match(interviewWorkbench, /name="resume_text"/);
+  assert.match(interviewWorkbench, /name="jd_text"/);
+  assert.match(interviewWorkbench, /清除真实输入/);
 });
 
 const robotsUrl = new URL("/robots.txt", baseUrl);
@@ -121,53 +125,60 @@ await fetchTextWithRetry(sitemapUrl, (sitemap) => {
   assert.doesNotMatch(sitemap, /\/404|\/api\//);
 });
 
-const apiUrl = new URL("/api/token-forge/plan", baseUrl);
-let apiError;
+for (const apiPath of [
+  "/api/token-forge/plan",
+  "/api/interview-workbench/match",
+  "/api/interview-workbench/plan",
+  "/api/interview-workbench/conclusion",
+]) {
+  const apiUrl = new URL(apiPath, baseUrl);
+  let apiError;
 
-for (let attempt = 1; attempt <= attempts; attempt += 1) {
-  try {
-    const apiResponse = await fetch(apiUrl, {
-      method: "POST",
-      cache: "no-store",
-      redirect: "error",
-      headers: {
-        "cache-control": "no-cache",
-        "content-type": "application/json",
-        origin: baseUrl.origin,
-        "user-agent": "margrop-labs-deployment-smoke/1.0",
-      },
-      body: "{}",
-    });
-    assert.equal(apiResponse.status, 400);
-    assert.equal(apiResponse.headers.get("cache-control"), "no-store");
-    assert.match(
-      apiResponse.headers.get("content-type") ?? "",
-      /application\/json/,
-    );
-    assert.deepEqual(await apiResponse.json(), {
-      schema_version: "1.0",
-      status: "error",
-      error: {
-        code: "invalid_request",
-        retryable: false,
-      },
-      meta: {
-        attempt_count: 0,
-      },
-    });
-    apiError = undefined;
-    break;
-  } catch (error) {
-    apiError = error;
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    try {
+      const apiResponse = await fetch(apiUrl, {
+        method: "POST",
+        cache: "no-store",
+        redirect: "error",
+        headers: {
+          "cache-control": "no-cache",
+          "content-type": "application/json",
+          origin: baseUrl.origin,
+          "user-agent": "margrop-labs-deployment-smoke/1.0",
+        },
+        body: "{}",
+      });
+      assert.equal(apiResponse.status, 400);
+      assert.equal(apiResponse.headers.get("cache-control"), "no-store");
+      assert.match(
+        apiResponse.headers.get("content-type") ?? "",
+        /application\/json/,
+      );
+      assert.deepEqual(await apiResponse.json(), {
+        schema_version: "1.0",
+        status: "error",
+        error: {
+          code: "invalid_request",
+          retryable: false,
+        },
+        meta: {
+          attempt_count: 0,
+        },
+      });
+      apiError = undefined;
+      break;
+    } catch (error) {
+      apiError = error;
+    }
+
+    if (attempt < attempts) {
+      await new Promise((resolve) => setTimeout(resolve, retryDelayMs));
+    }
   }
 
-  if (attempt < attempts) {
-    await new Promise((resolve) => setTimeout(resolve, retryDelayMs));
+  if (apiError !== undefined) {
+    throw apiError;
   }
-}
-
-if (apiError !== undefined) {
-  throw apiError;
 }
 
 for (const analyticsPath of [
