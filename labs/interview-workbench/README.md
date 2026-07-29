@@ -99,3 +99,6 @@ P5-009 的固定博客 CTA、可索引 SEO/OG、无正文聚合事件与 GO/NO-G
 [Alpha 出口评审](../../docs/interview-workbench-alpha-exit-review-2026-07-29.md)。
 
 完整任务见 [AI 面试工作台路线图](../../docs/interview-workbench-roadmap.md)。
+后 Alpha 的 P5-010 至 P5-015 依赖、边界与验收门槛见
+[Post-Alpha 路线图](../../docs/interview-workbench-post-alpha-roadmap.md)。当前唯一下一项是
+P5-010 真实输入边界 ADR 与威胁模型；ADR 获批前不实现真实简历或 JD 输入。
