@@ -312,6 +312,7 @@ export default function InterviewWorkbench({
   const [jdText, setJdText] = useState("");
   const [importSummary, setImportSummary] =
     useState<InterviewImportSummary | null>(null);
+  const [hydrated, setHydrated] = useState(false);
   const [role, setRole] = useState<InterviewSyntheticRole>("interviewer");
   const [step, setStep] = useState<InterviewStep>(1);
   const [status, setStatus] = useState<WorkbenchStatus>(initialStatus);
@@ -327,6 +328,7 @@ export default function InterviewWorkbench({
   );
 
   useEffect(() => {
+    setHydrated(true);
     emitInterviewAnalyticsEvent("lab_open", deviceCategory);
     emitInterviewAnalyticsEvent("match_complete", deviceCategory);
   }, [deviceCategory]);
@@ -1004,6 +1006,7 @@ export default function InterviewWorkbench({
         </div>
         <form
           class="interview-import-form"
+          aria-busy={!hydrated}
           onSubmit={(event) => {
             event.preventDefault();
             applyLocalInput();
@@ -1014,6 +1017,7 @@ export default function InterviewWorkbench({
             <textarea
               name="resume_text"
               value={resumeText}
+              disabled={!hydrated}
               maxLength={INTERVIEW_TEXT_IMPORT_MAX_BYTES}
               placeholder="例如：职位、技能、经历、项目成果……"
               onInput={(event) =>
@@ -1032,6 +1036,7 @@ export default function InterviewWorkbench({
             <textarea
               name="jd_text"
               value={jdText}
+              disabled={!hydrated}
               maxLength={INTERVIEW_TEXT_IMPORT_MAX_BYTES}
               placeholder="例如：岗位名称、职责、任职要求、加分项……"
               onInput={(event) =>
@@ -1043,12 +1048,17 @@ export default function InterviewWorkbench({
             </small>
           </label>
           <div class="interview-import-actions">
-            <button class="button button--primary" type="submit">
+            <button
+              class="button button--primary"
+              type="submit"
+              disabled={!hydrated}
+            >
               生成本地工作台
             </button>
             <button
               class="button button--secondary"
               type="button"
+              disabled={!hydrated}
               onClick={clearLocalInput}
             >
               清除真实输入
@@ -1067,7 +1077,11 @@ export default function InterviewWorkbench({
               <span>{importSummary.warning_count} 项保守解析提醒</span>
             </>
           ) : (
-            <span>未提交真实文本；下方继续展示仓库内合成流程。</span>
+            <span>
+              {hydrated
+                ? "未提交真实文本；下方继续展示仓库内合成流程。"
+                : "正在准备本地解析器……"}
+            </span>
           )}
         </div>
       </section>

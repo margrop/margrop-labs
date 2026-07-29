@@ -159,7 +159,7 @@ const checks = [
     "manifest labels",
     [
       "Alpha · 主线",
-      "Alpha · 合成样例",
+      "Alpha · 本地文本",
       "Alpha · 暂停",
       "公开输入",
       "本地优先",
@@ -581,8 +581,11 @@ const checks = [
   [
     "Interview Workbench local privacy and draft boundary",
     [
+      "录入简历与岗位 JD",
       "完全合成样例",
-      "AI 只接收版本化、脱敏 ID/状态投影",
+      "不会写入",
+      "URL、浏览器存储、Analytics 或服务端日志",
+      "AI 只接收版本化 allowlist、脱敏短标签和 ID/状态投影",
       "所有结论保持 draft",
       "禁止自动录用或淘汰",
       "只导出结构化摘要",
@@ -596,6 +599,8 @@ const checks = [
     "Interview Workbench native controls",
     (interviewWorkbenchHtml.includes('aria-label="选择面试角色"') ||
       clientJavaScript.includes("选择面试角色")) &&
+      clientJavaScript.includes("resume_text") &&
+      clientJavaScript.includes("jd_text") &&
       clientJavaScript.includes("回答状态") &&
       clientJavaScript.includes("事实 / 回答摘要") &&
       clientJavaScript.includes("反证 / 待核验材料"),
