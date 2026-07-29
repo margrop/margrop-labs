@@ -1,0 +1,109 @@
+---
+import InterviewWorkbench from "../../components/InterviewWorkbench";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { buildInterviewAiMatchInput } from "../../server/interview-ai-contracts";
+import {
+  validateInterviewEvidence,
+  validateInterviewInputBundle,
+  validateInterviewJobDescription,
+  validateInterviewRequirement,
+  validateInterviewResume,
+} from "../../lib/interview-contracts";
+import { buildInterviewSyntheticLoop } from "../../lib/interview-synthetic";
+import { loadLabManifests } from "../../lib/lab-manifests";
+import evidenceCandidate from "../../../../../labs/interview-workbench/fixtures/evidence.valid.json";
+import jdCandidate from "../../../../../labs/interview-workbench/fixtures/jd.valid.json";
+import requirementCandidate from "../../../../../labs/interview-workbench/fixtures/requirement.valid.json";
+import resumeCandidate from "../../../../../labs/interview-workbench/fixtures/resume.valid.json";
+
+const labs = await loadLabManifests();
+const lab = labs.find((candidate) => candidate.id === "interview-workbench");
+
+if (!lab) {
+  throw new Error(
+    "Interview Workbench manifest is required for its public page.",
+  );
+}
+
+const resume = validateInterviewResume(resumeCandidate);
+const jd = validateInterviewJobDescription(jdCandidate);
+const requirement = validateInterviewRequirement(requirementCandidate);
+const evidence = validateInterviewEvidence(evidenceCandidate);
+const bundle = validateInterviewInputBundle({
+  resume,
+  jd,
+  requirements: [
+    requirement,
+    ...jd.requirements.slice(1).map((item) => ({
+      schema_version: "1.0" as const,
+      sensitivity: "sensitive" as const,
+      ...item,
+    })),
+  ],
+  evidence: [evidence],
+});
+const initialRun = buildInterviewSyntheticLoop(bundle);
+const aiBoundary = buildInterviewAiMatchInput(bundle).boundary;
+const description =
+  "面向面试官和面试者的本地优先三步工作台：从岗位匹配、面试计划到记录与结论草稿，unknown、证据和人工确认边界始终可见。";
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  name: "AI 面试工作台",
+  url: "https://lab.margrop.net/interview-workbench/",
+  description,
+  applicationCategory: "BusinessApplication",
+  operatingSystem: "Any",
+  browserRequirements: "Requires a modern browser",
+  inLanguage: "zh-CN",
+  isAccessibleForFree: true,
+  featureList: [
+    "无需登录的双角色合成样例",
+    "岗位匹配与证据引用",
+    "30/45/60 分钟面试计划内核",
+    "本地记录与安全摘要导出",
+  ],
+  offers: { "@type": "Offer", price: "0", priceCurrency: "CNY" },
+  creator: {
+    "@type": "Person",
+    name: "Margrop",
+    url: "https://blog.margrop.net/",
+  },
+};
+---
+
+<BaseLayout
+  title="AI 面试工作台｜Margrop Labs"
+  {description}
+  socialTitle="AI 面试工作台｜从证据匹配走到结论草稿"
+  socialImageAlt="AI 面试工作台：岗位匹配、面试计划、记录与结论草稿"
+  indexable={false}
+  {structuredData}
+>
+  <section class="lab-page">
+    <header class="lab-page-hero">
+      <div>
+        <p class="eyebrow">INTERVIEW WORKBENCH · BUILDING</p>
+        <h1>把面试判断，变成<br /><em>可追溯的证据链。</em></h1>
+        <p>
+          面试官可以先看岗位匹配和完整计划，面试者可以用同一套问题准备真实证据。
+          当前页面从完全合成样例开始：三步流程、双角色、记录编辑和安全摘要都在浏览器本地完成；AI
+          只作为显式、可降级的建议层。
+        </p>
+      </div>
+      <dl class="lab-page-contract">
+        <div><dt>LOGIN</dt><dd>无需登录</dd></div>
+        <div><dt>DATA</dt><dd>完全合成样例</dd></div>
+        <div><dt>AI</dt><dd>可选 · 失败可降级</dd></div>
+        <div><dt>DECISION</dt><dd>必须人工确认</dd></div>
+      </dl>
+    </header>
+
+    <InterviewWorkbench
+      initialRun={initialRun}
+      aiBoundary={aiBoundary}
+      sourceUrl="https://github.com/margrop/margrop-labs/tree/main/labs/interview-workbench"
+      client:visible={{ rootMargin: "200px" }}
+    />
+  </section>
+</BaseLayout>

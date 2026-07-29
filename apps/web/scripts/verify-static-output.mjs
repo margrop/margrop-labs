@@ -11,6 +11,10 @@ const incidentDetectiveUrl = new URL(
   import.meta.url,
 );
 const smartRmaUrl = new URL("../dist/smart-rma/index.html", import.meta.url);
+const interviewWorkbenchUrl = new URL(
+  "../dist/interview-workbench/index.html",
+  import.meta.url,
+);
 const notFoundUrl = new URL("../dist/404.html", import.meta.url);
 const robotsUrl = new URL("../dist/robots.txt", import.meta.url);
 const sitemapIndexUrl = new URL("../dist/sitemap-index.xml", import.meta.url);
@@ -32,6 +36,10 @@ const incidentDetectiveHtml = await readFile(
   "utf8",
 );
 const smartRmaHtml = await readFile(fileURLToPath(smartRmaUrl), "utf8");
+const interviewWorkbenchHtml = await readFile(
+  fileURLToPath(interviewWorkbenchUrl),
+  "utf8",
+);
 const notFoundHtml = await readFile(fileURLToPath(notFoundUrl), "utf8");
 const robots = await readFile(fileURLToPath(robotsUrl), "utf8");
 const sitemapIndex = await readFile(fileURLToPath(sitemapIndexUrl), "utf8");
@@ -527,6 +535,70 @@ const checks = [
       styles.includes(".smart-rma-table-scroll") &&
       styles.includes(".smart-rma-nvme-grid") &&
       styles.includes(".smart-rma-redaction-counts"),
+  ],
+  [
+    "Interview Workbench noindex page",
+    interviewWorkbenchHtml.includes(
+      "<title>AI 面试工作台｜Margrop Labs</title>",
+    ) &&
+      interviewWorkbenchHtml.includes(
+        '<meta name="robots" content="noindex, nofollow">',
+      ) &&
+      interviewWorkbenchHtml.includes("把面试判断，变成") &&
+      interviewWorkbenchHtml.includes("可追溯的证据链"),
+  ],
+  [
+    "Interview Workbench three-step contract",
+    [
+      "三步跑通一轮面试",
+      "岗位匹配：先看证据，再看区间",
+      "面试计划",
+      "记录事实，再生成结论草稿",
+      "面试官",
+      "面试者",
+      "恢复样例",
+    ].every(
+      (label) =>
+        interviewWorkbenchHtml.includes(label) ||
+        clientJavaScript.includes(label),
+    ),
+  ],
+  [
+    "Interview Workbench local privacy and draft boundary",
+    [
+      "完全合成样例",
+      "AI 只接收版本化、脱敏 ID/状态投影",
+      "所有结论保持 draft",
+      "禁止自动录用或淘汰",
+      "只导出结构化摘要",
+    ].every(
+      (label) =>
+        interviewWorkbenchHtml.includes(label) ||
+        clientJavaScript.includes(label),
+    ),
+  ],
+  [
+    "Interview Workbench native controls",
+    (interviewWorkbenchHtml.includes('aria-label="选择面试角色"') ||
+      clientJavaScript.includes("选择面试角色")) &&
+      clientJavaScript.includes("回答状态") &&
+      clientJavaScript.includes("事实 / 回答摘要") &&
+      clientJavaScript.includes("反证 / 待核验材料"),
+  ],
+  [
+    "Interview Workbench client excludes provider secrets",
+    [
+      "api-gpt.speedtest.margrop.net",
+      "TOKEN_FORGE_AI_API_KEY",
+      "TOKEN_FORGE_ACTOR_KEY_SECRET",
+      "qwen-latest",
+      "minimax-latest",
+    ].every((value) => !clientJavaScript.includes(value)),
+  ],
+  [
+    "Interview Workbench visible hydration",
+    interviewWorkbenchHtml.includes('client="visible"') &&
+      !interviewWorkbenchHtml.includes('client="load"'),
   ],
 ];
 
