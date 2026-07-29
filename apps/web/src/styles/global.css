@@ -2665,6 +2665,64 @@ a {
   line-height: 1.6;
 }
 
+.smart-rma-assessment {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  border: 1px solid var(--line);
+  border-radius: 0.9rem;
+  background: rgba(8, 17, 31, 0.58);
+}
+
+.smart-rma-assessment--healthy {
+  border-color: rgba(80, 227, 208, 0.48);
+}
+
+.smart-rma-assessment--warning {
+  border-color: rgba(255, 196, 87, 0.55);
+}
+
+.smart-rma-assessment--critical {
+  border-color: rgba(255, 102, 132, 0.62);
+}
+
+.smart-rma-assessment--unknown {
+  border-style: dashed;
+}
+
+.smart-rma-conflict {
+  margin: 1rem 0 0;
+  padding: 0.85rem 1rem;
+  border-left: 3px solid #ffc457;
+  background: rgba(255, 196, 87, 0.08);
+  color: var(--text);
+  line-height: 1.6;
+}
+
+.smart-rma-export-actions {
+  margin-top: 1rem;
+}
+
+.smart-rma-ai {
+  margin-top: 1rem;
+  padding: 1rem;
+  border: 1px solid rgba(124, 156, 255, 0.42);
+  border-radius: 0.8rem;
+  background: rgba(124, 156, 255, 0.08);
+}
+
+.smart-rma-ai h3,
+.smart-rma-ai p {
+  margin-top: 0;
+}
+
+.smart-rma-ai ul {
+  display: grid;
+  gap: 0.55rem;
+  padding-left: 1.2rem;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
 .smart-rma-facts,
 .smart-rma-nvme-grid {
   display: grid;
@@ -3078,6 +3136,7 @@ a {
   }
 
   .smart-rma-actions .button,
+  .smart-rma-export-actions .button,
   .smart-rma-next-links .button,
   .smart-rma-sample-controls .button {
     width: 100%;

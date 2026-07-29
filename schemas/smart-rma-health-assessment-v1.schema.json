@@ -1,0 +1,104 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lab.margrop.net/schemas/smart-rma-health-assessment-v1.schema.json",
+  "title": "SMART / RMA Health Assessment v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "ruleset_version",
+    "state",
+    "confidence",
+    "reported_overall_health",
+    "triggered_rules",
+    "conflicts",
+    "unknown_reasons",
+    "recommended_actions",
+    "warranty_assessment"
+  ],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "ruleset_version": { "const": "1.0" },
+    "state": { "enum": ["healthy", "warning", "critical", "unknown"] },
+    "confidence": { "enum": ["complete", "partial", "insufficient"] },
+    "reported_overall_health": { "enum": ["passed", "failed", "unknown"] },
+    "triggered_rules": {
+      "type": "array",
+      "maxItems": 16,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/rule" }
+    },
+    "conflicts": {
+      "type": "array",
+      "maxItems": 2,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "reported-passed-with-warning-evidence",
+          "reported-passed-with-critical-evidence"
+        ]
+      }
+    },
+    "unknown_reasons": {
+      "type": "array",
+      "maxItems": 10,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/unknownReason" }
+    },
+    "recommended_actions": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 6,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/action" }
+    },
+    "warranty_assessment": { "const": "not-determined" }
+  },
+  "$defs": {
+    "rule": {
+      "enum": [
+        "reported-failure",
+        "ata-reallocated-sectors",
+        "ata-pending-sectors",
+        "ata-uncorrectable-sectors",
+        "ata-error-log",
+        "ata-self-test-failures",
+        "nvme-critical-warning",
+        "nvme-spare-below-threshold",
+        "nvme-media-errors",
+        "nvme-wear-high",
+        "nvme-wear-exhausted",
+        "healthy-baseline",
+        "smart-unavailable",
+        "insufficient-core-evidence"
+      ]
+    },
+    "unknownReason": {
+      "enum": [
+        "smart-unavailable",
+        "protocol-unknown",
+        "overall-health-missing",
+        "temperature-missing",
+        "power-on-hours-missing",
+        "identification-incomplete",
+        "vendor-extension-uninterpreted"
+      ]
+    },
+    "action": {
+      "enum": [
+        "continue-monitoring",
+        "keep-current-backups",
+        "backup-now",
+        "run-extended-self-test",
+        "capture-vendor-diagnostics",
+        "consider-replacement",
+        "stop-nonessential-writes",
+        "replace-drive",
+        "prepare-rma-evidence",
+        "use-direct-connection",
+        "enable-smart",
+        "collect-complete-output"
+      ]
+    }
+  }
+}

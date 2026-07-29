@@ -1,0 +1,69 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lab.margrop.net/schemas/smart-rma-ai-explanation-v1.schema.json",
+  "title": "SMART / RMA AI Explanation v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "plain_language_summary",
+    "evidence_explanations",
+    "unknown_explanations",
+    "next_step_explanations",
+    "warranty_assessment"
+  ],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "plain_language_summary": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 800
+    },
+    "evidence_explanations": {
+      "type": "array",
+      "maxItems": 16,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["rule", "explanation"],
+        "properties": {
+          "rule": {
+            "$ref": "https://lab.margrop.net/schemas/smart-rma-health-assessment-v1.schema.json#/$defs/rule"
+          },
+          "explanation": { "type": "string", "minLength": 1, "maxLength": 360 }
+        }
+      }
+    },
+    "unknown_explanations": {
+      "type": "array",
+      "maxItems": 10,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["reason", "explanation"],
+        "properties": {
+          "reason": {
+            "$ref": "https://lab.margrop.net/schemas/smart-rma-health-assessment-v1.schema.json#/$defs/unknownReason"
+          },
+          "explanation": { "type": "string", "minLength": 1, "maxLength": 360 }
+        }
+      }
+    },
+    "next_step_explanations": {
+      "type": "array",
+      "maxItems": 6,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["action", "explanation"],
+        "properties": {
+          "action": {
+            "$ref": "https://lab.margrop.net/schemas/smart-rma-health-assessment-v1.schema.json#/$defs/action"
+          },
+          "explanation": { "type": "string", "minLength": 1, "maxLength": 360 }
+        }
+      }
+    },
+    "warranty_assessment": { "const": "not-determined" }
+  }
+}

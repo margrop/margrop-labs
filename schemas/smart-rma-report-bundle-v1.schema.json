@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lab.margrop.net/schemas/smart-rma-report-bundle-v1.schema.json",
+  "title": "SMART / RMA Report Bundle v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "report_version",
+    "state",
+    "chinese_summary_markdown",
+    "english_rma_markdown",
+    "contains_raw_input",
+    "warranty_assessment"
+  ],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "report_version": { "const": "1.0" },
+    "state": { "enum": ["healthy", "warning", "critical", "unknown"] },
+    "chinese_summary_markdown": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 12000
+    },
+    "english_rma_markdown": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 12000
+    },
+    "contains_raw_input": { "const": false },
+    "warranty_assessment": { "const": "not-determined" }
+  }
+}

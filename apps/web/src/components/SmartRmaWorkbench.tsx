@@ -1,6 +1,19 @@
 import { useMemo, useState } from "preact/hooks";
 
 import {
+  type SmartRmaAiResult,
+  requestSmartRmaAiExplanation,
+} from "../lib/smart-rma-ai";
+import {
+  type SmartRmaHealthRule,
+  type SmartRmaHealthState,
+  type SmartRmaRecommendedAction,
+  type SmartRmaUnknownReason,
+  assessSmartRmaHealth,
+} from "../lib/smart-rma-health";
+import { createSmartRmaReportBundle } from "../lib/smart-rma-report";
+
+import {
   type SmartRmaRedactionPreview,
   SmartRmaRedactionError,
   redactSmartctlText,
@@ -85,6 +98,55 @@ const missingFieldLabels: Record<SmartRmaMissingField, string> = {
   power_on_hours: "通电小时",
 };
 
+const healthStateLabels: Record<SmartRmaHealthState, string> = {
+  healthy: "正常",
+  warning: "注意",
+  critical: "危险",
+  unknown: "未知",
+};
+
+const healthRuleLabels: Record<SmartRmaHealthRule, string> = {
+  "reported-failure": "smartctl 报告总体健康检查失败",
+  "ata-reallocated-sectors": "ATA 重映射扇区非零",
+  "ata-pending-sectors": "ATA 待处理扇区非零",
+  "ata-uncorrectable-sectors": "ATA 不可校正扇区非零",
+  "ata-error-log": "ATA 错误日志非空",
+  "ata-self-test-failures": "ATA 自检日志包含失败",
+  "nvme-critical-warning": "NVMe Critical Warning 非零",
+  "nvme-spare-below-threshold": "NVMe 可用备用空间低于阈值",
+  "nvme-media-errors": "NVMe 介质与数据完整性错误非零",
+  "nvme-wear-high": "NVMe 寿命使用率达到 80%",
+  "nvme-wear-exhausted": "NVMe 寿命使用率达到或超过 100%",
+  "healthy-baseline": "总体检查通过且未触发已知异常规则",
+  "smart-unavailable": "当前连接不提供 SMART 数据",
+  "insufficient-core-evidence": "核心健康证据不足",
+};
+
+const unknownReasonLabels: Record<SmartRmaUnknownReason, string> = {
+  "smart-unavailable": "当前连接无法取得 SMART 数据",
+  "protocol-unknown": "无法确认设备协议",
+  "overall-health-missing": "缺少总体健康状态",
+  "temperature-missing": "缺少温度",
+  "power-on-hours-missing": "缺少通电小时",
+  "identification-incomplete": "设备识别信息不完整",
+  "vendor-extension-uninterpreted": "厂商扩展属性未解释",
+};
+
+const actionLabels: Record<SmartRmaRecommendedAction, string> = {
+  "continue-monitoring": "继续定期监控",
+  "keep-current-backups": "保持可验证的当前备份",
+  "backup-now": "立即确认并补齐重要数据备份",
+  "run-extended-self-test": "在安全条件下运行扩展自检",
+  "capture-vendor-diagnostics": "收集厂商诊断结果",
+  "consider-replacement": "评估更换设备",
+  "stop-nonessential-writes": "停止非必要写入",
+  "replace-drive": "尽快更换设备",
+  "prepare-rma-evidence": "准备脱敏后的售后证据",
+  "use-direct-connection": "改用可透传 SMART 的直连方式",
+  "enable-smart": "确认固件或系统已启用 SMART",
+  "collect-complete-output": "重新收集完整 smartctl 输出",
+};
+
 const initialStatus: WorkbenchStatus = {
   tone: "info",
   title: "合成样例已就绪",
@@ -115,15 +177,32 @@ export default function SmartRmaWorkbench({
       redactionPreview?.parse_result ?? parseSmartctlText(initialSample.raw),
   );
   const [status, setStatus] = useState<WorkbenchStatus>(initialStatus);
+  const [aiResult, setAiResult] = useState<SmartRmaAiResult | null>(null);
+  const [aiPending, setAiPending] = useState(false);
   const selectedSample = useMemo(
     () => samples.find(({ id }) => id === selectedSampleId) ?? initialSample,
     [initialSample, samples, selectedSampleId],
+  );
+  const assessment = useMemo(
+    () =>
+      redactionPreview
+        ? assessSmartRmaHealth(redactionPreview.projection)
+        : null,
+    [redactionPreview],
+  );
+  const reportBundle = useMemo(
+    () =>
+      redactionPreview && assessment
+        ? createSmartRmaReportBundle(redactionPreview.projection, assessment)
+        : null,
+    [assessment, redactionPreview],
   );
 
   const loadSelectedSample = (): void => {
     setRawText(selectedSample.raw);
     setResult(null);
     setRedactionPreview(null);
+    setAiResult(null);
     setStatus({
       tone: "info",
       title: "合成样例已载入",
@@ -136,6 +215,7 @@ export default function SmartRmaWorkbench({
       const preview = redactSmartctlText(rawText);
       setRedactionPreview(preview);
       setResult(preview.parse_result);
+      setAiResult(null);
       setStatus({
         tone: "ready",
         title: "本地解析与脱敏完成",
@@ -145,6 +225,7 @@ export default function SmartRmaWorkbench({
     } catch (error) {
       setResult(null);
       setRedactionPreview(null);
+      setAiResult(null);
       setStatus({
         tone: "error",
         title: "无法解析或脱敏",
@@ -163,6 +244,8 @@ export default function SmartRmaWorkbench({
     setRawText(initialSample.raw);
     setRedactionPreview(preview);
     setResult(preview.parse_result);
+    setAiResult(null);
+    setAiPending(false);
     setStatus(initialStatus);
   };
 
@@ -170,11 +253,39 @@ export default function SmartRmaWorkbench({
     setRawText(value);
     setResult(null);
     setRedactionPreview(null);
+    setAiResult(null);
     setStatus({
       tone: "info",
       title: "输入已改变",
       message: "点击“本地解析并脱敏”生成与当前文本对应的新结果。",
     });
+  };
+
+  const explainWithAi = async (): Promise<void> => {
+    if (!redactionPreview || !assessment || aiPending) return;
+    setAiPending(true);
+    setAiResult(null);
+    try {
+      setAiResult(
+        await requestSmartRmaAiExplanation(
+          redactionPreview.projection,
+          assessment,
+        ),
+      );
+    } finally {
+      setAiPending(false);
+    }
+  };
+
+  const downloadMarkdown = (filename: string, markdown: string): void => {
+    const url = URL.createObjectURL(
+      new Blob([markdown], { type: "text/markdown;charset=utf-8" }),
+    );
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = filename;
+    link.click();
+    URL.revokeObjectURL(url);
   };
 
   return (
@@ -322,7 +433,7 @@ export default function SmartRmaWorkbench({
             <p class="smart-rma-boundary-note">
               AI
               与导出不会接收这段文本，只能使用协议、计数、枚举和受支持指标组成的
-              Boundary Projection v1。
+              AI Boundary v1；隐私统计也不会进入模型请求。
             </p>
           </section>
         )}
@@ -342,6 +453,130 @@ export default function SmartRmaWorkbench({
 
         {result ? (
           <>
+            {assessment && reportBundle && (
+              <section
+                class={`smart-rma-assessment smart-rma-assessment--${assessment.state}`}
+                aria-labelledby="smart-rma-assessment-heading"
+              >
+                <div class="smart-rma-detail-heading">
+                  <div>
+                    <p class="section-kicker">DETERMINISTIC RULES</p>
+                    <h3 id="smart-rma-assessment-heading">
+                      规则结论：{healthStateLabels[assessment.state]}
+                    </h3>
+                  </div>
+                  <p>
+                    证据完整度 {assessment.confidence} · 保修判断 not-determined
+                  </p>
+                </div>
+                <div class="smart-rma-summary-grid">
+                  <section>
+                    <h3>触发规则</h3>
+                    <ul>
+                      {assessment.triggered_rules.map((rule) => (
+                        <li key={rule}>{healthRuleLabels[rule]}</li>
+                      ))}
+                    </ul>
+                  </section>
+                  <section>
+                    <h3>规则未知项</h3>
+                    {assessment.unknown_reasons.length > 0 ? (
+                      <ul>
+                        {assessment.unknown_reasons.map((reason) => (
+                          <li key={reason}>{unknownReasonLabels[reason]}</li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p>没有显式未知项。</p>
+                    )}
+                  </section>
+                </div>
+                {assessment.conflicts.length > 0 && (
+                  <p class="smart-rma-conflict" role="status">
+                    冲突：smartctl 报告 PASSED，但确定性规则发现
+                    {assessment.state === "critical" ? "危险" : "注意"}级证据。
+                  </p>
+                )}
+                <div class="smart-rma-summary-grid">
+                  <section>
+                    <h3>建议动作</h3>
+                    <ul>
+                      {assessment.recommended_actions.map((action) => (
+                        <li key={action}>{actionLabels[action]}</li>
+                      ))}
+                    </ul>
+                  </section>
+                  <section>
+                    <h3>可选 AI 解释</h3>
+                    <p>
+                      AI
+                      只解释已验证规则，不接收原文、脱敏预览、设备标识或隐私统计；失败不影响本地结果。
+                    </p>
+                    <button
+                      class="button button--secondary"
+                      type="button"
+                      disabled={aiPending}
+                      onClick={() => void explainWithAi()}
+                    >
+                      {aiPending ? "AI 解释生成中…" : "请求 AI 通俗解释"}
+                    </button>
+                  </section>
+                </div>
+                <div class="smart-rma-actions smart-rma-export-actions">
+                  <button
+                    class="button button--secondary"
+                    type="button"
+                    onClick={() =>
+                      downloadMarkdown(
+                        "smart-health-summary.zh-CN.md",
+                        reportBundle.chinese_summary_markdown,
+                      )
+                    }
+                  >
+                    下载中文摘要
+                  </button>
+                  <button
+                    class="button button--primary"
+                    type="button"
+                    onClick={() =>
+                      downloadMarkdown(
+                        "smart-rma-evidence.en.md",
+                        reportBundle.english_rma_markdown,
+                      )
+                    }
+                  >
+                    下载英文 RMA Markdown
+                  </button>
+                </div>
+                {aiResult?.status === "ready" && (
+                  <section class="smart-rma-ai" aria-live="polite">
+                    <h3>AI 解释</h3>
+                    <p>{aiResult.explanation.plain_language_summary}</p>
+                    {aiResult.explanation.evidence_explanations.length > 0 && (
+                      <ul>
+                        {aiResult.explanation.evidence_explanations.map(
+                          ({ rule, explanation }) => (
+                            <li key={rule}>
+                              <strong>{healthRuleLabels[rule]}：</strong>
+                              {explanation}
+                            </li>
+                          ),
+                        )}
+                      </ul>
+                    )}
+                    <p class="smart-rma-boundary-note">
+                      AI 解释不是规则结果，也不判断厂商保修资格。
+                    </p>
+                  </section>
+                )}
+                {aiResult?.status === "unavailable" && (
+                  <StatusNotice tone="warning" title="AI 暂不可用">
+                    已保留完整本地规则结果与报告导出；原因：
+                    {aiResult.fallback_reason}。
+                  </StatusNotice>
+                )}
+              </section>
+            )}
             <dl class="smart-rma-facts">
               <div>
                 <dt>smartctl</dt>
