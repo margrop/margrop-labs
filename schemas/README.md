@@ -7,6 +7,7 @@
 | [`interview-jd-v1.schema.json`](./interview-jd-v1.schema.json)                                                       | Local sensitive job description contract               |
 | [`interview-requirement-v1.schema.json`](./interview-requirement-v1.schema.json)                                     | Requirement registry and evidence targets              |
 | [`interview-evidence-v1.schema.json`](./interview-evidence-v1.schema.json)                                           | Evidence references, support and unknown state         |
+| [`interview-match-v1.schema.json`](./interview-match-v1.schema.json)                                                 | Deterministic match result, scores and review boundary |
 | [`token-forge-input-v1.schema.json`](./token-forge-input-v1.schema.json)                                               | Token Forge input validation                           |
 | [`token-forge-plan-v1.schema.json`](./token-forge-plan-v1.schema.json)                                                 | Template and AI-assisted Token Forge plans             |
 | [`token-forge-export-v1.schema.json`](./token-forge-export-v1.schema.json)                                             | Local Markdown and GitHub Issue draft exports          |

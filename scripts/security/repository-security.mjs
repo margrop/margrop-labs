@@ -80,6 +80,10 @@ const fixtureContracts = [
     "schemas/interview-evidence-v1.schema.json",
   ],
   [
+    "labs/interview-workbench/fixtures/match.valid.json",
+    "schemas/interview-match-v1.schema.json",
+  ],
+  [
     "labs/token-forge/fixtures/ai-gateway-request.valid.json",
     "schemas/ai-gateway-request-v1.schema.json",
   ],

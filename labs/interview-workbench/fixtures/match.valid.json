@@ -1,0 +1,112 @@
+{
+  "schema_version": "1.0",
+  "sensitivity": "sensitive",
+  "match_id": "match-synthetic-001",
+  "overall": {
+    "status": "partial",
+    "match_band": "partial_match",
+    "score": 100,
+    "known_requirement_count": 1,
+    "unknown_requirement_count": 3,
+    "conflict_requirement_count": 0
+  },
+  "dimensions": [
+    {
+      "dimension_id": "must_have",
+      "status": "not_applicable",
+      "score": null,
+      "requirement_ids": [],
+      "evidence_ids": [],
+      "unknown_requirement_ids": [],
+      "conflict_requirement_ids": []
+    },
+    {
+      "dimension_id": "technical",
+      "status": "partial",
+      "score": 100,
+      "requirement_ids": [
+        "requirement-java-go",
+        "requirement-distributed-systems"
+      ],
+      "evidence_ids": ["evidence-platform-java"],
+      "unknown_requirement_ids": ["requirement-distributed-systems"],
+      "conflict_requirement_ids": []
+    },
+    {
+      "dimension_id": "domain",
+      "status": "unknown",
+      "score": null,
+      "requirement_ids": ["requirement-robotics-cloud"],
+      "evidence_ids": [],
+      "unknown_requirement_ids": ["requirement-robotics-cloud"],
+      "conflict_requirement_ids": []
+    },
+    {
+      "dimension_id": "scope",
+      "status": "not_applicable",
+      "score": null,
+      "requirement_ids": [],
+      "evidence_ids": [],
+      "unknown_requirement_ids": [],
+      "conflict_requirement_ids": []
+    },
+    {
+      "dimension_id": "collaboration",
+      "status": "unknown",
+      "score": null,
+      "requirement_ids": ["requirement-collaboration"],
+      "evidence_ids": [],
+      "unknown_requirement_ids": ["requirement-collaboration"],
+      "conflict_requirement_ids": []
+    }
+  ],
+  "requirement_results": [
+    {
+      "requirement_id": "requirement-java-go",
+      "status": "direct",
+      "score": 100,
+      "evidence_ids": ["evidence-platform-java"],
+      "basis": "direct_evidence"
+    },
+    {
+      "requirement_id": "requirement-distributed-systems",
+      "status": "unknown",
+      "score": null,
+      "evidence_ids": [],
+      "basis": "no_evidence"
+    },
+    {
+      "requirement_id": "requirement-robotics-cloud",
+      "status": "unknown",
+      "score": null,
+      "evidence_ids": [],
+      "basis": "no_evidence"
+    },
+    {
+      "requirement_id": "requirement-collaboration",
+      "status": "unknown",
+      "score": null,
+      "evidence_ids": [],
+      "basis": "no_evidence"
+    }
+  ],
+  "unknowns": [
+    {
+      "requirement_id": "requirement-distributed-systems",
+      "reason": "no_evidence"
+    },
+    {
+      "requirement_id": "requirement-robotics-cloud",
+      "reason": "no_evidence"
+    },
+    {
+      "requirement_id": "requirement-collaboration",
+      "reason": "no_evidence"
+    }
+  ],
+  "conflicts": [],
+  "human_review": {
+    "required": true,
+    "reasons": ["unknown_requirements", "no_automatic_decision"]
+  }
+}
