@@ -8,7 +8,9 @@ export default defineConfig({
   integrations: [
     preact(),
     sitemap({
-      filter: (page) => page !== "https://lab.margrop.net/404/",
+      filter: (page) =>
+        page !== "https://lab.margrop.net/404/" &&
+        page !== "https://lab.margrop.net/interview-workbench/",
     }),
   ],
 });
