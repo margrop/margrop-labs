@@ -97,10 +97,13 @@ P5-006 的通用注册表、三个同源端点、Provider 复用和独立策略�
 P5-008 的三个岗位族合成语料、故障矩阵、五类隐私 sink 和 Chromium 降级验收见
 [可靠性、公平性与隐私基线](../../docs/interview-workbench-reliability-baseline.md)。
 
+P5-014 的合成/对抗语料、代理变量失败关闭、五类 sink 回归和技术安全/招聘质量证据边界见
+[P5-014 技术安全报告](../../docs/interview-workbench-p5-014-report.md)。
+
 P5-009 的固定博客 CTA、可索引 SEO/OG、无正文聚合事件与 GO/NO-GO 证据见
 [Alpha 出口评审](../../docs/interview-workbench-alpha-exit-review-2026-07-29.md)。
 
 完整任务见 [AI 面试工作台路线图](../../docs/interview-workbench-roadmap.md)。
 后 Alpha 的 P5-010 至 P5-015 依赖、边界与验收门槛见
 [Post-Alpha 路线图](../../docs/interview-workbench-post-alpha-roadmap.md)。当前唯一下一项是
-P5-014 隐私、公平性与对抗可靠性扩展；原文仍不得进入请求、日志、Analytics 或持久化存储。
+P5-015 Beta 出口评审；原文仍不得进入请求、日志、Analytics 或持久化存储。

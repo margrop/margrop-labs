@@ -4,18 +4,17 @@
 
 ## 当前战略
 
-截至 2026-07-29，最新本地提交 `50abcb7` 已合并 Incident Detective 与 SMART / RMA 的
-后续功能；`origin/main` 和当前 Preview 仍停在 `6756871`，尚未同步这次本地合并。当前
-仓库状态如下：
+截至 2026-07-29，最新提交 `ff3b288` 已同步到 `origin/main`，并已完成 Preview 部署与
+smoke 验收。当前仓库状态如下：
 
 - Token Forge 的 P1-014 NO-GO 和 P4-008 跳过记录保持不变，不重新打开功能任务；
 - AI 故障侦探 P2-001 至 P2-008 已完成，最新 AI 工作流提交为 `29b2aff`；
 - SMART / RMA P3-001 至 P3-006 已完成，最新报告机提交为 `ede3560`，由 `50abcb7` 合并；
-- AI 面试工作台 P5-001 至 P5-013 已完成为本地优先 Alpha，Preview 已验收的提交为 `6756871`；
-- 在开始新的产品 TODO 前，必须先把 `50abcb7` 同步到远端、重新执行质量门并更新 Preview 证据。
+- AI 面试工作台 P5-001 至 P5-014 已完成为本地优先 Alpha，Preview 已验收提交为 `ff3b288`；
+- P5-014 的技术安全基准已通过，真实招聘质量和 Production 使用仍保持 NO-GO。
 
 - P2、P3 当前只处理生产故障、安全问题和已完成本地提交的发布同步；
-- AI 面试工作台下一步产品任务为 P5-014 隐私、公平性与对抗可靠性扩展；
+- AI 面试工作台下一步产品任务为 P5-015 Beta 出口评审；
 - 平台任务只有在直接解锁已批准产品任务时才能执行；
 - 默认严格按路线图顺序选择下一项任务；
 - 恢复 P1、P2 或 P3 必须由仓库所有者再次明确批准。
@@ -261,8 +260,7 @@
     Provider、DDNS 主机、`qwen-latest` 和 `minimax-latest`；浏览器不能选择模型或发送密钥。
   - 当前：已完成通用策略校验与注册表、三个同源端点、独立 `INTERVIEW_AI_POLICY` Durable Object、
     脱敏输入/输出合同、qwen→minimax 回退、浏览器控制字段拒绝和合成运行时测试；PR CI、
-    Preview 部署与 smoke 验收已在 `6756871` 完成；真实输入最小投影随 P5-013 接入，
-    `50abcb7` 的新增 P2/P3 运行时尚未发布。
+    Preview 部署与 smoke 验收已在 `ff3b288` 完成；真实输入最小投影和 P5-014 对抗基准已接入。
 - [x] **P5-007 [L] 按顺序实现双角色三步工作台**
   - 产物：`/interview-workbench/` 页面、步骤导航、本地编辑、失败恢复、导出和隐私披露。
   - 验收：320px、键盘和 reduced motion 通过；AI 不可用时保留完整合成与规则化结果。
@@ -303,10 +301,13 @@
   - 验收：原始简历/JD、受保护属性、Secret 和浏览器控制字段不进入请求；AI 超时、限流、
     Provider/Schema 失败均可降级，且不阻断本地确定性流程。
 
-- [ ] **P5-014 [L] 扩展隐私、公平性与对抗可靠性基准**
+- [x] **P5-014 [L] 扩展隐私、公平性与对抗可靠性基准**
   - 产物：更大的合成/对抗语料、代理变量与提示注入矩阵、五类敏感 sink 和人工确认回归。
   - 验收：不存在原文泄漏、受保护属性参与判断或自动录用/淘汰路径；报告区分技术安全与
     招聘质量证据。
+  - 当前：8 个合成/对抗案例全部通过，覆盖多语言、缺失信息、代理变量、提示注入、主动标记、
+    超限和控制字符；五类 sink、人工确认和自动决策失败关闭均有机器报告与 Chromium 回归。
+    详情见 [P5-014 技术安全报告](./docs/interview-workbench-p5-014-report.md)。
 
 - [ ] **P5-015 [M] 执行 Beta 出口评审**
   - 产物：Preview 验收、隐私/公平/可靠性/成本报告、真实候选人数据 GO/NO-GO 决策。
@@ -316,12 +317,12 @@
 ## 推荐下一项任务
 
 P4-006 暂缓，P4-008 按仓库所有者要求跳过，P1-014 仍记录为 **NO-GO**；仓库所有者已
-明确批准绕过 Token Forge 真实观察证据。P5-001 至 P5-013 已完成，工作台达到**本地优先
+明确批准绕过 Token Forge 真实观察证据。P5-001 至 P5-014 已完成，工作台达到**本地优先
 Alpha GO**：支持纯文本简历/JD 录入、确定性本地解析、三步流程和三项 AI 最小投影；原文
 不进入 URL、Storage、Analytics、日志、AI 请求或默认导出。
 
-Preview 已验收提交为 `6756871 test(interview): extend preview smoke coverage`，包含 Quality、
-Deploy preview 和增强后的 smoke；最新本地合并 `50abcb7` 尚未部署。后 Alpha 顺序见
-[Post-Alpha 路线图](./docs/interview-workbench-post-alpha-roadmap.md)。同步 `50abcb7` 并完成
-质量门/Preview 验收后，下一条最小产品任务为 **P5-014**：扩大隐私、公平性与对抗可靠性语料。
+Preview 已验收提交为 `ff3b288 docs(todo): refresh project status`，包含 Quality、Deploy
+preview 和增强后的 smoke。后 Alpha 顺序见
+[Post-Alpha 路线图](./docs/interview-workbench-post-alpha-roadmap.md)。下一条最小产品任务为
+**P5-015**：执行 Beta 出口评审。
 在 P5-015 评审前，真实招聘质量、真实候选人数据和 Production 使用仍保持 NO-GO。

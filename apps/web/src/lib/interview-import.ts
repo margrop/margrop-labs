@@ -89,7 +89,7 @@ export const validateInterviewTextImport = (
 };
 
 const protectedAttributePattern =
-  /(?:年龄(?:要求)?\s*[:：]?\s*\d|\d{2}\s*岁(?:以下|以上)|性别\s*[:：]|男性优先|女性优先|婚姻(?:状况)?\s*[:：]|婚育\s*[:：]|民族\s*[:：]|宗教\s*[:：]|政治面貌\s*[:：]|健康状况\s*[:：])/iu;
+  /(?:年龄(?:要求)?\s*[:：]?\s*\d|\d{2}\s*岁(?:以下|以上)|性别\s*[:：]|男性优先|女性优先|婚姻(?:状况)?\s*[:：]|婚育\s*[:：]|民族\s*[:：]|宗教\s*[:：]|政治面貌\s*[:：]|健康状况\s*[:：]|(?:出生|毕业|入学)年份\s*[:：]?\s*\d{4}|(?:籍贯|户籍|邮编|邮政编码|学校|院校|大学|母语|方言|照片|头像)\s*[:：])/iu;
 const promptLikePattern =
   /(?:ignore\s+(?:all\s+)?previous\s+instructions|system\s+prompt|developer\s+message|忽略(?:以上|之前|前面).{0,12}(?:指令|规则)|系统提示词|开发者消息)/iu;
 const activeMarkupPattern =
