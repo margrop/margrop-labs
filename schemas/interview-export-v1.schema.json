@@ -1,0 +1,226 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lab.margrop.net/schemas/interview-export-v1.schema.json",
+  "title": "Interview Workbench Safe Summary Export v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "sensitivity",
+    "export_id",
+    "loop_id",
+    "role",
+    "match",
+    "plan",
+    "record",
+    "conclusion",
+    "redacted_fields",
+    "local_only",
+    "contains_personal_text",
+    "human_review",
+    "automatic_decision"
+  ],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "sensitivity": { "const": "sensitive" },
+    "export_id": { "$ref": "#/$defs/id" },
+    "loop_id": { "$ref": "#/$defs/id" },
+    "role": { "enum": ["interviewer", "candidate"] },
+    "match": { "$ref": "#/$defs/matchSummary" },
+    "plan": { "$ref": "#/$defs/planSummary" },
+    "record": { "$ref": "#/$defs/recordSummary" },
+    "conclusion": { "$ref": "#/$defs/conclusionSummary" },
+    "redacted_fields": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 10,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "resume_text",
+          "jd_text",
+          "question_text",
+          "follow_up_text",
+          "fact_text",
+          "counterevidence_text",
+          "personal_identifiers",
+          "provider_metadata"
+        ]
+      }
+    },
+    "local_only": { "const": true },
+    "contains_personal_text": { "const": false },
+    "human_review": { "$ref": "#/$defs/humanReview" },
+    "automatic_decision": { "const": false }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "maxLength": 80
+    },
+    "score": {
+      "oneOf": [
+        { "type": "integer", "minimum": 0, "maximum": 100 },
+        { "type": "null" }
+      ]
+    },
+    "matchSummary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "match_band",
+        "score",
+        "known_requirement_count",
+        "unknown_requirement_count",
+        "conflict_requirement_count"
+      ],
+      "properties": {
+        "status": {
+          "enum": ["direct", "partial", "conflict", "unknown", "not_applicable"]
+        },
+        "match_band": {
+          "enum": [
+            "strong_match",
+            "partial_match",
+            "insufficient_evidence",
+            "conflicted"
+          ]
+        },
+        "score": { "$ref": "#/$defs/score" },
+        "known_requirement_count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 30
+        },
+        "unknown_requirement_count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 30
+        },
+        "conflict_requirement_count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 30
+        }
+      }
+    },
+    "planSummary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "duration_minutes",
+        "segment_count",
+        "question_count",
+        "early_gate_enabled"
+      ],
+      "properties": {
+        "duration_minutes": { "enum": [30, 45, 60] },
+        "segment_count": { "type": "integer", "minimum": 1, "maximum": 5 },
+        "question_count": { "type": "integer", "minimum": 1, "maximum": 40 },
+        "early_gate_enabled": { "type": "boolean" }
+      }
+    },
+    "recordSummary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "entry_count",
+        "answered_entry_count",
+        "partial_entry_count",
+        "unknown_entry_count",
+        "counterevidence_count"
+      ],
+      "properties": {
+        "status": { "enum": ["draft", "confirmed"] },
+        "entry_count": { "type": "integer", "minimum": 1, "maximum": 40 },
+        "answered_entry_count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 40
+        },
+        "partial_entry_count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 40
+        },
+        "unknown_entry_count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 40
+        },
+        "counterevidence_count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 320
+        }
+      }
+    },
+    "conclusionSummary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "recommendation",
+        "judgment_count",
+        "supported_count",
+        "partial_count",
+        "unknown_count",
+        "conflict_count",
+        "unassessed_count"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "supported",
+            "partial",
+            "conflict",
+            "unknown",
+            "not_assessed"
+          ]
+        },
+        "recommendation": {
+          "enum": [
+            "supportive_signal",
+            "partial_signal",
+            "requires_more_evidence",
+            "conflicted",
+            "not_assessed"
+          ]
+        },
+        "judgment_count": { "type": "integer", "minimum": 0, "maximum": 30 },
+        "supported_count": { "type": "integer", "minimum": 0, "maximum": 30 },
+        "partial_count": { "type": "integer", "minimum": 0, "maximum": 30 },
+        "unknown_count": { "type": "integer", "minimum": 0, "maximum": 30 },
+        "conflict_count": { "type": "integer", "minimum": 0, "maximum": 30 },
+        "unassessed_count": { "type": "integer", "minimum": 0, "maximum": 30 }
+      }
+    },
+    "humanReview": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["required", "confirmed", "reasons"],
+      "properties": {
+        "required": { "const": true },
+        "confirmed": { "const": false },
+        "reasons": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 5,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "unassessed_requirements",
+              "unknown_requirements",
+              "conflicting_evidence",
+              "draft_requires_user_confirmation",
+              "no_automatic_decision"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

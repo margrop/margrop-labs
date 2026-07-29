@@ -11,6 +11,8 @@
 | [`interview-plan-v1.schema.json`](./interview-plan-v1.schema.json)                                                     | 30/45/60 minute plan and human-review boundary         |
 | [`interview-record-v1.schema.json`](./interview-record-v1.schema.json)                                                 | Local interview facts, counterevidence and unknowns    |
 | [`interview-conclusion-v1.schema.json`](./interview-conclusion-v1.schema.json)                                         | Evidence-cited conclusion draft and review boundary    |
+| [`interview-loop-v1.schema.json`](./interview-loop-v1.schema.json)                                                     | Synthetic dual-role loop stage references              |
+| [`interview-export-v1.schema.json`](./interview-export-v1.schema.json)                                                 | Local aggregate-only interview summary export          |
 | [`token-forge-input-v1.schema.json`](./token-forge-input-v1.schema.json)                                               | Token Forge input validation                           |
 | [`token-forge-plan-v1.schema.json`](./token-forge-plan-v1.schema.json)                                                 | Template and AI-assisted Token Forge plans             |
 | [`token-forge-export-v1.schema.json`](./token-forge-export-v1.schema.json)                                             | Local Markdown and GitHub Issue draft exports          |
