@@ -31,6 +31,7 @@ import {
 } from "./interview-recording";
 
 export type InterviewSyntheticRole = "interviewer" | "candidate";
+export type InterviewScenarioKind = "synthetic" | "local_input";
 
 export type InterviewSafeExport = Readonly<{
   schema_version: "1.0";
@@ -106,7 +107,7 @@ export type InterviewSyntheticLoop = Readonly<{
   schema_version: "1.0";
   sensitivity: "sensitive";
   loop_id: string;
-  scenario_kind: "synthetic";
+  scenario_kind: InterviewScenarioKind;
   match_id: string;
   roles: {
     interviewer: {
@@ -610,9 +611,10 @@ const buildSyntheticStage = (
   return { role, plan, record, conclusion, export: exportData };
 };
 
-export const buildInterviewSyntheticLoop = (
+const buildInterviewLoop = (
   bundle: InterviewInputBundle,
-  loopId = "loop-synthetic-001",
+  loopId: string,
+  scenarioKind: InterviewScenarioKind,
 ): InterviewSyntheticLoopRun => {
   const validatedBundle = validateInterviewInputBundle(bundle);
   const match = buildInterviewMatchResult(validatedBundle, `match-${loopId}`);
@@ -629,7 +631,7 @@ export const buildInterviewSyntheticLoop = (
     schema_version: "1.0",
     sensitivity: "sensitive",
     loop_id: loopId,
-    scenario_kind: "synthetic",
+    scenario_kind: scenarioKind,
     match_id: match.match_id,
     roles: {
       interviewer: {
@@ -661,6 +663,17 @@ export const buildInterviewSyntheticLoop = (
   validateInterviewSyntheticLoop(loop, run);
   return run;
 };
+
+export const buildInterviewSyntheticLoop = (
+  bundle: InterviewInputBundle,
+  loopId = "loop-synthetic-001",
+): InterviewSyntheticLoopRun => buildInterviewLoop(bundle, loopId, "synthetic");
+
+export const buildInterviewLocalInputLoop = (
+  bundle: InterviewInputBundle,
+  loopId = "loop-local-input-001",
+): InterviewSyntheticLoopRun =>
+  buildInterviewLoop(bundle, loopId, "local_input");
 
 export const renderInterviewSafeExportMarkdown = (
   candidate: unknown,

@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lab.margrop.net/schemas/interview-text-import-v1.schema.json",
+  "title": "Interview Workbench Text Import v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "sensitivity", "resume_text", "jd_text"],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "sensitivity": { "const": "sensitive" },
+    "resume_text": {
+      "type": "string",
+      "minLength": 20,
+      "maxLength": 32768,
+      "pattern": "\\S"
+    },
+    "jd_text": {
+      "type": "string",
+      "minLength": 20,
+      "maxLength": 32768,
+      "pattern": "\\S"
+    }
+  }
+}

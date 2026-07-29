@@ -92,6 +92,10 @@ const fixtureContracts = [
     "schemas/interview-resume-v1.schema.json",
   ],
   [
+    "labs/interview-workbench/fixtures/text-import.valid.json",
+    "schemas/interview-text-import-v1.schema.json",
+  ],
+  [
     "labs/interview-workbench/fixtures/jd.valid.json",
     "schemas/interview-jd-v1.schema.json",
   ],
