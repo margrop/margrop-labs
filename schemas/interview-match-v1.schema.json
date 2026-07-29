@@ -1,0 +1,225 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lab.margrop.net/schemas/interview-match-v1.schema.json",
+  "title": "Interview Workbench Match Result v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "sensitivity",
+    "match_id",
+    "overall",
+    "dimensions",
+    "requirement_results",
+    "unknowns",
+    "conflicts",
+    "human_review"
+  ],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "sensitivity": { "const": "sensitive" },
+    "match_id": { "$ref": "#/$defs/id" },
+    "overall": { "$ref": "#/$defs/overall" },
+    "dimensions": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 5,
+      "items": { "$ref": "#/$defs/dimension" }
+    },
+    "requirement_results": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 30,
+      "items": { "$ref": "#/$defs/requirementResult" }
+    },
+    "unknowns": {
+      "type": "array",
+      "maxItems": 30,
+      "items": { "$ref": "#/$defs/unknown" }
+    },
+    "conflicts": {
+      "type": "array",
+      "maxItems": 30,
+      "items": { "$ref": "#/$defs/conflict" }
+    },
+    "human_review": { "$ref": "#/$defs/humanReview" }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "maxLength": 80
+    },
+    "category": {
+      "enum": ["must_have", "technical", "domain", "scope", "collaboration"]
+    },
+    "status": {
+      "enum": ["direct", "partial", "conflict", "unknown", "not_applicable"]
+    },
+    "matchBand": {
+      "enum": [
+        "strong_match",
+        "partial_match",
+        "insufficient_evidence",
+        "conflicted"
+      ]
+    },
+    "score": {
+      "oneOf": [
+        { "type": "integer", "minimum": 0, "maximum": 100 },
+        { "type": "null" }
+      ]
+    },
+    "overall": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "match_band",
+        "score",
+        "known_requirement_count",
+        "unknown_requirement_count",
+        "conflict_requirement_count"
+      ],
+      "properties": {
+        "status": { "$ref": "#/$defs/status" },
+        "match_band": { "$ref": "#/$defs/matchBand" },
+        "score": { "$ref": "#/$defs/score" },
+        "known_requirement_count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 30
+        },
+        "unknown_requirement_count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 30
+        },
+        "conflict_requirement_count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 30
+        }
+      }
+    },
+    "dimension": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "dimension_id",
+        "status",
+        "score",
+        "requirement_ids",
+        "evidence_ids",
+        "unknown_requirement_ids",
+        "conflict_requirement_ids"
+      ],
+      "properties": {
+        "dimension_id": { "$ref": "#/$defs/category" },
+        "status": { "$ref": "#/$defs/status" },
+        "score": { "$ref": "#/$defs/score" },
+        "requirement_ids": {
+          "type": "array",
+          "maxItems": 30,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/id" }
+        },
+        "evidence_ids": {
+          "type": "array",
+          "maxItems": 240,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/id" }
+        },
+        "unknown_requirement_ids": {
+          "type": "array",
+          "maxItems": 30,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/id" }
+        },
+        "conflict_requirement_ids": {
+          "type": "array",
+          "maxItems": 30,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/id" }
+        }
+      }
+    },
+    "requirementResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "requirement_id",
+        "status",
+        "score",
+        "evidence_ids",
+        "basis"
+      ],
+      "properties": {
+        "requirement_id": { "$ref": "#/$defs/id" },
+        "status": { "$ref": "#/$defs/status" },
+        "score": { "$ref": "#/$defs/score" },
+        "evidence_ids": {
+          "type": "array",
+          "maxItems": 8,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/id" }
+        },
+        "basis": {
+          "enum": [
+            "direct_evidence",
+            "partial_evidence",
+            "conflicting_evidence",
+            "no_evidence",
+            "unknown_evidence",
+            "not_applicable"
+          ]
+        }
+      }
+    },
+    "unknown": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["requirement_id", "reason"],
+      "properties": {
+        "requirement_id": { "$ref": "#/$defs/id" },
+        "reason": { "enum": ["no_evidence", "only_unknown_evidence"] }
+      }
+    },
+    "conflict": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["requirement_id", "evidence_ids"],
+      "properties": {
+        "requirement_id": { "$ref": "#/$defs/id" },
+        "evidence_ids": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 8,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/id" }
+        }
+      }
+    },
+    "humanReview": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["required", "reasons"],
+      "properties": {
+        "required": { "const": true },
+        "reasons": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 3,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "unknown_requirements",
+              "conflicting_evidence",
+              "no_automatic_decision"
+            ]
+          }
+        }
+      }
+    }
+  }
+}
