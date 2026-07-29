@@ -38,6 +38,11 @@
 | [`smart-rma-fixture-index-v1.schema.json`](./smart-rma-fixture-index-v1.schema.json)                                   | Fully synthetic smartctl fixture corpus                |
 | [`smart-rma-parse-result-v1.schema.json`](./smart-rma-parse-result-v1.schema.json)                                     | Browser-only structured SMART parse evidence           |
 | [`smart-rma-boundary-projection-v1.schema.json`](./smart-rma-boundary-projection-v1.schema.json)                       | Allowlisted SMART data for AI and export boundaries    |
+| [`smart-rma-health-assessment-v1.schema.json`](./smart-rma-health-assessment-v1.schema.json)                           | Deterministic SMART health rules and unknown state     |
+| [`smart-rma-ai-boundary-v1.schema.json`](./smart-rma-ai-boundary-v1.schema.json)                                       | Minimal SMART evidence allowlist for AI                |
+| [`smart-rma-ai-input-v1.schema.json`](./smart-rma-ai-input-v1.schema.json)                                             | SMART AI input and fixed safeguards                    |
+| [`smart-rma-ai-explanation-v1.schema.json`](./smart-rma-ai-explanation-v1.schema.json)                                 | Structured plain-language SMART explanation            |
+| [`smart-rma-report-bundle-v1.schema.json`](./smart-rma-report-bundle-v1.schema.json)                                   | Deterministic Chinese and English Markdown reports     |
 | [`ai-gateway-request-v1.schema.json`](./ai-gateway-request-v1.schema.json)                                             | Web-to-Gateway request envelope                        |
 | [`ai-gateway-response-v1.schema.json`](./ai-gateway-response-v1.schema.json)                                           | Validated Gateway result or safe error                 |
 | [`token-forge-ai-policy-v1.schema.json`](./token-forge-ai-policy-v1.schema.json)                                       | Token Forge AI budgets, rate limits and circuit bounds |

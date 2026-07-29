@@ -160,7 +160,7 @@ const checks = [
     [
       "Alpha · 主线",
       "Alpha · 本地文本",
-      "Alpha · 暂停",
+      "Alpha · 可用",
       "公开输入",
       "本地优先",
       "敏感输入",
@@ -520,11 +520,11 @@ const checks = [
     [
       "仅当前标签页",
       "不上传文本",
-      "本阶段不调用",
+      "可选 · 失败可降级",
       "不写入 URL",
       "Local Storage",
       "序列号、WWN、主机名和 IP",
-      "无自由文本的允许字段投影",
+      "无自由文本的最小结构证据",
     ].every((label) => smartRmaHtml.includes(label)),
   ],
   [
@@ -536,7 +536,7 @@ const checks = [
       "查看脱敏后的本地文本",
       "[REDACTED:SERIAL_NUMBER]",
       "[REDACTED:WWN]",
-      "Boundary Projection v1",
+      "AI Boundary v1",
     ].every((label) => smartRmaHtml.includes(label)),
   ],
   [
@@ -553,6 +553,18 @@ const checks = [
     ].every((label) => smartRmaHtml.includes(label)),
   ],
   [
+    "SMART / RMA deterministic assessment and exports",
+    [
+      "规则结论：",
+      "触发规则",
+      "规则未知项",
+      "请求 AI 通俗解释",
+      "下载中文摘要",
+      "下载英文 RMA Markdown",
+      "保修判断 not-determined",
+    ].every((label) => smartRmaHtml.includes(label)),
+  ],
+  [
     "SMART / RMA visible hydration",
     smartRmaHtml.includes('client="visible"') &&
       !smartRmaHtml.includes('client="load"'),
@@ -565,7 +577,10 @@ const checks = [
       styles.includes(".smart-rma-summary-grid") &&
       styles.includes(".smart-rma-table-scroll") &&
       styles.includes(".smart-rma-nvme-grid") &&
-      styles.includes(".smart-rma-redaction-counts"),
+      styles.includes(".smart-rma-redaction-counts") &&
+      styles.includes(".smart-rma-assessment") &&
+      styles.includes(".smart-rma-export-actions") &&
+      styles.includes(".smart-rma-ai"),
   ],
   [
     "Interview Workbench indexable Alpha page",

@@ -3,9 +3,6 @@ import type { JsonObject } from "@margrop-labs/ai-gateway";
 import {
   interviewAiLabId,
   interviewAiOperationIds,
-  type InterviewAiConclusionInput,
-  type InterviewAiMatchInput,
-  type InterviewAiPlanInput,
   validateInterviewAiConclusionInput,
   validateInterviewAiConclusionOutput,
   validateInterviewAiMatchInput,
@@ -14,18 +11,24 @@ import {
   validateInterviewAiPlanOutput,
 } from "./interview-ai-contracts";
 import { interviewAiSystemPrompts } from "./interview-ai-prompt";
+import {
+  smartRmaAiEndpointPath,
+  smartRmaAiOperationId,
+  validateSmartRmaAiExplanation,
+  validateSmartRmaAiInput,
+} from "../lib/smart-rma-ai";
+import { smartRmaAiSystemPrompt } from "./smart-rma-ai-prompt";
 
-export type InterviewAiOperationKey = "match" | "plan" | "conclusion";
+export type InterviewAiOperationKey =
+  "match" | "plan" | "conclusion" | "smart-rma-explain";
 
 export type InterviewAiOperationDefinition = Readonly<{
   key: InterviewAiOperationKey;
-  lab_id: typeof interviewAiLabId;
+  lab_id: string;
   operation: string;
   endpoint_path: string;
   system_prompt: string;
-  validateInput(
-    candidate: JsonObject,
-  ): InterviewAiMatchInput | InterviewAiPlanInput | InterviewAiConclusionInput;
+  validateInput(candidate: JsonObject): JsonObject;
   validateOutput(candidate: unknown, input: JsonObject): JsonObject;
 }>;
 
@@ -39,7 +42,8 @@ const definitions: Record<
     operation: interviewAiOperationIds.match,
     endpoint_path: "/api/interview-workbench/match",
     system_prompt: interviewAiSystemPrompts.match,
-    validateInput: (candidate) => validateInterviewAiMatchInput(candidate),
+    validateInput: (candidate) =>
+      validateInterviewAiMatchInput(candidate) as unknown as JsonObject,
     validateOutput: (candidate, input) =>
       validateInterviewAiMatchOutput(
         candidate,
@@ -52,7 +56,8 @@ const definitions: Record<
     operation: interviewAiOperationIds.plan,
     endpoint_path: "/api/interview-workbench/plan",
     system_prompt: interviewAiSystemPrompts.plan,
-    validateInput: (candidate) => validateInterviewAiPlanInput(candidate),
+    validateInput: (candidate) =>
+      validateInterviewAiPlanInput(candidate) as unknown as JsonObject,
     validateOutput: (candidate, input) =>
       validateInterviewAiPlanOutput(
         candidate,
@@ -65,11 +70,26 @@ const definitions: Record<
     operation: interviewAiOperationIds.conclusion,
     endpoint_path: "/api/interview-workbench/conclusion",
     system_prompt: interviewAiSystemPrompts.conclusion,
-    validateInput: (candidate) => validateInterviewAiConclusionInput(candidate),
+    validateInput: (candidate) =>
+      validateInterviewAiConclusionInput(candidate) as unknown as JsonObject,
     validateOutput: (candidate, input) =>
       validateInterviewAiConclusionOutput(
         candidate,
         validateInterviewAiConclusionInput(input),
+      ) as unknown as JsonObject,
+  },
+  "smart-rma-explain": {
+    key: "smart-rma-explain",
+    lab_id: "smart-rma",
+    operation: smartRmaAiOperationId,
+    endpoint_path: smartRmaAiEndpointPath,
+    system_prompt: smartRmaAiSystemPrompt,
+    validateInput: (candidate) =>
+      validateSmartRmaAiInput(candidate) as unknown as JsonObject,
+    validateOutput: (candidate, input) =>
+      validateSmartRmaAiExplanation(
+        candidate,
+        validateSmartRmaAiInput(input),
       ) as unknown as JsonObject,
   },
 };
@@ -86,7 +106,7 @@ const definitionsByPath = new Map(
 );
 const definitionsByOperation = new Map(
   Object.values(definitions).map((definition) => [
-    definition.operation,
+    `${definition.lab_id}:${definition.operation}`,
     definition,
   ]),
 );
@@ -99,9 +119,7 @@ export const getInterviewAiOperation = (
   labId: string,
   operation: string,
 ): InterviewAiOperationDefinition | undefined =>
-  labId === interviewAiLabId
-    ? definitionsByOperation.get(operation)
-    : undefined;
+  definitionsByOperation.get(`${labId}:${operation}`);
 
 export const interviewAiEndpointPaths = Object.freeze([
   ...definitionsByPath.keys(),

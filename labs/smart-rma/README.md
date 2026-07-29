@@ -59,4 +59,34 @@ IPv6、邮箱和常见 Secret。未来 AI 与导出不能读取预览文本，�
   [SMART / RMA 本地脱敏与边界投影 v1](../../docs/smart-rma-redaction-v1.md)
 
 模式命中数量不是“输入一定安全”的证明；原文不离开浏览器和显式允许字段映射才是主边界。
-健康分类仍由 P3-004 单独实现。
+
+## 确定性健康规则
+
+P3-004 使用 Health Assessment v1 与 Ruleset v1，把脱敏结构证据映射为正常、注意、危险或
+未知。规则单独保留 `smartctl` 报告状态、触发规则、冲突、未知项与建议动作；PASSED 与异常
+计数并存时会显示冲突，未知厂商属性不会被猜测为故障。
+
+- 合同：[`smart-rma-health-assessment-v1`](../../schemas/smart-rma-health-assessment-v1.schema.json)
+- 规则实现：[`smart-rma-health.ts`](../../apps/web/src/lib/smart-rma-health.ts)
+
+规则结论不判断厂商保修资格。
+
+## 可选 AI 通俗解释
+
+P3-005 复用服务端 Provider-neutral Gateway。只有用户显式点击后才发送 AI Boundary v1 与
+Health Assessment v1；原文、脱敏预览、标识与隐私统计均不进入请求。AI 输出必须通过
+Explanation v1 Schema 与引用一致性校验；超时、限流、预算、无效结构和 Provider 不可用均
+降级到完整本地结果。
+
+- AI allowlist：[`smart-rma-ai-boundary-v1`](../../schemas/smart-rma-ai-boundary-v1.schema.json)
+- 输入合同：[`smart-rma-ai-input-v1`](../../schemas/smart-rma-ai-input-v1.schema.json)
+- 输出合同：[`smart-rma-ai-explanation-v1`](../../schemas/smart-rma-ai-explanation-v1.schema.json)
+
+## 中文摘要与英文 RMA Markdown
+
+P3-006 由确定性代码生成两份 Markdown，只消费结构化投影与规则评估，不包含原始文本、设备
+标识、时间戳或持久标识。英文材料请求厂商复核观测证据，但不声称厂商必须保修或 RMA 已获
+批准。
+
+- 合同：[`smart-rma-report-bundle-v1`](../../schemas/smart-rma-report-bundle-v1.schema.json)
+- 生成器：[`smart-rma-report.ts`](../../apps/web/src/lib/smart-rma-report.ts)

@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lab.margrop.net/schemas/smart-rma-ai-input-v1.schema.json",
+  "title": "SMART / RMA AI Input v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "boundary", "assessment", "safeguards"],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "boundary": {
+      "$ref": "https://lab.margrop.net/schemas/smart-rma-ai-boundary-v1.schema.json"
+    },
+    "assessment": {
+      "$ref": "https://lab.margrop.net/schemas/smart-rma-health-assessment-v1.schema.json"
+    },
+    "safeguards": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "raw_text_present",
+        "warranty_decision_allowed",
+        "unknowns_must_remain_unknown"
+      ],
+      "properties": {
+        "raw_text_present": { "const": false },
+        "warranty_decision_allowed": { "const": false },
+        "unknowns_must_remain_unknown": { "const": true }
+      }
+    }
+  }
+}

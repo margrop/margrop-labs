@@ -22,6 +22,7 @@ import {
 
 import {
   type InterviewAiOperationDefinition,
+  type InterviewAiOperationKey,
   getInterviewAiOperation,
   getInterviewAiOperationByPath,
 } from "./ai-operation-registry";
@@ -45,12 +46,13 @@ const interviewAiPrimaryAccountingTokens = 24_000;
 const interviewAiFallbackAccountingTokens = 48_000;
 
 const createInterviewAiTrafficPolicy = (
+  labId: string,
   operation: string,
 ): Readonly<AiTrafficPolicy> =>
   Object.freeze(
     validateAiTrafficPolicy({
       schema_version: "1.0",
-      lab_id: "interview-workbench",
+      lab_id: labId,
       operation,
       max_request_billable_tokens: interviewAiFallbackAccountingTokens,
       max_request_cost_microusd: 1,
@@ -86,17 +88,28 @@ const createInterviewAiTrafficPolicy = (
   );
 
 export const interviewAiProductionTrafficPolicies: Readonly<
-  Record<"match" | "plan" | "conclusion", Readonly<AiTrafficPolicy>>
+  Record<InterviewAiOperationKey, Readonly<AiTrafficPolicy>>
 > = Object.freeze({
-  match: createInterviewAiTrafficPolicy("interview-workbench.match-v1"),
-  plan: createInterviewAiTrafficPolicy("interview-workbench.plan-v1"),
+  match: createInterviewAiTrafficPolicy(
+    "interview-workbench",
+    "interview-workbench.match-v1",
+  ),
+  plan: createInterviewAiTrafficPolicy(
+    "interview-workbench",
+    "interview-workbench.plan-v1",
+  ),
   conclusion: createInterviewAiTrafficPolicy(
+    "interview-workbench",
     "interview-workbench.conclusion-v1",
+  ),
+  "smart-rma-explain": createInterviewAiTrafficPolicy(
+    "smart-rma",
+    "smart-rma.explain-v1",
   ),
 });
 
 export const interviewAiPreviewTrafficPolicies: Readonly<
-  Record<"match" | "plan" | "conclusion", Readonly<AiTrafficPolicy>>
+  Record<InterviewAiOperationKey, Readonly<AiTrafficPolicy>>
 > = Object.freeze({
   match: createAiPreviewPolicyLedger(interviewAiProductionTrafficPolicies.match)
     .policy,
@@ -104,6 +117,9 @@ export const interviewAiPreviewTrafficPolicies: Readonly<
     .policy,
   conclusion: createAiPreviewPolicyLedger(
     interviewAiProductionTrafficPolicies.conclusion,
+  ).policy,
+  "smart-rma-explain": createAiPreviewPolicyLedger(
+    interviewAiProductionTrafficPolicies["smart-rma-explain"],
   ).policy,
 });
 
