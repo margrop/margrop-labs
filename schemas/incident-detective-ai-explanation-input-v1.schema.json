@@ -1,0 +1,123 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lab.margrop.net/schemas/incident-detective-ai-explanation-input-v1.schema.json",
+  "title": "Incident Detective AI Explanation Input v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "scenario_id",
+    "score",
+    "evidence_catalog",
+    "safeguards"
+  ],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "scenario_id": { "$ref": "#/$defs/id" },
+    "score": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["total_score", "max_score", "band", "dimensions"],
+      "properties": {
+        "total_score": { "type": "integer", "minimum": 0, "maximum": 100 },
+        "max_score": { "const": 100 },
+        "band": {
+          "enum": ["needs-evidence", "developing", "evidence-led", "excellent"]
+        },
+        "dimensions": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 8,
+          "items": { "$ref": "#/$defs/dimension" }
+        }
+      }
+    },
+    "evidence_catalog": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 30,
+      "items": { "$ref": "#/$defs/evidence" }
+    },
+    "safeguards": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "synthetic_only",
+        "score_is_authoritative",
+        "facts_must_not_be_invented",
+        "read_only_guidance_only",
+        "attempt_text_excluded",
+        "evidence_payload_excluded"
+      ],
+      "properties": {
+        "synthetic_only": { "const": true },
+        "score_is_authoritative": { "const": true },
+        "facts_must_not_be_invented": { "const": true },
+        "read_only_guidance_only": { "const": true },
+        "attempt_text_excluded": { "const": true },
+        "evidence_payload_excluded": { "const": true }
+      }
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "maxLength": 80
+    },
+    "label": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 120,
+      "pattern": "\\S"
+    },
+    "message": {
+      "type": "string",
+      "minLength": 5,
+      "maxLength": 300,
+      "pattern": "\\S"
+    },
+    "finding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["rule_id", "status", "message"],
+      "properties": {
+        "rule_id": { "$ref": "#/$defs/id" },
+        "status": { "enum": ["met", "missed", "penalty", "avoided"] },
+        "message": { "$ref": "#/$defs/message" }
+      }
+    },
+    "dimension": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "label", "score", "max_score", "findings"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "label": { "$ref": "#/$defs/label" },
+        "score": { "type": "integer", "minimum": 0, "maximum": 100 },
+        "max_score": { "type": "integer", "minimum": 1, "maximum": 100 },
+        "findings": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 30,
+          "items": { "$ref": "#/$defs/finding" }
+        }
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "title", "source", "acquisition_cost", "acquired"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "title": { "$ref": "#/$defs/label" },
+        "source": {
+          "enum": ["prometheus", "loki", "mysql", "runbook", "topology"]
+        },
+        "service_id": { "$ref": "#/$defs/id" },
+        "acquisition_cost": { "type": "integer", "minimum": 1, "maximum": 10 },
+        "acquired": { "type": "boolean" }
+      }
+    }
+  }
+}

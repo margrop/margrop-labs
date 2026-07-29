@@ -37,6 +37,10 @@
         "class_name": "InterviewAiPolicyObject",
       },
       {
+        "name": "INCIDENT_DETECTIVE_AI_POLICY",
+        "class_name": "IncidentDetectiveAiPolicyObject",
+      },
+      {
         "name": "TOKEN_FORGE_ANALYTICS",
         "class_name": "TokenForgeAnalyticsObject",
       },
@@ -48,6 +52,10 @@
       "storage": "sqlite",
     },
     "InterviewAiPolicyObject": {
+      "type": "durable-object",
+      "storage": "sqlite",
+    },
+    "IncidentDetectiveAiPolicyObject": {
       "type": "durable-object",
       "storage": "sqlite",
     },
@@ -82,6 +90,10 @@
             "class_name": "InterviewAiPolicyObject",
           },
           {
+            "name": "INCIDENT_DETECTIVE_AI_POLICY",
+            "class_name": "IncidentDetectiveAiPolicyObject",
+          },
+          {
             "name": "TOKEN_FORGE_ANALYTICS",
             "class_name": "TokenForgeAnalyticsObject",
           },
@@ -93,6 +105,10 @@
           "storage": "sqlite",
         },
         "InterviewAiPolicyObject": {
+          "type": "durable-object",
+          "storage": "sqlite",
+        },
+        "IncidentDetectiveAiPolicyObject": {
           "type": "durable-object",
           "storage": "sqlite",
         },

@@ -105,9 +105,15 @@ Provider 只收到验证后的输入、base case 中允许出现的服务类型�
 
 ## 当前交付边界
 
-P2-005 提供离线操作核心、版本化 Schema、完整合成 fixture 和内存 Provider 测试，不新增真实
-Provider Adapter、HTTP 路由或用户页面。实际模型与日预算仍受 P0-006、P4-004 阻塞。
+P2-008 已把 P2-005 的离线核心接入 `/api/incident-detective/case-proposal` 与公开案例工坊。
+浏览器只提交 Generation Input；服务端根据已验证的公开 base Scenario 增加允许的服务类型和
+固定 Guardrails，再通过共享 OpenAI-compatible Provider Adapter、独立 Durable Object 流量
+账本和原有 Proposal 后处理执行生成。
+
+页面只展示通过验证的 Proposal，并在本地执行七项 Human Review。审核包可以下载为 JSON，
+但任何决定都保持 `publishable: false`；运行时没有仓库写入、部署或自动发布路径。Provider
+失败时不创建确定性假 Proposal，离线取证与评分继续可用。
 
 自动化覆盖有效生成、Provider 最小输入、固定安全说明、来源/预算/目标/服务类型漂移、DAG、
-反证、敏感内容、Gateway 失败、无副作用，以及批准/修改/拒绝状态。所有 fixture 都是仓库内
-合成数据。
+反证、敏感内容、Gateway 失败、无副作用、HTTP 同源/限流边界、批准/修改/拒绝状态，以及
+Chromium 中的生成、审核和本地下载。所有 fixture 都是仓库内合成数据。

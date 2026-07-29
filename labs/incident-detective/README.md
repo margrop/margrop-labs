@@ -50,7 +50,7 @@ P2-003 已提供 `/incident-detective/`：
 - 用户可以填写假设、怀疑服务、支持/反证、信心、下一步和安全动作；
 - 浏览器生成并重新验证 Attempt v1，再按固定规则给出五维 100 分结果；
 - 总分、维度和逐条反馈可审计，不判断自由文本语义，不展示标准答案；
-- Attempt 与评分均不保存、不上传，也不调用 AI。
+- Attempt 与评分均不保存、不上传；评分不调用 AI，用户可在评分后主动请求受约束解释。
 
 页面导入公开 `scenario.json` 与独立评分规则，但不会加载内部答案或 canonical attempt。
 实现与测试边界见[逐步取证页面](../../docs/incident-detective-page.md)和
@@ -69,6 +69,15 @@ P2-005 的 `incident-detective.case-proposal-v1` 操作只接收 ID、主题、�
 预算取舍、反证、只读与隐私检查，再进入独立人工审核合同；`approved` 也固定
 `publishable: false`，不能自动变成公开 Scenario。详见
 [受约束案例生成与审核](../../docs/incident-detective-case-generation.md)。
+
+P2-007 的 `incident-detective.explanation-v1` 只接收确定性 Score 投影、Finding 和证据
+标题/ID/来源/成本，不接收 Attempt 自由文本、证据 Payload、内部答案或评分规则。输出必须
+保持场景与总分，并且只能引用输入中的 Finding 和 Evidence。超时、限流、网络或结构失败时，
+页面保留本地 Score 和 Findings。详见
+[评分解释与降级](../../docs/incident-detective-ai-explanation.md)。
+
+P2-008 已在同页提供案例 Proposal 与人工审核工坊；审核结果可以本地下载，但始终
+`publishable: false`。
 
 ## 隐私
 

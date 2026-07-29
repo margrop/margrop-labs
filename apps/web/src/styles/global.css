@@ -2362,6 +2362,60 @@ a {
   margin: 0.75rem 0 0;
 }
 
+.incident-ai-explanation {
+  display: grid;
+  gap: 1rem;
+  padding: 1rem;
+  border: 1px solid rgba(80, 227, 208, 0.28);
+  border-radius: 0.8rem;
+  background: rgba(80, 227, 208, 0.05);
+}
+
+.incident-ai-explanation__heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.incident-ai-explanation h4,
+.incident-ai-explanation h5,
+.incident-ai-explanation p {
+  margin: 0;
+}
+
+.incident-ai-explanation__heading > div > p:last-child,
+.incident-ai-explanation__result li,
+.incident-ai-explanation__result small,
+.incident-ai-explanation__fallback {
+  color: var(--muted);
+  font-size: 0.74rem;
+  line-height: 1.6;
+}
+
+.incident-ai-explanation__result {
+  display: grid;
+  gap: 0.9rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--line);
+}
+
+.incident-ai-explanation__result > strong {
+  color: var(--cyan);
+}
+
+.incident-ai-explanation__result ul {
+  display: grid;
+  gap: 0.4rem;
+  margin: 0.5rem 0 0;
+  padding-left: 1.1rem;
+}
+
+.incident-ai-explanation__fallback {
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--line);
+}
+
 .incident-share-actions {
   display: flex;
   align-items: center;
@@ -2437,6 +2491,136 @@ a {
 
 .incident-next-links {
   margin-top: 1.5rem;
+}
+
+.incident-workshop {
+  display: grid;
+  gap: 1.25rem;
+  margin-top: 2rem;
+  padding: clamp(1rem, 3vw, 1.5rem);
+  border: 1px solid rgba(169, 145, 255, 0.32);
+  border-radius: 1rem;
+  background: rgba(8, 17, 31, 0.6);
+}
+
+.incident-workshop-form,
+.incident-review-form,
+.incident-proposal-result {
+  display: grid;
+  gap: 1rem;
+}
+
+.incident-workshop fieldset,
+.incident-review-form fieldset {
+  padding: 1rem;
+  border: 1px solid var(--line);
+  border-radius: 0.8rem;
+}
+
+.incident-workshop input[type="text"],
+.incident-workshop input[type="number"] {
+  width: 100%;
+  min-height: 44px;
+  padding: 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: 0.65rem;
+  background: rgba(8, 17, 31, 0.78);
+  color: var(--text);
+}
+
+.incident-proposal-result > header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem;
+  border: 1px solid rgba(80, 227, 208, 0.28);
+  border-radius: 0.8rem;
+}
+
+.incident-proposal-result h3,
+.incident-proposal-result h4,
+.incident-proposal-result p {
+  margin: 0;
+}
+
+.incident-proposal-result > header p,
+.incident-proposal-evidence p,
+.incident-proposal-evidence small {
+  color: var(--muted);
+  font-size: 0.74rem;
+  line-height: 1.6;
+}
+
+.incident-proposal-result dl {
+  display: flex;
+  gap: 0.8rem;
+  margin: 0;
+}
+
+.incident-proposal-result dt {
+  color: var(--muted);
+  font-size: 0.65rem;
+}
+
+.incident-proposal-result dd {
+  margin: 0.3rem 0 0;
+  color: var(--cyan);
+  font-family: ui-monospace, monospace;
+}
+
+.incident-proposal-evidence {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.incident-proposal-evidence article {
+  display: grid;
+  gap: 0.45rem;
+  padding: 0.85rem;
+  border: 1px solid var(--line);
+  border-radius: 0.75rem;
+}
+
+.incident-proposal-evidence span,
+.incident-review-result {
+  color: var(--violet);
+  font-family: ui-monospace, monospace;
+  font-size: 0.68rem;
+}
+
+.incident-proposal-result > details {
+  padding: 0.9rem;
+  border: 1px solid var(--line);
+  border-radius: 0.75rem;
+}
+
+.incident-proposal-result > details pre {
+  max-height: 30rem;
+  overflow: auto;
+  color: var(--muted);
+  font-size: 0.7rem;
+  white-space: pre-wrap;
+}
+
+.incident-review-checklist {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.7rem;
+}
+
+.incident-review-checklist label {
+  display: flex;
+  min-height: 44px;
+  align-items: center;
+  gap: 0.65rem;
+  color: var(--muted);
+  font-size: 0.74rem;
+}
+
+.incident-review-checklist input {
+  width: 1.1rem;
+  height: 1.1rem;
 }
 
 .contract-section {
@@ -2883,8 +3067,20 @@ a {
   .incident-safety-grid,
   .incident-hypothesis-grid,
   .incident-score-dimensions,
+  .incident-proposal-evidence,
+  .incident-review-checklist,
   .smart-rma-shell {
     grid-template-columns: 1fr;
+  }
+
+  .incident-ai-explanation__heading,
+  .incident-proposal-result > header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .incident-proposal-result dl {
+    flex-wrap: wrap;
   }
 
   .lab-card {

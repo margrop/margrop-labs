@@ -1,6 +1,11 @@
 import { useMemo, useState } from "preact/hooks";
 
 import {
+  type IncidentDetectiveExplanationResult,
+  requestIncidentDetectiveExplanation,
+} from "../lib/incident-detective-ai-client";
+import { buildIncidentDetectiveExplanationInput } from "../lib/incident-detective-ai-explanation";
+import {
   type IncidentDetectiveAttempt,
   type IncidentDetectiveScenario,
   type IncidentEvidence,
@@ -275,6 +280,9 @@ export default function IncidentDetectiveWorkbench({
     useState<IncidentDetectiveHypothesisDraft>(emptyDraft);
   const [attempt, setAttempt] = useState<IncidentDetectiveAttempt | null>(null);
   const [score, setScore] = useState<IncidentDetectiveScoreResult | null>(null);
+  const [explanation, setExplanation] =
+    useState<IncidentDetectiveExplanationResult | null>(null);
+  const [explanationPending, setExplanationPending] = useState(false);
   const [status, setStatus] = useState<WorkbenchStatus>(initialStatus);
 
   const evidenceStates = useMemo(
@@ -297,6 +305,37 @@ export default function IncidentDetectiveWorkbench({
   const clearEvaluation = (): void => {
     setAttempt(null);
     setScore(null);
+    setExplanation(null);
+    setExplanationPending(false);
+  };
+
+  const requestExplanation = async (): Promise<void> => {
+    if (!attempt || !score || explanationPending) return;
+    setExplanationPending(true);
+    setExplanation(null);
+    try {
+      const result = await requestIncidentDetectiveExplanation(
+        buildIncidentDetectiveExplanationInput(scenario, attempt, score),
+      );
+      setExplanation(result);
+      setStatus(
+        result.status === "ai-assisted"
+          ? {
+              tone: "ready",
+              title: "AI 解释已生成",
+              message:
+                "模型只收到评分投影和证据元数据；确定性分数、案例事实和未知项均未改变。",
+            }
+          : {
+              tone: "info",
+              title: "已保持确定性降级",
+              message:
+                "AI 当前不可用或响应无效；本地评分与逐条 Findings 仍然完整可用。",
+            },
+      );
+    } finally {
+      setExplanationPending(false);
+    }
   };
 
   const acquireEvidence = (evidenceId: string): void => {
@@ -595,7 +634,7 @@ export default function IncidentDetectiveWorkbench({
             <p class="section-kicker">YOUR HYPOTHESIS</p>
             <h3>提交可审计推理</h3>
           </div>
-          <p>确定性规则评分 · 无 AI</p>
+          <p>确定性规则评分 · AI 不参与</p>
         </div>
 
         <label class="incident-text-field">
@@ -791,7 +830,7 @@ export default function IncidentDetectiveWorkbench({
               <p class="section-kicker">DETERMINISTIC SCORE V1</p>
               <h3 id="incident-attempt-title">本局证据评分</h3>
             </div>
-            <p>未保存 · 未上传 · 无 AI</p>
+            <p>未保存 · 未上传 · 评分无 AI</p>
           </div>
           <div class="incident-score-summary">
             <div>
@@ -867,6 +906,81 @@ export default function IncidentDetectiveWorkbench({
               )}
             </section>
           </div>
+
+          <section
+            class="incident-ai-explanation"
+            aria-labelledby="incident-ai-explanation-title"
+          >
+            <div class="incident-ai-explanation__heading">
+              <div>
+                <p class="section-kicker">OPTIONAL AI EXPLANATION V1</p>
+                <h4 id="incident-ai-explanation-title">解释评分，不改写评分</h4>
+                <p>
+                  仅发送
+                  Finding、维度分数和证据标题/ID；不发送你的假设、下一步、证据正文、答案或评分规则。
+                </p>
+              </div>
+              <button
+                class="button button--secondary"
+                type="button"
+                disabled={explanationPending}
+                aria-busy={explanationPending}
+                onClick={() => void requestExplanation()}
+              >
+                {explanationPending ? "正在生成…" : "请求 AI 解释"}
+              </button>
+            </div>
+
+            {explanation?.status === "ai-assisted" ? (
+              <div class="incident-ai-explanation__result">
+                <strong>{explanation.explanation.headline}</strong>
+                {explanation.explanation.strengths.length > 0 ? (
+                  <div>
+                    <h5>已形成的证据习惯</h5>
+                    <ul>
+                      {explanation.explanation.strengths.map((item) => (
+                        <li key={item.finding_rule_id}>{item.explanation}</li>
+                      ))}
+                    </ul>
+                  </div>
+                ) : null}
+                {explanation.explanation.gaps.length > 0 ? (
+                  <div>
+                    <h5>错过的结构化信号</h5>
+                    <ul>
+                      {explanation.explanation.gaps.map((item) => (
+                        <li key={item.finding_rule_id}>{item.explanation}</li>
+                      ))}
+                    </ul>
+                  </div>
+                ) : null}
+                <div>
+                  <h5>安全下一步</h5>
+                  <ul>
+                    {explanation.explanation.safe_next_steps.map((step) => (
+                      <li key={`${step.title}-${step.safety}`}>
+                        <strong>{step.title}</strong>：{step.rationale}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div>
+                  <h5>保持未知</h5>
+                  <ul>
+                    {explanation.explanation.unknowns.map((unknown) => (
+                      <li key={unknown}>{unknown}</li>
+                    ))}
+                  </ul>
+                </div>
+                <small>{explanation.explanation.disclaimer}</small>
+              </div>
+            ) : explanation?.status === "deterministic-fallback" ? (
+              <p class="incident-ai-explanation__fallback" role="status">
+                AI 解释未通过边界或暂时不可用（{explanation.failure_reason}）。
+                请继续使用上方确定性 Findings；本局分数没有变化。
+              </p>
+            ) : null}
+          </section>
 
           <div class="incident-share-actions">
             <div>

@@ -421,7 +421,7 @@ const checks = [
   ],
   [
     "Incident Detective local boundary",
-    ["完全合成", "不连接监控", "本局不调用", "本地规则评分"].every((label) =>
+    ["完全合成", "不连接监控", "评分后按需", "本地规则评分"].every((label) =>
       incidentDetectiveHtml.includes(label),
     ),
   ],
@@ -437,6 +437,26 @@ const checks = [
       "安全边界",
     ].every((label) => incidentDetectiveHtml.includes(label)) &&
       !incidentDetectiveHtml.includes("调用 AI 评分"),
+  ],
+  [
+    "Incident Detective optional AI boundary",
+    [
+      "请求 AI 解释",
+      "不发送你的假设",
+      "安全场景变体工坊",
+      "不自动发布",
+      "publishable=false",
+    ].every(
+      (label) =>
+        incidentDetectiveHtml.includes(label) ||
+        clientJavaScript.includes(label),
+    ) &&
+      [
+        "TOKEN_FORGE_AI_API_KEY",
+        "TOKEN_FORGE_ACTOR_KEY_SECRET",
+        "qwen-latest",
+        "minimax-latest",
+      ].every((value) => !clientJavaScript.includes(value)),
   ],
   [
     "Incident Detective public-only client",
@@ -462,7 +482,10 @@ const checks = [
       styles.includes(".incident-safety-grid") &&
       styles.includes(".incident-score-dimensions") &&
       styles.includes(".incident-score-feedback") &&
-      styles.includes(".incident-share-actions"),
+      styles.includes(".incident-share-actions") &&
+      styles.includes(".incident-ai-explanation") &&
+      styles.includes(".incident-proposal-evidence") &&
+      styles.includes(".incident-review-checklist"),
   ],
   [
     "SMART / RMA indexable page",

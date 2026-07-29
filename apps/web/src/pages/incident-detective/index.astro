@@ -1,5 +1,6 @@
 ---
 import IncidentDetectiveWorkbench from "../../components/IncidentDetectiveWorkbench";
+import IncidentDetectiveCaseWorkshop from "../../components/IncidentDetectiveCaseWorkshop";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { validateIncidentDetectiveScenario } from "../../lib/incident-detective-contracts";
 import { validateIncidentDetectiveScoringRules } from "../../lib/incident-detective-scoring";
@@ -46,7 +47,7 @@ const scoringRules = validateIncidentDetectiveScoringRules(
       <dl class="lab-page-contract">
         <div><dt>DATA</dt><dd>完全合成</dd></div>
         <div><dt>NETWORK</dt><dd>不连接监控</dd></div>
-        <div><dt>AI</dt><dd>本局不调用</dd></div>
+        <div><dt>AI</dt><dd>评分后按需</dd></div>
         <div><dt>RESULT</dt><dd>本地规则评分</dd></div>
       </dl>
     </header>
@@ -56,6 +57,11 @@ const scoringRules = validateIncidentDetectiveScoringRules(
       scoringRules={scoringRules}
       articleUrl={articleUrl}
       sourceUrl="https://github.com/margrop/margrop-labs/tree/main/labs/incident-detective/cases/mysql-leading-wildcard"
+      client:visible={{ rootMargin: "200px" }}
+    />
+
+    <IncidentDetectiveCaseWorkshop
+      scenario={scenario}
       client:visible={{ rootMargin: "200px" }}
     />
   </section>

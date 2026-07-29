@@ -124,7 +124,7 @@ export type IncidentDetectiveCaseReview = {
 type IncidentDetectiveCaseProposalJson = IncidentDetectiveCaseProposal &
   JsonObject;
 
-type IncidentDetectiveCaseGenerationProviderInput = JsonObject & {
+export type IncidentDetectiveCaseGenerationProviderInput = JsonObject & {
   schema_version: "1.0";
   proposal_id: string;
   base_case_id: string;
@@ -363,7 +363,7 @@ export const validateIncidentDetectiveCaseReview = (
   return candidate as IncidentDetectiveCaseReview;
 };
 
-const prepareProviderInput = (
+export const prepareIncidentDetectiveCaseGenerationProviderInput = (
   candidate: unknown,
   baseScenarioCandidate: unknown,
 ): IncidentDetectiveCaseGenerationProviderInput => {
@@ -405,7 +405,7 @@ const prepareProviderInput = (
   return providerInput;
 };
 
-const postProcessProposal = (
+export const postProcessIncidentDetectiveCaseProposal = (
   input: IncidentDetectiveCaseGenerationInput,
   providerInput: IncidentDetectiveCaseGenerationProviderInput,
   candidate: unknown,
@@ -459,7 +459,11 @@ const createGenerationOperation = (
     return providerInput;
   },
   validateOutput(candidate) {
-    return postProcessProposal(input, providerInput, candidate);
+    return postProcessIncidentDetectiveCaseProposal(
+      input,
+      providerInput,
+      candidate,
+    );
   },
 });
 
@@ -471,7 +475,10 @@ export const generateIncidentDetectiveCaseProposal = async (
   let providerInput: IncidentDetectiveCaseGenerationProviderInput;
   try {
     input = validateIncidentDetectiveCaseGenerationInput(candidate);
-    providerInput = prepareProviderInput(input, options.baseScenario);
+    providerInput = prepareIncidentDetectiveCaseGenerationProviderInput(
+      input,
+      options.baseScenario,
+    );
   } catch (error) {
     const code =
       error instanceof IncidentDetectiveCaseGenerationError &&

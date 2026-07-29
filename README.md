@@ -11,7 +11,8 @@
 
 AI 面试工作台已完成 P5-001 至 P5-009，并以**仅合成数据的 Alpha**开放索引。它仍不接受
 真实候选人材料，也不代表招聘质量或自动决策能力获批。Token Forge 的 Beta 评审继续保留
-NO-GO 历史，不在本轮重新打开；AI 故障侦探与 SMART / RMA 仅维护。
+NO-GO 历史，不在本轮重新打开；AI 故障侦探已重新开发可选解释与审核型案例工坊，SMART / RMA
+继续维护。
 
 ## 首批实验
 
@@ -73,6 +74,8 @@ Web 端采用 **Astro + TypeScript + Preact Islands**，首期生成静态 HTML�
 - Incident Detective 评分：遵循 [确定性证据评分](./docs/incident-detective-scoring.md)。
 - Incident Detective 案例生成：遵循 [受约束 Proposal 与人工审核](./docs/incident-detective-case-generation.md)。
 - Incident Detective 分享卡：遵循 [Score-only 隐私 SVG](./docs/incident-detective-share-card.md)。
+- Incident Detective AI：遵循 [评分解释与降级](./docs/incident-detective-ai-explanation.md)和
+  [AI 运行时 ADR](./docs/adr/0009-incident-detective-ai-runtime.md)。
 - SMART / RMA 合成输入：遵循 [完全合成 Fixture 合同](./docs/smart-rma-synthetic-fixtures.md)。
 - SMART / RMA 浏览器解析：遵循 [Parse Result v1 与失败边界](./docs/smart-rma-parser-v1.md)。
 - SMART / RMA 本地脱敏：遵循 [预览、Boundary Projection 与 sink 边界](./docs/smart-rma-redaction-v1.md)。
@@ -118,10 +121,12 @@ P2-001 已定义完全合成的 Incident Detective 场景/证据与单局推理
 合同；P2-002 已完成首个 MySQL + Prometheus + Loki 合成事故，包含 10 份证据、13/9
 点预算取舍、合理反证、按证据揭示的时间线和与公开场景分离的内部答案草稿。P2-003 已上线
 逐步取证 Alpha 页面：用户可以管理预算与解锁、查看五类证据和时间线，并在本地生成
-Attempt v1。P2-004 已加入五维 100 分确定性评分、逐条判定和改进反馈；页面仍不加载内部
-答案，不调用 AI，不保存或上传结果。P2-005 已增加 Provider-neutral 的 Case Proposal
-生成核心与显式人工审核门：模型不能接触答案或评分，也不能自动发布候选。P2-006 现已完成
-Score-only 的确定性 SVG 下载，Incident Detective MVP 六个任务全部闭环。P3-001 已建立
+Attempt v1。P2-004 已加入五维 100 分确定性评分、逐条判定和改进反馈；确定性评分仍不加载
+内部答案、不保存或上传结果。P2-005 已增加 Provider-neutral 的 Case Proposal 生成核心与显式
+人工审核门：模型不能接触答案或评分，也不能自动发布候选。P2-006 完成 Score-only 的确定性
+SVG 下载。P2-007/P2-008 进一步接入按需 AI 评分解释和公开案例工坊：Explanation 只发送
+Finding、维度分数与证据元数据，Proposal 必须通过既有 DAG/预算/隐私检查和七项人工审核，
+审核包始终 `publishable: false`。P3-001 已建立
 7 份完全合成的 ATA、NVMe 与未知协议 `smartctl` 输入及版本化索引，覆盖健康、预警、危险、
 缺失字段、厂商扩展、SMART 不可用和冲突信号。P3-002 已上线浏览器端只读解析工作台和
 Parse Result v1。P3-003 已增加序列号、WWN、主机名、IP 与常见 Secret 的本地脱敏预览，

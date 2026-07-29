@@ -29,6 +29,8 @@
 | [`incident-detective-scenario-v1.schema.json`](./incident-detective-scenario-v1.schema.json)                           | Synthetic incident, evidence and timeline              |
 | [`incident-detective-attempt-v1.schema.json`](./incident-detective-attempt-v1.schema.json)                             | Evidence order, budget and user hypothesis             |
 | [`incident-detective-score-v1.schema.json`](./incident-detective-score-v1.schema.json)                                 | Deterministic score, dimensions and auditable findings |
+| [`incident-detective-ai-explanation-input-v1.schema.json`](./incident-detective-ai-explanation-input-v1.schema.json)   | Minimal score and evidence metadata AI projection      |
+| [`incident-detective-ai-explanation-v1.schema.json`](./incident-detective-ai-explanation-v1.schema.json)               | Reference-bound optional score explanation             |
 | [`incident-detective-case-generation-input-v1.schema.json`](./incident-detective-case-generation-input-v1.schema.json) | Bounded AI case-proposal constraints                   |
 | [`incident-detective-case-proposal-v1.schema.json`](./incident-detective-case-proposal-v1.schema.json)                 | Internal synthetic evidence outline requiring review   |
 | [`incident-detective-case-review-v1.schema.json`](./incident-detective-case-review-v1.schema.json)                     | Explicit human decision and safety checklist           |

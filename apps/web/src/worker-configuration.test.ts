@@ -112,4 +112,30 @@ describe("Cloudflare Worker environment configuration", () => {
     );
     expect(expectedBinding.name).not.toBe("TOKEN_FORGE_AI_POLICY");
   });
+
+  it("gives Incident Detective AI an isolated SQLite policy namespace", async () => {
+    const configuration = await readWranglerConfiguration();
+    const expectedBinding = {
+      name: "INCIDENT_DETECTIVE_AI_POLICY",
+      class_name: "IncidentDetectiveAiPolicyObject",
+    };
+    const expectedExport = {
+      type: "durable-object",
+      storage: "sqlite",
+    };
+
+    expect(configuration.durable_objects.bindings).toContainEqual(
+      expectedBinding,
+    );
+    expect(configuration.env.preview.durable_objects.bindings).toContainEqual(
+      expectedBinding,
+    );
+    expect(configuration.exports.IncidentDetectiveAiPolicyObject).toEqual(
+      expectedExport,
+    );
+    expect(
+      configuration.env.preview.exports.IncidentDetectiveAiPolicyObject,
+    ).toEqual(expectedExport);
+    expect(expectedBinding.name).not.toBe("INTERVIEW_AI_POLICY");
+  });
 });

@@ -11,6 +11,12 @@ import {
   type InterviewAiRuntimeEnvironment,
 } from "./server/interview-ai-runtime";
 import { getInterviewAiOperationByPath } from "./server/ai-operation-registry";
+import {
+  handleIncidentDetectiveAiRequest,
+  incidentDetectiveAiGatewayPolicy,
+  type IncidentDetectiveAiRuntimeEnvironment,
+} from "./server/incident-detective-ai-runtime";
+import { getIncidentDetectiveAiOperationByPath } from "./server/incident-detective-ai-registry";
 import type { TokenForgeAiPolicySnapshot } from "@margrop-labs/ai-gateway/token-forge-policy";
 import { connect } from "cloudflare:sockets";
 
@@ -60,6 +66,7 @@ type WorkerEnvironment = {
   ASSETS: AssetBinding;
   TOKEN_FORGE_AI_POLICY: DurableObjectNamespace;
   INTERVIEW_AI_POLICY: DurableObjectNamespace;
+  INCIDENT_DETECTIVE_AI_POLICY: DurableObjectNamespace;
   TOKEN_FORGE_ANALYTICS: DurableObjectNamespace;
   TOKEN_FORGE_AI_BASE_URL: string;
   TOKEN_FORGE_AI_MODEL: string;
@@ -73,6 +80,7 @@ type WorkerEnvironment = {
 const policySnapshotKey = "token-forge-ai-policy-v1";
 const policyObjectName = "token-forge-plan-v1";
 const interviewPolicySnapshotKey = "interview-ai-policy-v1";
+const incidentDetectivePolicySnapshotKey = "incident-detective-ai-policy-v1";
 const legacyAnalyticsSnapshotKey = "token-forge-analytics-snapshot-v1";
 const analyticsSnapshotKey = "lab-analytics-snapshot-v1";
 const analyticsObjectName = "token-forge-analytics-v1";
@@ -109,6 +117,25 @@ class DurableObjectInterviewAiPolicyStore implements TokenForgePolicyStore {
       );
       const next = mutation(snapshot);
       await transaction.put(interviewPolicySnapshotKey, next.snapshot);
+      return next.result;
+    });
+  }
+}
+
+class DurableObjectIncidentDetectiveAiPolicyStore implements TokenForgePolicyStore {
+  constructor(private readonly storage: DurableObjectStorage) {}
+
+  mutate<T>(
+    mutation: (
+      snapshot: TokenForgeAiPolicySnapshot | undefined,
+    ) => TokenForgePolicyMutation<T>,
+  ): Promise<T> {
+    return this.storage.transaction(async (transaction) => {
+      const snapshot = await transaction.get<TokenForgeAiPolicySnapshot>(
+        incidentDetectivePolicySnapshotKey,
+      );
+      const next = mutation(snapshot);
+      await transaction.put(incidentDetectivePolicySnapshotKey, next.snapshot);
       return next.result;
     });
   }
@@ -167,6 +194,35 @@ export class InterviewAiPolicyObject {
     return handleInterviewAiRequest(request, {
       store: this.store,
       environment: this.environment as InterviewAiRuntimeEnvironment,
+      fetch: this.providerFetch,
+    });
+  }
+}
+
+export class IncidentDetectiveAiPolicyObject {
+  private readonly store: TokenForgePolicyStore;
+  private readonly providerFetch: typeof fetch;
+
+  constructor(
+    state: DurableObjectState,
+    private readonly environment: WorkerEnvironment,
+  ) {
+    this.store = new DurableObjectIncidentDetectiveAiPolicyStore(state.storage);
+    this.providerFetch =
+      environment.TOKEN_FORGE_AI_TRANSPORT === "cloudflare-tcp"
+        ? createCloudflareTcpFetch({
+            connect,
+            maxResponseBytes: incidentDetectiveAiGatewayPolicy.maxResponseBytes,
+          })
+        : environment.TOKEN_FORGE_AI_TRANSPORT === "fetch"
+          ? fetch
+          : () => Promise.reject(new TypeError("Invalid Provider transport."));
+  }
+
+  fetch(request: Request): Promise<Response> {
+    return handleIncidentDetectiveAiRequest(request, {
+      store: this.store,
+      environment: this.environment as IncidentDetectiveAiRuntimeEnvironment,
       fetch: this.providerFetch,
     });
   }
@@ -245,6 +301,15 @@ export default {
         interviewOperation.operation,
       );
       return environment.INTERVIEW_AI_POLICY.get(id).fetch(request);
+    }
+    const incidentDetectiveOperation = getIncidentDetectiveAiOperationByPath(
+      url.pathname,
+    );
+    if (incidentDetectiveOperation) {
+      const id = environment.INCIDENT_DETECTIVE_AI_POLICY.idFromName(
+        incidentDetectiveOperation.operation,
+      );
+      return environment.INCIDENT_DETECTIVE_AI_POLICY.get(id).fetch(request);
     }
     if (
       url.pathname === tokenForgeAnalyticsEndpointPath ||
