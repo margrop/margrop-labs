@@ -40,8 +40,11 @@ const definitions: Record<
     endpoint_path: "/api/interview-workbench/match",
     system_prompt: interviewAiSystemPrompts.match,
     validateInput: (candidate) => validateInterviewAiMatchInput(candidate),
-    validateOutput: (candidate) =>
-      validateInterviewAiMatchOutput(candidate) as unknown as JsonObject,
+    validateOutput: (candidate, input) =>
+      validateInterviewAiMatchOutput(
+        candidate,
+        validateInterviewAiMatchInput(input),
+      ) as unknown as JsonObject,
   },
   plan: {
     key: "plan",
