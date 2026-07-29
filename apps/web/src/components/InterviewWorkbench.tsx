@@ -1,9 +1,6 @@
 import { useEffect, useMemo, useState } from "preact/hooks";
 
-import {
-  buildInterviewBoundaryProjection,
-  type InterviewBoundaryProjection,
-} from "../lib/interview-contracts";
+import type { InterviewBoundaryProjection } from "../lib/interview-contracts";
 import {
   INTERVIEW_TEXT_IMPORT_MAX_BYTES,
   InterviewImportError,
@@ -31,6 +28,7 @@ import {
   classifyInterviewDevice,
   emitInterviewAnalyticsEvent,
 } from "../lib/interview-analytics";
+import { buildInterviewAiMatchInput } from "../server/interview-ai-contracts";
 
 type InterviewWorkbenchProps = {
   initialRun: InterviewSyntheticLoopRun;
@@ -399,7 +397,7 @@ export default function InterviewWorkbench({
       });
       const nextRun = buildInterviewLocalInputLoop(parsed.bundle);
       setRun(nextRun);
-      setActiveBoundary(buildInterviewBoundaryProjection(parsed.bundle));
+      setActiveBoundary(buildInterviewAiMatchInput(parsed.bundle).boundary);
       setDataSource("local_input");
       setImportSummary({
         role_title: parsed.bundle.jd.role_title,
@@ -609,14 +607,10 @@ export default function InterviewWorkbench({
         <button
           class="button button--secondary button--compact"
           type="button"
-          disabled={aiBusy !== null || dataSource === "local_input"}
+          disabled={aiBusy !== null}
           onClick={() => void requestAi(action)}
         >
-          {aiBusy === action
-            ? "请求中…"
-            : dataSource === "local_input"
-              ? "真实输入 AI 待启用"
-              : operationByAction[action].label}
+          {aiBusy === action ? "请求中…" : operationByAction[action].label}
         </button>
       </div>
     );
@@ -1088,9 +1082,7 @@ export default function InterviewWorkbench({
             : "当前使用完全合成样例；无需录入真实数据。"}
         </span>
         <span>
-          {dataSource === "local_input"
-            ? "真实输入的 AI 请求将在 P5-013 完成后启用。"
-            : "AI 只接收版本化、脱敏 ID/状态投影。"}
+          AI 只接收版本化 allowlist、脱敏短标签和 ID/状态投影，不接收原文。
         </span>
         <span>所有结论保持 draft，禁止自动录用或淘汰。</span>
       </div>
