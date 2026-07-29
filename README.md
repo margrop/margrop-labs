@@ -16,12 +16,12 @@
 
 ## 首批实验
 
-| 实验                                        | 用户价值                                               | 状态                |
-| ------------------------------------------- | ------------------------------------------------------ | ------------------- |
-| [Token 任务炼金炉](./labs/token-forge/)     | 把闲置 Token、仓库上下文和目标转换为可验收的开发任务   | Alpha·主线          |
-| [AI 面试工作台](./labs/interview-workbench/) | 从岗位匹配和面试计划走到有证据边界的面试结论           | Proposed·第二优先级 |
-| [AI 故障侦探](./labs/incident-detective/)   | 在合成事故中练习按证据排障，而不是让 AI 猜根因         | Alpha·维护          |
-| [SMART / RMA 报告机](./labs/smart-rma/)     | 保留本地解析与脱敏 Alpha，不继续健康判断、AI 和 RMA 导出 | Alpha·暂停          |
+| 实验                                         | 用户价值                                                 | 状态                |
+| -------------------------------------------- | -------------------------------------------------------- | ------------------- |
+| [Token 任务炼金炉](./labs/token-forge/)      | 把闲置 Token、仓库上下文和目标转换为可验收的开发任务     | Alpha·主线          |
+| [AI 面试工作台](./labs/interview-workbench/) | 从岗位匹配和面试计划走到有证据边界的面试结论             | Proposed·第二优先级 |
+| [AI 故障侦探](./labs/incident-detective/)    | 在合成事故中练习按证据排障，而不是让 AI 猜根因           | Alpha·维护          |
+| [SMART / RMA 报告机](./labs/smart-rma/)      | 保留本地解析与脱敏 Alpha，不继续健康判断、AI 和 RMA 导出 | Alpha·暂停          |
 
 ## 产品原则
 
@@ -94,7 +94,8 @@ npm run dev --workspace @margrop-labs/web
 开发者与 GitHub Actions 使用同一条根目录质量命令。检查内容和故障处理见 [质量门](./docs/quality-gates.md)。实验卡片由版本化清单生成，规则见 [实验清单加载器](./docs/lab-manifest-loader.md)。页面组件与交互必须遵循 [UI 与可访问性基线](./docs/ui-accessibility-baseline.md)。Token 任务炼金炉的稳定输入输出见 [v1 合同](./docs/token-forge-contract-v1.md)，无需 AI 的降级核心见 [确定性模板模式](./docs/token-forge-template-mode.md)，公开仓库的有界只读输入见 [GitHub 摘要适配器](./docs/github-public-repository-adapter.md)。所有未来 AI 能力必须通过 [Provider 中立的 Gateway 合同](./docs/ai-gateway-contract-v1.md)。
 
 当前站点进入 **alpha**，后续功能开发集中在 Token 任务炼金炉；AI 面试工作台已完成
-P5-007 的 noindex 合成工作台并排在第二优先级，AI 故障侦探保留维护，SMART / RMA 暂停后续开发。
+P5-008 的可靠性/公平性/隐私基线，仍排在第二优先级并保持 noindex 合成边界，下一项为
+P5-009 Alpha 出口评审；AI 故障侦探保留维护，SMART / RMA 暂停后续开发。
 P4-001/P4-002 已完成隔离的 Preview 与 Production 部署，
 正式站点由 Cloudflare Workers Static Assets 和 Custom Domain 提供。P1-004 已在 P0-006
 AI Gateway 和 P0-007 脱敏边界上实现 Token Forge AI 任务拆分核心：最小仓库上下文、

@@ -21,7 +21,16 @@ test("runs the dual-role three-step sample and preserves a safe export", async (
     page.getByRole("heading", { name: "岗位匹配：先看证据，再看区间" }),
   ).toBeVisible();
 
-  await page.getByRole("button", { name: "面试者", exact: true }).click();
+  const candidateRole = page.getByRole("button", {
+    name: "面试者",
+    exact: true,
+  });
+  await expect
+    .poll(async () => {
+      await candidateRole.click();
+      return candidateRole.getAttribute("aria-pressed");
+    })
+    .toBe("true");
   await page.getByRole("button", { name: "AI 匹配复核" }).click();
   await expect(
     page.getByText("AI 不可用，已保留本地结果", { exact: true }),
