@@ -121,18 +121,46 @@ describe("Interview AI operation contracts", () => {
     expect(matchInput.boundary.omitted_fields).toContain("evidence[].summary");
   });
 
+  it("rejects match evidence that is outside the redacted boundary", async () => {
+    const bundle = await loadBundle();
+    const input = buildInterviewAiMatchInput(bundle);
+    const match = buildInterviewMatchResult(bundle);
+    const sourceEvidenceId = input.boundary.evidence[0]?.evidence_id;
+    expect(sourceEvidenceId).toBeDefined();
+    const replaceEvidence = (ids: string[]): string[] =>
+      ids.map((id) =>
+        id === sourceEvidenceId ? "evidence-not-in-boundary" : id,
+      );
+    expect(() =>
+      validateInterviewAiMatchOutput(
+        {
+          ...match,
+          requirement_results: match.requirement_results.map((result) => ({
+            ...result,
+            evidence_ids: replaceEvidence(result.evidence_ids),
+          })),
+          dimensions: match.dimensions.map((dimension) => ({
+            ...dimension,
+            evidence_ids: replaceEvidence(dimension.evidence_ids),
+          })),
+          conflicts: match.conflicts.map((conflict) => ({
+            ...conflict,
+            evidence_ids: replaceEvidence(conflict.evidence_ids),
+          })),
+        },
+        input,
+      ),
+    ).toThrow(/boundary requirement/i);
+  });
+
   it("rejects selected early-gate drift and unsafe conclusion references", async () => {
     const bundle = await loadBundle();
     const match = buildInterviewMatchResult(bundle);
-    const planInput = buildInterviewAiPlanInput(bundle, match, {
-      early_gate_requirement_ids: ["requirement-java-go"],
-    });
-    const plan = buildInterviewPlan(bundle, match, {
-      plan_id: "plan-ai-contract-test-gate",
-    });
-    expect(() => validateInterviewAiPlanOutput(plan, planInput)).toThrow(
-      /early gate/i,
-    );
+    expect(() =>
+      buildInterviewAiPlanInput(bundle, match, {
+        early_gate_requirement_ids: ["requirement-java-go"],
+      }),
+    ).toThrow(/must-have/i);
 
     const fixturePlan = validateInterviewPlan(
       await readFixture("plan.valid.json"),

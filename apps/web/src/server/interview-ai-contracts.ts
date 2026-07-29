@@ -13,6 +13,7 @@ import planInputSchema from "../../../../schemas/interview-ai-plan-input-v1.sche
 import matchSchema from "../../../../schemas/interview-match-v1.schema.json";
 import {
   type InterviewBoundaryProjection,
+  INTERVIEW_BOUNDARY_OMITTED_FIELDS,
   type InterviewInputBundle,
   buildInterviewBoundaryProjection,
   redactInterviewLocalText,
@@ -149,6 +150,71 @@ const sameSet = (
 
 const unique = (values: readonly string[]): string[] => [...new Set(values)];
 
+const assertUniqueIds = (values: readonly string[], label: string): void => {
+  if (values.length === 0 || new Set(values).size !== values.length) {
+    throw new InterviewAiContractError(
+      `${label} IDs must be unique and non-empty.`,
+    );
+  }
+};
+
+const assertBoundarySemantics = (
+  boundary: InterviewBoundaryProjection,
+): void => {
+  const experienceIds = boundary.resume.experience_signals.map(
+    ({ experience_id }) => experience_id,
+  );
+  assertUniqueIds(experienceIds, "Boundary experience");
+  const requirementSignals = boundary.job.requirement_signals;
+  const requirementIds = requirementSignals.map(
+    ({ requirement_id }) => requirement_id,
+  );
+  assertUniqueIds(requirementIds, "Boundary requirement");
+  const evidenceIds = boundary.evidence.map(({ evidence_id }) => evidence_id);
+  if (evidenceIds.length > 0) {
+    assertUniqueIds(evidenceIds, "Boundary evidence");
+  }
+  const requirementSet = new Set(requirementIds);
+  for (const evidence of boundary.evidence) {
+    if (evidence.requirement_ids.some((id) => !requirementSet.has(id))) {
+      throw new InterviewAiContractError(
+        "Boundary evidence references an unknown requirement.",
+      );
+    }
+  }
+  if (
+    !INTERVIEW_BOUNDARY_OMITTED_FIELDS.every((field) =>
+      boundary.omitted_fields.includes(field),
+    )
+  ) {
+    throw new InterviewAiContractError(
+      "Boundary projection must declare every omitted narrative and identifier field.",
+    );
+  }
+};
+
+const assertMatchBoundaryReferences = (
+  match: InterviewMatchResult,
+  boundary: InterviewBoundaryProjection,
+): void => {
+  const evidenceById = new Map(
+    boundary.evidence.map((evidence) => [evidence.evidence_id, evidence]),
+  );
+  for (const requirement of match.requirement_results) {
+    for (const evidenceId of requirement.evidence_ids) {
+      const evidence = evidenceById.get(evidenceId);
+      if (
+        !evidence ||
+        !evidence.requirement_ids.includes(requirement.requirement_id)
+      ) {
+        throw new InterviewAiContractError(
+          "Match evidence references must belong to a boundary requirement.",
+        );
+      }
+    }
+  }
+};
+
 const parseWithSchema = <T>(
   candidate: unknown,
   validate: ValidateFunction<T>,
@@ -225,12 +291,15 @@ export const buildInterviewAiMatchInput = (
 
 export const validateInterviewAiMatchInput = (
   candidate: unknown,
-): InterviewAiMatchInput =>
-  parseWithSchema<InterviewAiMatchInput>(
+): InterviewAiMatchInput => {
+  const input = parseWithSchema<InterviewAiMatchInput>(
     candidate,
     validateMatchInputSchema,
     "interview-ai-match-input-v1",
   );
+  assertBoundarySemantics(input.boundary);
+  return input;
+};
 
 export const buildInterviewAiPlanInput = (
   bundle: InterviewInputBundle,
@@ -270,12 +339,44 @@ export const buildInterviewAiPlanInput = (
 
 export const validateInterviewAiPlanInput = (
   candidate: unknown,
-): InterviewAiPlanInput =>
-  parseWithSchema<InterviewAiPlanInput>(
+): InterviewAiPlanInput => {
+  const input = parseWithSchema<InterviewAiPlanInput>(
     candidate,
     validatePlanInputSchema,
     "interview-ai-plan-input-v1",
   );
+  assertBoundarySemantics(input.boundary);
+  const match = validateInterviewMatchResult(input.match);
+  assertMatchBoundaryReferences(input.match, input.boundary);
+  const requirementSignals = input.boundary.job.requirement_signals;
+  const requirementIds = requirementSignals.map(
+    ({ requirement_id }) => requirement_id,
+  );
+  if (
+    !sameSet(
+      match.requirement_results.map(({ requirement_id }) => requirement_id),
+      requirementIds,
+    )
+  ) {
+    throw new InterviewAiContractError(
+      "Plan input match references must match the boundary requirements.",
+    );
+  }
+  const signalById = new Map(
+    requirementSignals.map((signal) => [signal.requirement_id, signal]),
+  );
+  if (
+    input.early_gate_requirement_ids.some((id) => {
+      const signal = signalById.get(id);
+      return signal?.category !== "must_have" || signal.priority !== "must";
+    })
+  ) {
+    throw new InterviewAiContractError(
+      "Plan input early gates may use only must-have requirements.",
+    );
+  }
+  return input;
+};
 
 export const buildInterviewAiConclusionInput = (
   plan: InterviewPlan,
@@ -321,12 +422,68 @@ export const buildInterviewAiConclusionInput = (
 
 export const validateInterviewAiConclusionInput = (
   candidate: unknown,
-): InterviewAiConclusionInput =>
-  parseWithSchema<InterviewAiConclusionInput>(
+): InterviewAiConclusionInput => {
+  const input = parseWithSchema<InterviewAiConclusionInput>(
     candidate,
     validateConclusionInputSchema,
     "interview-ai-conclusion-input-v1",
   );
+  const plan = input.plan_projection;
+  const record = input.record_projection;
+  if (
+    record.plan_id !== plan.plan_id ||
+    record.mode !== plan.mode ||
+    record.duration_minutes !== plan.duration_minutes
+  ) {
+    throw new InterviewAiContractError(
+      "Conclusion input record metadata must match the plan projection.",
+    );
+  }
+  const questionIds = plan.questions.map(({ question_id }) => question_id);
+  assertUniqueIds(questionIds, "Conclusion plan question");
+  const entryIds = record.entries.map(({ entry_id }) => entry_id);
+  assertUniqueIds(entryIds, "Conclusion record entry");
+  const questionSet = new Set(questionIds);
+  const factIds = record.entries.flatMap(({ fact_ids }) => fact_ids);
+  const counterevidenceIds = record.entries.flatMap(
+    ({ counterevidence_ids }) => counterevidence_ids,
+  );
+  if (
+    new Set([...factIds, ...counterevidenceIds]).size !==
+    factIds.length + counterevidenceIds.length
+  ) {
+    throw new InterviewAiContractError(
+      "Conclusion facts and counterevidence IDs must be distinct.",
+    );
+  }
+  for (const entry of record.entries) {
+    const question = plan.questions.find(
+      ({ question_id }) => question_id === entry.question_id,
+    );
+    if (
+      !question ||
+      entry.requirement_ids.some((id) => !question.requirement_ids.includes(id))
+    ) {
+      throw new InterviewAiContractError(
+        "Conclusion record entries must reference their plan question requirements.",
+      );
+    }
+    if (
+      ["not_asked", "declined", "unknown"].includes(entry.response_status) &&
+      entry.unknown_reason === null
+    ) {
+      throw new InterviewAiContractError(
+        "Conclusion unknown record entries must preserve an unknown reason.",
+      );
+    }
+  }
+  if (record.entries.some(({ question_id }) => !questionSet.has(question_id))) {
+    throw new InterviewAiContractError(
+      "Conclusion record references an unknown plan question.",
+    );
+  }
+  return input;
+};
 
 const assertSafeAiOutput = (candidate: unknown): void => {
   let serialized: string;
@@ -355,8 +512,12 @@ const assertSafeAiOutput = (candidate: unknown): void => {
 
 export const validateInterviewAiMatchOutput = (
   candidate: unknown,
+  input?: Pick<InterviewAiMatchInput, "boundary">,
 ): InterviewMatchResult => {
   const output = validateInterviewMatchResult(candidate);
+  if (input) {
+    assertMatchBoundaryReferences(output, input.boundary);
+  }
   assertSafeAiOutput(output);
   return output;
 };
@@ -481,6 +642,16 @@ export const validateInterviewAiConclusionOutput = (
       ({ counterevidence_ids }) => counterevidence_ids,
     ),
   );
+  const factEntryIds = new Map<string, string>();
+  const counterevidenceEntryIds = new Map<string, string>();
+  for (const entry of input.record_projection.entries) {
+    for (const factId of entry.fact_ids) {
+      factEntryIds.set(factId, entry.entry_id);
+    }
+    for (const counterevidenceId of entry.counterevidence_ids) {
+      counterevidenceEntryIds.set(counterevidenceId, entry.entry_id);
+    }
+  }
   const judgedIds = conclusion.judgments.map(
     ({ requirement_id }) => requirement_id,
   );
@@ -506,6 +677,22 @@ export const validateInterviewAiConclusionOutput = (
     ) {
       throw new InterviewAiContractError(
         "AI conclusion contains an unknown record or evidence reference.",
+      );
+    }
+    if (
+      judgment.fact_ids.some(
+        (factId) =>
+          !judgment.record_entry_ids.includes(factEntryIds.get(factId) ?? ""),
+      ) ||
+      judgment.counterevidence_ids.some(
+        (counterevidenceId) =>
+          !judgment.record_entry_ids.includes(
+            counterevidenceEntryIds.get(counterevidenceId) ?? "",
+          ),
+      )
+    ) {
+      throw new InterviewAiContractError(
+        "AI conclusion evidence must belong to its cited record entries.",
       );
     }
     if (
