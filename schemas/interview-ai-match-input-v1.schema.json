@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lab.margrop.net/schemas/interview-ai-match-input-v1.schema.json",
+  "title": "Interview Workbench AI Match Input v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "boundary", "safeguards"],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "boundary": {
+      "$ref": "https://lab.margrop.net/schemas/interview-boundary-projection-v1.schema.json"
+    },
+    "safeguards": { "$ref": "#/$defs/safeguards" }
+  },
+  "$defs": {
+    "safeguards": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "unknown_is_not_negative",
+        "protected_attribute_inference",
+        "automatic_decision"
+      ],
+      "properties": {
+        "unknown_is_not_negative": { "const": true },
+        "protected_attribute_inference": { "const": false },
+        "automatic_decision": { "const": false }
+      }
+    }
+  }
+}

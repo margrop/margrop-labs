@@ -13,6 +13,10 @@
 | [`interview-conclusion-v1.schema.json`](./interview-conclusion-v1.schema.json)                                         | Evidence-cited conclusion draft and review boundary    |
 | [`interview-loop-v1.schema.json`](./interview-loop-v1.schema.json)                                                     | Synthetic dual-role loop stage references              |
 | [`interview-export-v1.schema.json`](./interview-export-v1.schema.json)                                                 | Local aggregate-only interview summary export          |
+| [`interview-boundary-projection-v1.schema.json`](./interview-boundary-projection-v1.schema.json)                         | Minimal redacted projection allowed across the AI boundary |
+| [`interview-ai-match-input-v1.schema.json`](./interview-ai-match-input-v1.schema.json)                                   | Match operation input and fairness safeguards          |
+| [`interview-ai-plan-input-v1.schema.json`](./interview-ai-plan-input-v1.schema.json)                                     | Plan operation input and user-selected early gate     |
+| [`interview-ai-conclusion-input-v1.schema.json`](./interview-ai-conclusion-input-v1.schema.json)                         | Conclusion operation ID/status projection              |
 | [`token-forge-input-v1.schema.json`](./token-forge-input-v1.schema.json)                                               | Token Forge input validation                           |
 | [`token-forge-plan-v1.schema.json`](./token-forge-plan-v1.schema.json)                                                 | Template and AI-assisted Token Forge plans             |
 | [`token-forge-export-v1.schema.json`](./token-forge-export-v1.schema.json)                                             | Local Markdown and GitHub Issue draft exports          |
@@ -32,5 +36,6 @@
 | [`ai-gateway-request-v1.schema.json`](./ai-gateway-request-v1.schema.json)                                             | Web-to-Gateway request envelope                        |
 | [`ai-gateway-response-v1.schema.json`](./ai-gateway-response-v1.schema.json)                                           | Validated Gateway result or safe error                 |
 | [`token-forge-ai-policy-v1.schema.json`](./token-forge-ai-policy-v1.schema.json)                                       | Token Forge AI budgets, rate limits and circuit bounds |
+| [`ai-traffic-policy-v1.schema.json`](./ai-traffic-policy-v1.schema.json)                                             | Generic lab/operation AI budgets, rate limits and circuit bounds |
 
 Published Schema files are immutable contracts. Breaking changes require a new version, fixtures, consumer tests and migration notes.

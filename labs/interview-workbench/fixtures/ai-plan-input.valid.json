@@ -1,0 +1,113 @@
+{
+  "schema_version": "1.0",
+  "boundary": {
+    "schema_version": "1.0",
+    "projection_version": "1.0",
+    "resume": {
+      "experience_signals": [],
+      "skills": ["Java"]
+    },
+    "job": {
+      "role_title": "平台工程师",
+      "level": "senior",
+      "requirement_signals": [
+        {
+          "requirement_id": "requirement-java-go",
+          "category": "technical",
+          "priority": "must"
+        }
+      ]
+    },
+    "evidence": [],
+    "omitted_fields": [
+      "resume.resume_id",
+      "jd.jd_id",
+      "requirements[].statement"
+    ]
+  },
+  "match": {
+    "schema_version": "1.0",
+    "sensitivity": "sensitive",
+    "match_id": "match-synthetic-001",
+    "overall": {
+      "status": "unknown",
+      "match_band": "insufficient_evidence",
+      "score": null,
+      "known_requirement_count": 0,
+      "unknown_requirement_count": 1,
+      "conflict_requirement_count": 0
+    },
+    "dimensions": [
+      {
+        "dimension_id": "must_have",
+        "status": "not_applicable",
+        "score": null,
+        "requirement_ids": [],
+        "evidence_ids": [],
+        "unknown_requirement_ids": [],
+        "conflict_requirement_ids": []
+      },
+      {
+        "dimension_id": "technical",
+        "status": "unknown",
+        "score": null,
+        "requirement_ids": ["requirement-java-go"],
+        "evidence_ids": [],
+        "unknown_requirement_ids": ["requirement-java-go"],
+        "conflict_requirement_ids": []
+      },
+      {
+        "dimension_id": "domain",
+        "status": "not_applicable",
+        "score": null,
+        "requirement_ids": [],
+        "evidence_ids": [],
+        "unknown_requirement_ids": [],
+        "conflict_requirement_ids": []
+      },
+      {
+        "dimension_id": "scope",
+        "status": "not_applicable",
+        "score": null,
+        "requirement_ids": [],
+        "evidence_ids": [],
+        "unknown_requirement_ids": [],
+        "conflict_requirement_ids": []
+      },
+      {
+        "dimension_id": "collaboration",
+        "status": "not_applicable",
+        "score": null,
+        "requirement_ids": [],
+        "evidence_ids": [],
+        "unknown_requirement_ids": [],
+        "conflict_requirement_ids": []
+      }
+    ],
+    "requirement_results": [
+      {
+        "requirement_id": "requirement-java-go",
+        "status": "unknown",
+        "score": null,
+        "evidence_ids": [],
+        "basis": "no_evidence"
+      }
+    ],
+    "unknowns": [
+      { "requirement_id": "requirement-java-go", "reason": "no_evidence" }
+    ],
+    "conflicts": [],
+    "human_review": {
+      "required": true,
+      "reasons": ["unknown_requirements", "no_automatic_decision"]
+    }
+  },
+  "mode": "interviewer",
+  "duration_minutes": 45,
+  "early_gate_requirement_ids": [],
+  "safeguards": {
+    "unknown_is_not_negative": true,
+    "protected_attribute_inference": false,
+    "automatic_decision": false
+  }
+}

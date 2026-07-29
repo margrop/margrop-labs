@@ -1,0 +1,59 @@
+{
+  "schema_version": "1.0",
+  "boundary": {
+    "schema_version": "1.0",
+    "projection_version": "1.0",
+    "resume": {
+      "experience_signals": [
+        {
+          "experience_id": "experience-platform",
+          "role": "云平台工程师",
+          "domain": "机器人云服务",
+          "technologies": ["Java", "Go"],
+          "scope": {
+            "team_size": 6,
+            "ownership": "平台服务与接口稳定性",
+            "scale": "多租户机器人任务系统"
+          }
+        }
+      ],
+      "skills": ["Java", "Go", "Kubernetes"]
+    },
+    "job": {
+      "role_title": "云端机器人平台工程师",
+      "level": "senior",
+      "requirement_signals": [
+        {
+          "requirement_id": "requirement-java-go",
+          "category": "technical",
+          "priority": "must"
+        }
+      ]
+    },
+    "evidence": [
+      {
+        "evidence_id": "evidence-platform-java",
+        "source": "resume",
+        "kind": "experience",
+        "requirement_ids": ["requirement-java-go"],
+        "support": "direct"
+      }
+    ],
+    "omitted_fields": [
+      "resume.resume_id",
+      "resume.headline",
+      "resume.experiences[].summary",
+      "resume.experiences[].achievements",
+      "jd.jd_id",
+      "jd.responsibilities",
+      "requirements[].statement",
+      "requirements[].evidence_signals",
+      "evidence[].summary"
+    ]
+  },
+  "safeguards": {
+    "unknown_is_not_negative": true,
+    "protected_attribute_inference": false,
+    "automatic_decision": false
+  }
+}

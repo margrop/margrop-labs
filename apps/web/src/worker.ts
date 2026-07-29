@@ -5,6 +5,12 @@ import {
   tokenForgeAiEndpointPath,
   tokenForgeAiGatewayPolicy,
 } from "./server/token-forge-ai-runtime";
+import {
+  handleInterviewAiRequest,
+  interviewAiGatewayPolicy,
+  type InterviewAiRuntimeEnvironment,
+} from "./server/interview-ai-runtime";
+import { getInterviewAiOperationByPath } from "./server/ai-operation-registry";
 import type { TokenForgeAiPolicySnapshot } from "@margrop-labs/ai-gateway/token-forge-policy";
 import { connect } from "cloudflare:sockets";
 
@@ -48,6 +54,7 @@ type AssetBinding = {
 type WorkerEnvironment = {
   ASSETS: AssetBinding;
   TOKEN_FORGE_AI_POLICY: DurableObjectNamespace;
+  INTERVIEW_AI_POLICY: DurableObjectNamespace;
   TOKEN_FORGE_ANALYTICS: DurableObjectNamespace;
   TOKEN_FORGE_AI_BASE_URL: string;
   TOKEN_FORGE_AI_MODEL: string;
@@ -60,6 +67,7 @@ type WorkerEnvironment = {
 
 const policySnapshotKey = "token-forge-ai-policy-v1";
 const policyObjectName = "token-forge-plan-v1";
+const interviewPolicySnapshotKey = "interview-ai-policy-v1";
 const analyticsSnapshotKey = "token-forge-analytics-snapshot-v1";
 const analyticsObjectName = "token-forge-analytics-v1";
 
@@ -76,6 +84,25 @@ class DurableObjectPolicyStore implements TokenForgePolicyStore {
         await transaction.get<TokenForgeAiPolicySnapshot>(policySnapshotKey);
       const next = mutation(snapshot);
       await transaction.put(policySnapshotKey, next.snapshot);
+      return next.result;
+    });
+  }
+}
+
+class DurableObjectInterviewAiPolicyStore implements TokenForgePolicyStore {
+  constructor(private readonly storage: DurableObjectStorage) {}
+
+  mutate<T>(
+    mutation: (
+      snapshot: TokenForgeAiPolicySnapshot | undefined,
+    ) => TokenForgePolicyMutation<T>,
+  ): Promise<T> {
+    return this.storage.transaction(async (transaction) => {
+      const snapshot = await transaction.get<TokenForgeAiPolicySnapshot>(
+        interviewPolicySnapshotKey,
+      );
+      const next = mutation(snapshot);
+      await transaction.put(interviewPolicySnapshotKey, next.snapshot);
       return next.result;
     });
   }
@@ -105,6 +132,35 @@ export class TokenForgeAiPolicyObject {
     return handleTokenForgeAiRequest(request, {
       store: this.store,
       environment: this.environment,
+      fetch: this.providerFetch,
+    });
+  }
+}
+
+export class InterviewAiPolicyObject {
+  private readonly store: TokenForgePolicyStore;
+  private readonly providerFetch: typeof fetch;
+
+  constructor(
+    state: DurableObjectState,
+    private readonly environment: WorkerEnvironment,
+  ) {
+    this.store = new DurableObjectInterviewAiPolicyStore(state.storage);
+    this.providerFetch =
+      environment.TOKEN_FORGE_AI_TRANSPORT === "cloudflare-tcp"
+        ? createCloudflareTcpFetch({
+            connect,
+            maxResponseBytes: interviewAiGatewayPolicy.maxResponseBytes,
+          })
+        : environment.TOKEN_FORGE_AI_TRANSPORT === "fetch"
+          ? fetch
+          : () => Promise.reject(new TypeError("Invalid Provider transport."));
+  }
+
+  fetch(request: Request): Promise<Response> {
+    return handleInterviewAiRequest(request, {
+      store: this.store,
+      environment: this.environment as InterviewAiRuntimeEnvironment,
       fetch: this.providerFetch,
     });
   }
@@ -150,6 +206,13 @@ export default {
     if (url.pathname === tokenForgeAiEndpointPath) {
       const id = environment.TOKEN_FORGE_AI_POLICY.idFromName(policyObjectName);
       return environment.TOKEN_FORGE_AI_POLICY.get(id).fetch(request);
+    }
+    const interviewOperation = getInterviewAiOperationByPath(url.pathname);
+    if (interviewOperation) {
+      const id = environment.INTERVIEW_AI_POLICY.idFromName(
+        interviewOperation.operation,
+      );
+      return environment.INTERVIEW_AI_POLICY.get(id).fetch(request);
     }
     if (url.pathname === tokenForgeAnalyticsEndpointPath) {
       const id =

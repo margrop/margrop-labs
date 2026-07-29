@@ -80,4 +80,30 @@ describe("Cloudflare Worker environment configuration", () => {
     );
     expect(expectedBinding.name).not.toBe("TOKEN_FORGE_AI_POLICY");
   });
+
+  it("gives Interview AI a separate operation-scoped SQLite policy namespace", async () => {
+    const configuration = await readWranglerConfiguration();
+    const expectedBinding = {
+      name: "INTERVIEW_AI_POLICY",
+      class_name: "InterviewAiPolicyObject",
+    };
+    const expectedExport = {
+      type: "durable-object",
+      storage: "sqlite",
+    };
+
+    expect(configuration.durable_objects.bindings).toContainEqual(
+      expectedBinding,
+    );
+    expect(configuration.env.preview.durable_objects.bindings).toContainEqual(
+      expectedBinding,
+    );
+    expect(configuration.exports.InterviewAiPolicyObject).toEqual(
+      expectedExport,
+    );
+    expect(configuration.env.preview.exports.InterviewAiPolicyObject).toEqual(
+      expectedExport,
+    );
+    expect(expectedBinding.name).not.toBe("TOKEN_FORGE_AI_POLICY");
+  });
 });
