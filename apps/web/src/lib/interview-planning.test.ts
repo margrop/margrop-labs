@@ -143,6 +143,7 @@ describe("Interview Workbench P5-003 deterministic planning", () => {
     ]);
     expect(plan.early_gate.question_ids.length).toBeGreaterThan(0);
     expect(plan.human_review.reasons).toContain("user_must_confirm_early_gate");
+    expect(validateInterviewPlan(plan)).toEqual(plan);
   });
 
   it("rejects timing drift and unknown fields instead of silently changing the plan", async () => {

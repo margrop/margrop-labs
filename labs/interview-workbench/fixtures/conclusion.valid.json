@@ -1,0 +1,89 @@
+{
+  "schema_version": "1.0",
+  "sensitivity": "sensitive",
+  "conclusion_id": "conclusion-synthetic-001",
+  "record_id": "record-synthetic-001",
+  "status": "draft",
+  "overall": {
+    "status": "conflict",
+    "recommendation": "conflicted",
+    "judgment_ids": ["judgment-1", "judgment-2", "judgment-3", "judgment-4"]
+  },
+  "judgments": [
+    {
+      "judgment_id": "judgment-1",
+      "requirement_id": "requirement-java-go",
+      "status": "supported",
+      "record_entry_ids": ["entry-java"],
+      "fact_ids": ["fact-java-service"],
+      "counterevidence_ids": [],
+      "inference_code": "fact_supported",
+      "review_state": "draft"
+    },
+    {
+      "judgment_id": "judgment-2",
+      "requirement_id": "requirement-distributed-systems",
+      "status": "partial",
+      "record_entry_ids": ["entry-distributed"],
+      "fact_ids": ["fact-distributed-partial"],
+      "counterevidence_ids": [],
+      "inference_code": "partial_facts",
+      "review_state": "draft"
+    },
+    {
+      "judgment_id": "judgment-3",
+      "requirement_id": "requirement-robotics-cloud",
+      "status": "unknown",
+      "record_entry_ids": ["entry-robotics"],
+      "fact_ids": [],
+      "counterevidence_ids": [],
+      "inference_code": "not_enough_evidence",
+      "review_state": "draft"
+    },
+    {
+      "judgment_id": "judgment-4",
+      "requirement_id": "requirement-collaboration",
+      "status": "conflict",
+      "record_entry_ids": ["entry-collaboration"],
+      "fact_ids": ["fact-collaboration"],
+      "counterevidence_ids": ["counter-collaboration"],
+      "inference_code": "conflicting_facts",
+      "review_state": "draft"
+    }
+  ],
+  "unassessed_requirement_ids": [],
+  "unknown_requirement_ids": ["requirement-robotics-cloud"],
+  "conflict_requirement_ids": ["requirement-collaboration"],
+  "evidence_summary": {
+    "fact_ids": [
+      "fact-java-service",
+      "fact-distributed-partial",
+      "fact-collaboration"
+    ],
+    "counterevidence_ids": ["counter-collaboration"],
+    "unknown_requirement_ids": ["requirement-robotics-cloud"]
+  },
+  "next_steps": [
+    {
+      "requirement_id": "requirement-robotics-cloud",
+      "action": "ask_follow_up",
+      "source": "unknown"
+    },
+    {
+      "requirement_id": "requirement-collaboration",
+      "action": "review_conflict",
+      "source": "conflict"
+    }
+  ],
+  "human_review": {
+    "required": true,
+    "confirmed": false,
+    "reasons": [
+      "unknown_requirements",
+      "conflicting_evidence",
+      "draft_requires_user_confirmation",
+      "no_automatic_decision"
+    ]
+  },
+  "automatic_decision": false
+}
