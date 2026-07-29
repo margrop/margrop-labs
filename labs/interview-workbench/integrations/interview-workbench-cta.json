@@ -2,10 +2,10 @@
   "schema_version": "1.0",
   "lab_id": "interview-workbench",
   "title": "把面试判断变成可追溯证据链",
-  "summary": "用完全合成样例体验岗位匹配、面试计划、结构化记录与结论草稿，不让未知项变成负面推断。",
+  "summary": "粘贴本地文本或使用合成样例，生成岗位匹配、面试计划、结构化记录与结论草稿。",
   "proof_points": [
     "面试官与面试者双角色共享要求和证据引用",
-    "无需登录、无需模型即可跑通三步合成闭环",
+    "无需登录、无需模型即可跑通本地三步闭环",
     "AI 失败自动降级，结论始终保持草稿并要求人工确认"
   ],
   "primary_action": {
@@ -20,6 +20,6 @@
     "label": "阅读方法与路线图",
     "url": "https://github.com/margrop/margrop-labs/blob/main/docs/interview-workbench-roadmap.md"
   },
-  "privacy_note": "当前页面只接受完全合成样例；不上传真实候选人材料，不自动作出录用或淘汰决定。",
-  "compact_note": "完全合成 · 无需登录 · 无需 AI · 人工确认"
+  "privacy_note": "真实文本只在当前标签页内存中解析，不持久化原文，不自动作出录用或淘汰决定。",
+  "compact_note": "本地文本 · 不持久化 · AI 可选 · 人工确认"
 }

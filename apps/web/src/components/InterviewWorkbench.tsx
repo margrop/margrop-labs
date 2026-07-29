@@ -1,6 +1,14 @@
 import { useEffect, useMemo, useState } from "preact/hooks";
 
-import type { InterviewBoundaryProjection } from "../lib/interview-contracts";
+import {
+  buildInterviewBoundaryProjection,
+  type InterviewBoundaryProjection,
+} from "../lib/interview-contracts";
+import {
+  INTERVIEW_TEXT_IMPORT_MAX_BYTES,
+  InterviewImportError,
+  parseInterviewTextImport,
+} from "../lib/interview-import";
 import type {
   InterviewRecord,
   InterviewRecordResponseStatus,
@@ -12,6 +20,7 @@ import {
   type InterviewSyntheticRole,
   type InterviewSyntheticStage,
   buildInterviewSafeExport,
+  buildInterviewLocalInputLoop,
   renderInterviewSafeExportMarkdown,
 } from "../lib/interview-synthetic";
 import { buildInterviewConclusion } from "../lib/interview-recording";
@@ -44,6 +53,15 @@ type AiNotice = {
   title: string;
   message: string;
 };
+
+type InterviewDataSource = "synthetic" | "local_input";
+
+type InterviewImportSummary = Readonly<{
+  role_title: string;
+  skill_count: number;
+  requirement_count: number;
+  warning_count: number;
+}>;
 
 const safeguards = {
   unknown_is_not_negative: true,
@@ -125,6 +143,15 @@ const initialAiNotice = (): AiNotice => ({
   title: "AI 可选",
   message: "当前结果由确定性内核生成；需要时可以显式请求一次受限 AI 复核。",
 });
+
+const emptyAiNotices = (): Record<AiAction, AiNotice> => ({
+  match: initialAiNotice(),
+  plan: initialAiNotice(),
+  conclusion: initialAiNotice(),
+});
+
+const textByteLength = (value: string): number =>
+  new TextEncoder().encode(value).byteLength;
 
 const makeRequestInput = (
   action: AiAction,
@@ -280,14 +307,18 @@ export default function InterviewWorkbench({
   sourceUrl,
 }: InterviewWorkbenchProps) {
   const [run, setRun] = useState(initialRun);
+  const [activeBoundary, setActiveBoundary] = useState(aiBoundary);
+  const [dataSource, setDataSource] =
+    useState<InterviewDataSource>("synthetic");
+  const [resumeText, setResumeText] = useState("");
+  const [jdText, setJdText] = useState("");
+  const [importSummary, setImportSummary] =
+    useState<InterviewImportSummary | null>(null);
   const [role, setRole] = useState<InterviewSyntheticRole>("interviewer");
   const [step, setStep] = useState<InterviewStep>(1);
   const [status, setStatus] = useState<WorkbenchStatus>(initialStatus);
-  const [aiNotices, setAiNotices] = useState<Record<AiAction, AiNotice>>({
-    match: initialAiNotice(),
-    plan: initialAiNotice(),
-    conclusion: initialAiNotice(),
-  });
+  const [aiNotices, setAiNotices] =
+    useState<Record<AiAction, AiNotice>>(emptyAiNotices());
   const [aiBusy, setAiBusy] = useState<AiAction | null>(null);
   const deviceCategory = useMemo(
     () =>
@@ -306,12 +337,12 @@ export default function InterviewWorkbench({
   const requirementLabels = useMemo(
     () =>
       new Map(
-        aiBoundary.job.requirement_signals.map(({ requirement_id }) => [
+        activeBoundary.job.requirement_signals.map(({ requirement_id }) => [
           requirement_id,
           requirement_id.replace(/^requirement-/, ""),
         ]),
       ),
-    [aiBoundary],
+    [activeBoundary],
   );
 
   const setWorkbenchStatus = (
@@ -342,21 +373,68 @@ export default function InterviewWorkbench({
     );
   };
 
-  const restoreSample = (): void => {
+  const restoreSample = (
+    title = "已恢复合成样例",
+    message = "本地记录、确认勾选和 AI 状态已经清除；原始确定性结果保持不变。",
+  ): void => {
     setRun(initialRun);
+    setActiveBoundary(aiBoundary);
+    setDataSource("synthetic");
+    setResumeText("");
+    setJdText("");
+    setImportSummary(null);
     setRole("interviewer");
     moveToStep(1);
-    setAiNotices({
-      match: initialAiNotice(),
-      plan: initialAiNotice(),
-      conclusion: initialAiNotice(),
-    });
-    setWorkbenchStatus(
-      "ready",
-      "已恢复合成样例",
-      "本地记录、确认勾选和 AI 状态已经清除；原始确定性结果保持不变。",
-    );
+    setAiNotices(emptyAiNotices());
+    setWorkbenchStatus("ready", title, message);
   };
+
+  const applyLocalInput = (): void => {
+    try {
+      const parsed = parseInterviewTextImport({
+        schema_version: "1.0",
+        sensitivity: "sensitive",
+        resume_text: resumeText,
+        jd_text: jdText,
+      });
+      const nextRun = buildInterviewLocalInputLoop(parsed.bundle);
+      setRun(nextRun);
+      setActiveBoundary(buildInterviewBoundaryProjection(parsed.bundle));
+      setDataSource("local_input");
+      setImportSummary({
+        role_title: parsed.bundle.jd.role_title,
+        skill_count: parsed.bundle.resume.skills.length,
+        requirement_count: parsed.bundle.requirements.length,
+        warning_count: parsed.warnings.length,
+      });
+      setRole("interviewer");
+      moveToStep(1);
+      setAiNotices(emptyAiNotices());
+      setWorkbenchStatus(
+        "ready",
+        "真实文本已在本地解析",
+        "已生成结构化岗位匹配、双角色计划和草稿记录；原文仍只存在于当前标签页内存。",
+      );
+    } catch (error) {
+      const message =
+        error instanceof InterviewImportError
+          ? error.code === "input-too-large"
+            ? "单项文本不能超过 32 KiB，请精简后重试。"
+            : error.code === "protected-attribute"
+              ? "输入包含受保护属性或歧视性门槛，已停止生成工作台。"
+              : error.code === "invalid-control-character"
+                ? "输入包含不允许的控制字符，请清理后重试。"
+                : "请分别提供至少 20 个字符的简历和岗位 JD，并保留可识别的岗位要求。"
+          : "本地解析未通过版本化合同，上一版工作台保持不变。";
+      setWorkbenchStatus("error", "真实文本未应用", message);
+    }
+  };
+
+  const clearLocalInput = (): void =>
+    restoreSample(
+      "已清除真实输入",
+      "简历、岗位 JD 和派生状态已从当前组件内存移除，并恢复完全合成样例。",
+    );
 
   const updateRecord = (
     entryId: string,
@@ -480,7 +558,7 @@ export default function InterviewWorkbench({
           request_id: crypto.randomUUID(),
           lab_id: "interview-workbench",
           operation: config.operation,
-          input: makeRequestInput(action, run, role, aiBoundary),
+          input: makeRequestInput(action, run, role, activeBoundary),
         }),
       });
       const payload = (await response.json()) as Record<string, unknown>;
@@ -531,10 +609,14 @@ export default function InterviewWorkbench({
         <button
           class="button button--secondary button--compact"
           type="button"
-          disabled={aiBusy !== null}
+          disabled={aiBusy !== null || dataSource === "local_input"}
           onClick={() => void requestAi(action)}
         >
-          {aiBusy === action ? "请求中…" : operationByAction[action].label}
+          {aiBusy === action
+            ? "请求中…"
+            : dataSource === "local_input"
+              ? "真实输入 AI 待启用"
+              : operationByAction[action].label}
         </button>
       </div>
     );
@@ -906,19 +988,110 @@ export default function InterviewWorkbench({
           <button
             class="button button--secondary button--compact"
             type="button"
-            onClick={restoreSample}
+            onClick={() => restoreSample()}
           >
             恢复样例
           </button>
         </div>
       </div>
+      <section
+        class="interview-import"
+        aria-labelledby="interview-import-title"
+      >
+        <div class="interview-section-heading">
+          <div>
+            <p class="section-kicker">LOCAL TEXT INPUT · SESSION ONLY</p>
+            <h2 id="interview-import-title">录入简历与岗位 JD</h2>
+          </div>
+          <p>
+            仅支持纯文本粘贴；每项最多 32 KiB。不会写入
+            URL、浏览器存储、Analytics 或服务端日志。
+          </p>
+        </div>
+        <form
+          class="interview-import-form"
+          onSubmit={(event) => {
+            event.preventDefault();
+            applyLocalInput();
+          }}
+        >
+          <label class="interview-import-field">
+            <span>简历文本</span>
+            <textarea
+              name="resume_text"
+              value={resumeText}
+              maxLength={INTERVIEW_TEXT_IMPORT_MAX_BYTES}
+              placeholder="例如：职位、技能、经历、项目成果……"
+              onInput={(event) =>
+                setResumeText(
+                  (event.currentTarget as HTMLTextAreaElement).value,
+                )
+              }
+            />
+            <small>
+              {textByteLength(resumeText)} / {INTERVIEW_TEXT_IMPORT_MAX_BYTES}{" "}
+              字节
+            </small>
+          </label>
+          <label class="interview-import-field">
+            <span>岗位 JD 文本</span>
+            <textarea
+              name="jd_text"
+              value={jdText}
+              maxLength={INTERVIEW_TEXT_IMPORT_MAX_BYTES}
+              placeholder="例如：岗位名称、职责、任职要求、加分项……"
+              onInput={(event) =>
+                setJdText((event.currentTarget as HTMLTextAreaElement).value)
+              }
+            />
+            <small>
+              {textByteLength(jdText)} / {INTERVIEW_TEXT_IMPORT_MAX_BYTES} 字节
+            </small>
+          </label>
+          <div class="interview-import-actions">
+            <button class="button button--primary" type="submit">
+              生成本地工作台
+            </button>
+            <button
+              class="button button--secondary"
+              type="button"
+              onClick={clearLocalInput}
+            >
+              清除真实输入
+            </button>
+          </div>
+        </form>
+        <div class="interview-import-preview" aria-live="polite">
+          <strong>
+            {dataSource === "local_input" ? "本地真实输入" : "完全合成样例"}
+          </strong>
+          {importSummary ? (
+            <>
+              <span>{importSummary.role_title}</span>
+              <span>{importSummary.requirement_count} 项岗位要求</span>
+              <span>{importSummary.skill_count} 项技能信号</span>
+              <span>{importSummary.warning_count} 项保守解析提醒</span>
+            </>
+          ) : (
+            <span>未提交真实文本；下方继续展示仓库内合成流程。</span>
+          )}
+        </div>
+      </section>
       <StatusNotice tone={status.tone} title={status.title}>
         <p>{status.message}</p>
       </StatusNotice>
       <div class="interview-privacy" role="note">
         <strong>隐私边界</strong>
-        <span>当前是完全合成样例；真实文本尚未接入页面。</span>
-        <span>AI 只接收版本化、脱敏 ID/状态投影。</span>
+        <span>
+          {dataSource === "local_input"
+            ? "当前使用本地真实输入；刷新、离开或清除会丢弃原文。"
+            : "当前使用完全合成样例；无需录入真实数据。"}
+        </span>
+        <span>
+          {dataSource === "local_input"
+            ? "真实输入的 AI 请求将在 P5-013 完成后启用。"
+            : "AI 只接收版本化、脱敏 ID/状态投影。"}
+        </span>
         <span>所有结论保持 draft，禁止自动录用或淘汰。</span>
       </div>
       <nav class="interview-stepper" aria-label="面试工作台步骤">

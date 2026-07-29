@@ -3184,6 +3184,74 @@ a {
   margin-bottom: 0.6rem;
 }
 
+.interview-import {
+  display: grid;
+  gap: 1rem;
+  padding: 1.1rem;
+  border: 1px solid rgba(80, 227, 208, 0.34);
+  border-radius: 1rem;
+  background: rgba(8, 17, 31, 0.62);
+}
+
+.interview-import-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.9rem;
+}
+
+.interview-import-field {
+  display: grid;
+  gap: 0.45rem;
+  color: var(--text);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.interview-import-field textarea {
+  width: 100%;
+  min-height: 180px;
+  padding: 0.8rem;
+  border: 1px solid var(--line);
+  border-radius: 0.75rem;
+  background: rgba(4, 12, 24, 0.84);
+  color: var(--text);
+  font: inherit;
+  line-height: 1.55;
+  resize: vertical;
+}
+
+.interview-import-field textarea:hover,
+.interview-import-field textarea:focus-visible {
+  border-color: rgba(80, 227, 208, 0.56);
+}
+
+.interview-import-field small {
+  color: var(--muted);
+  font-family: ui-monospace, monospace;
+  font-size: 0.68rem;
+  font-weight: 500;
+}
+
+.interview-import-actions,
+.interview-import-preview {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.interview-import-preview {
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+.interview-import-preview strong {
+  color: var(--cyan);
+}
+
 .interview-role-switch,
 .interview-plan-contract,
 .interview-links {
@@ -3692,6 +3760,10 @@ a {
   .interview-export .export-status {
     text-align: left;
   }
+
+  .interview-import-form {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 600px) {
@@ -3717,6 +3789,8 @@ a {
 
   .interview-role-switch,
   .interview-role-switch .button,
+  .interview-import-actions,
+  .interview-import-actions .button,
   .interview-step-actions,
   .interview-step-actions .button {
     width: 100%;
@@ -3741,6 +3815,8 @@ a {
   .interview-judgment-list article,
   .interview-ai-card,
   .interview-export,
+  .interview-import,
+  .interview-import-field textarea,
   .interview-record-controls select,
   .interview-text-field textarea {
     border-color: ButtonText;

@@ -109,6 +109,34 @@ test("keeps the local flow usable when analytics is unavailable", async ({
   );
 });
 
+test("accepts local resume and JD text, then clears all local input", async ({
+  page,
+}) => {
+  await page.goto("/interview-workbench/");
+
+  const resume = page.getByRole("textbox", { name: "简历文本" });
+  const jd = page.getByRole("textbox", { name: "岗位 JD 文本" });
+  await resume.fill(
+    "职位：高级平台工程师\n技能：Go、Kubernetes、Terraform、Prometheus\n经历：负责 example.com 合成云平台的容器编排与可观测性建设。\n成果：将合成服务发布耗时降低 40%，并为 8 人团队建立故障演练流程。",
+  );
+  await jd.fill(
+    "岗位：高级平台工程师\n职责：建设云平台、容器编排和可观测性能力。\n任职要求：\n- 必须具备 Go 服务开发经验\n- 熟悉 Kubernetes 集群运维\n- 具备 Terraform 基础设施即代码经验\n- 能够推动跨团队故障复盘",
+  );
+  await page.getByRole("button", { name: "生成本地工作台" }).click();
+
+  await expect(page.getByText("真实文本已在本地解析")).toBeVisible();
+  await expect(page.getByText("本地真实输入", { exact: true })).toBeVisible();
+  await expect(page.getByText("高级平台工程师", { exact: true })).toBeVisible();
+  await expect(page.getByText("4 项岗位要求", { exact: true })).toBeVisible();
+  await expect(page).toHaveURL(/\/interview-workbench\/$/);
+
+  await page.getByRole("button", { name: "清除真实输入" }).click();
+  await expect(resume).toHaveValue("");
+  await expect(jd).toHaveValue("");
+  await expect(page.getByText("已清除真实输入")).toBeVisible();
+  await expect(page.getByText("完全合成样例", { exact: true })).toBeVisible();
+});
+
 test.use({
   viewport: { width: 320, height: 800 },
 });
@@ -135,9 +163,7 @@ test("keeps the workbench usable at 320px with reduced motion", async ({
   ).toBe(true);
 });
 
-test("publishes only the indexable synthetic Alpha surface", async ({
-  page,
-}) => {
+test("publishes the indexable local-first Alpha surface", async ({ page }) => {
   await page.goto("/interview-workbench/");
 
   await expect(page.locator('meta[name="robots"]')).toHaveAttribute(
@@ -153,11 +179,10 @@ test("publishes only the indexable synthetic Alpha surface", async ({
     "https://lab.margrop.net/social/interview-workbench.png",
   );
   await expect(page.getByText("INTERVIEW WORKBENCH · ALPHA")).toBeVisible();
-  await expect(
-    page.getByText("当前是完全合成样例；真实文本尚未接入页面。"),
-  ).toBeVisible();
+  await expect(page.getByText("简历文本", { exact: true })).toBeVisible();
+  await expect(page.getByText("岗位 JD 文本", { exact: true })).toBeVisible();
   await expect(page.locator('input[type="file"]')).toHaveCount(0);
   await expect(
     page.locator('textarea[name*="resume" i], textarea[name*="jd" i]'),
-  ).toHaveCount(0);
+  ).toHaveCount(2);
 });
