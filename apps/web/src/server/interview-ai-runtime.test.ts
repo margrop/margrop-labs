@@ -78,7 +78,7 @@ const loadBundle = async () => {
   });
 };
 
-const openAiSuccess = (content: string): Response =>
+const openAiSuccess = (content: string, outputTokens = 600): Response =>
   new Response(
     JSON.stringify({
       choices: [
@@ -89,8 +89,8 @@ const openAiSuccess = (content: string): Response =>
       ],
       usage: {
         prompt_tokens: 800,
-        completion_tokens: 600,
-        total_tokens: 1_400,
+        completion_tokens: outputTokens,
+        total_tokens: 800 + outputTokens,
       },
     }),
     { status: 200, headers: { "content-type": "application/json" } },
@@ -272,5 +272,106 @@ describe("Interview AI runtime registry and shared Provider", () => {
       },
     );
     expect(crossOriginResponse.status).toBe(403);
+  });
+
+  it.each([
+    {
+      label: "provider 5xx",
+      response: () => new Response("upstream unavailable", { status: 503 }),
+      expectedCode: "provider_unavailable",
+      expectedStatus: 503,
+      expectedCalls: 2,
+    },
+    {
+      label: "provider rate limit",
+      response: () => new Response("rate limited", { status: 429 }),
+      expectedCode: "rate_limited",
+      expectedStatus: 429,
+      expectedCalls: 2,
+    },
+    {
+      label: "provider budget refusal",
+      response: () => new Response("budget exhausted", { status: 402 }),
+      expectedCode: "budget_exhausted",
+      expectedStatus: 429,
+      expectedCalls: 1,
+    },
+    {
+      label: "invalid provider JSON",
+      response: () => new Response("not-json", { status: 200 }),
+      expectedCode: "invalid_provider_response",
+      expectedStatus: 502,
+      expectedCalls: 2,
+    },
+    {
+      label: "schema-invalid provider output",
+      response: () => openAiSuccess(JSON.stringify({ unexpected: true })),
+      expectedCode: "invalid_provider_response",
+      expectedStatus: 502,
+      expectedCalls: 1,
+    },
+  ])(
+    "maps $label to a safe gateway failure after fallback",
+    async ({ response, expectedCode, expectedStatus, expectedCalls }) => {
+      const bundle = await loadBundle();
+      const input = buildInterviewAiMatchInput(bundle);
+      const fetchProvider = vi.fn().mockImplementation(response);
+      const gatewayResponse = await handleInterviewAiRequest(
+        runtimeRequest(
+          "/api/interview-workbench/match",
+          interviewAiOperationIds.match,
+          input,
+          `${firstRequestId.slice(0, -2)}${String(expectedStatus).slice(-2)}`,
+        ),
+        {
+          store: createMemoryInterviewAiPolicyStore(),
+          environment,
+          fetch: fetchProvider,
+          now: () => Date.UTC(2026, 6, 26, 12),
+        },
+      );
+      const body = (await gatewayResponse.json()) as {
+        status: string;
+        error?: { code: string };
+        meta: { attempt_count: number };
+      };
+
+      expect(gatewayResponse.status).toBe(expectedStatus);
+      expect(body).toMatchObject({
+        status: "error",
+        error: { code: expectedCode },
+      });
+      expect(body.meta.attempt_count).toBe(1);
+      expect(fetchProvider).toHaveBeenCalledTimes(expectedCalls);
+    },
+  );
+
+  it("maps a valid provider response above the output cap to a local-safe failure", async () => {
+    const bundle = await loadBundle();
+    const match = buildInterviewMatchResult(bundle);
+    const input = buildInterviewAiMatchInput(bundle);
+    const fetchProvider = vi
+      .fn()
+      .mockResolvedValue(openAiSuccess(JSON.stringify(match), 3_001));
+    const response = await handleInterviewAiRequest(
+      runtimeRequest(
+        "/api/interview-workbench/match",
+        interviewAiOperationIds.match,
+        input,
+        "123e4567-e89b-42d3-a456-426614174199",
+      ),
+      {
+        store: createMemoryInterviewAiPolicyStore(),
+        environment,
+        fetch: fetchProvider,
+        now: () => Date.UTC(2026, 6, 26, 12),
+      },
+    );
+    await expect(response.json()).resolves.toMatchObject({
+      status: "error",
+      error: { code: "output_token_limit_exceeded" },
+    });
+    expect(response.status).toBe(502);
+    expect(fetchProvider).toHaveBeenCalledTimes(1);
   });
 });
