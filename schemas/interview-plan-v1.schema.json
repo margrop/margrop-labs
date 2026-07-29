@@ -1,0 +1,254 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lab.margrop.net/schemas/interview-plan-v1.schema.json",
+  "title": "Interview Workbench Interview Plan v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "sensitivity",
+    "plan_id",
+    "mode",
+    "duration_minutes",
+    "segments",
+    "questions",
+    "early_gate",
+    "unknown_requirement_ids",
+    "conflict_requirement_ids",
+    "candidate_preparation",
+    "human_review"
+  ],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "sensitivity": { "const": "sensitive" },
+    "plan_id": { "$ref": "#/$defs/id" },
+    "mode": { "enum": ["interviewer", "candidate"] },
+    "duration_minutes": { "enum": [30, 45, 60] },
+    "segments": {
+      "type": "array",
+      "minItems": 4,
+      "maxItems": 5,
+      "items": { "$ref": "#/$defs/segment" }
+    },
+    "questions": {
+      "type": "array",
+      "minItems": 4,
+      "maxItems": 40,
+      "items": { "$ref": "#/$defs/question" }
+    },
+    "early_gate": {
+      "oneOf": [
+        { "$ref": "#/$defs/disabledEarlyGate" },
+        { "$ref": "#/$defs/enabledEarlyGate" }
+      ]
+    },
+    "unknown_requirement_ids": {
+      "type": "array",
+      "maxItems": 30,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/id" }
+    },
+    "conflict_requirement_ids": {
+      "type": "array",
+      "maxItems": 30,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/id" }
+    },
+    "candidate_preparation": { "$ref": "#/$defs/candidatePreparation" },
+    "human_review": { "$ref": "#/$defs/humanReview" }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "maxLength": 80
+    },
+    "segmentId": {
+      "enum": ["opening", "qualification", "deep_dive", "behavioral", "closing"]
+    },
+    "kind": {
+      "enum": ["opening", "qualification", "deep_dive", "behavioral", "closing"]
+    },
+    "category": {
+      "enum": ["must_have", "technical", "domain", "scope", "collaboration"]
+    },
+    "evidenceGoal": {
+      "enum": [
+        "requirement_confirmation",
+        "technical_depth",
+        "domain_context",
+        "scope",
+        "ownership",
+        "tradeoffs",
+        "metrics",
+        "failure_recovery",
+        "collaboration",
+        "candidate_questions"
+      ]
+    },
+    "scoreAnchor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["low", "meets", "strong"],
+      "properties": {
+        "low": { "$ref": "#/$defs/shortText" },
+        "meets": { "$ref": "#/$defs/shortText" },
+        "strong": { "$ref": "#/$defs/shortText" }
+      }
+    },
+    "segment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["segment_id", "minutes", "question_ids"],
+      "properties": {
+        "segment_id": { "$ref": "#/$defs/segmentId" },
+        "minutes": { "type": "integer", "minimum": 1, "maximum": 60 },
+        "question_ids": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 20,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/id" }
+        }
+      }
+    },
+    "question": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "question_id",
+        "segment_id",
+        "kind",
+        "minutes",
+        "requirement_ids",
+        "evidence_goals",
+        "prompt",
+        "follow_ups",
+        "scoring_anchor"
+      ],
+      "properties": {
+        "question_id": { "$ref": "#/$defs/id" },
+        "segment_id": { "$ref": "#/$defs/segmentId" },
+        "kind": { "$ref": "#/$defs/kind" },
+        "minutes": { "type": "integer", "minimum": 1, "maximum": 15 },
+        "requirement_ids": {
+          "type": "array",
+          "maxItems": 8,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/id" }
+        },
+        "evidence_goals": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 4,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/evidenceGoal" }
+        },
+        "prompt": { "$ref": "#/$defs/paragraph" },
+        "follow_ups": {
+          "type": "array",
+          "maxItems": 4,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/shortText" }
+        },
+        "scoring_anchor": { "$ref": "#/$defs/scoreAnchor" }
+      }
+    },
+    "disabledEarlyGate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "enabled",
+        "requirement_ids",
+        "question_ids",
+        "termination_rule",
+        "confirmation_required"
+      ],
+      "properties": {
+        "enabled": { "const": false },
+        "requirement_ids": { "type": "array", "maxItems": 0 },
+        "question_ids": { "type": "array", "maxItems": 0 },
+        "termination_rule": { "const": "disabled" },
+        "confirmation_required": { "const": true }
+      }
+    },
+    "enabledEarlyGate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "enabled",
+        "requirement_ids",
+        "question_ids",
+        "termination_rule",
+        "confirmation_required"
+      ],
+      "properties": {
+        "enabled": { "const": true },
+        "requirement_ids": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 8,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/id" }
+        },
+        "question_ids": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 8,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/id" }
+        },
+        "termination_rule": { "const": "user_selected_must_have_only" },
+        "confirmation_required": { "const": true }
+      }
+    },
+    "candidatePreparation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "real_evidence_only",
+        "unknown_allowed",
+        "fabrication_allowed"
+      ],
+      "properties": {
+        "real_evidence_only": { "const": true },
+        "unknown_allowed": { "const": true },
+        "fabrication_allowed": { "const": false }
+      }
+    },
+    "humanReview": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["required", "reasons"],
+      "properties": {
+        "required": { "const": true },
+        "reasons": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 4,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "unknown_requirements",
+              "conflicting_evidence",
+              "user_must_confirm_early_gate",
+              "no_automatic_decision"
+            ]
+          }
+        }
+      }
+    },
+    "shortText": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 240,
+      "pattern": "\\S"
+    },
+    "paragraph": {
+      "type": "string",
+      "minLength": 10,
+      "maxLength": 400,
+      "pattern": "\\S"
+    }
+  }
+}

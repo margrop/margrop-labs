@@ -1,0 +1,167 @@
+{
+  "schema_version": "1.0",
+  "sensitivity": "sensitive",
+  "plan_id": "plan-synthetic-001",
+  "mode": "interviewer",
+  "duration_minutes": 45,
+  "segments": [
+    {
+      "segment_id": "opening",
+      "minutes": 5,
+      "question_ids": ["question-opening"]
+    },
+    {
+      "segment_id": "qualification",
+      "minutes": 10,
+      "question_ids": ["question-qualification-1"]
+    },
+    {
+      "segment_id": "deep_dive",
+      "minutes": 22,
+      "question_ids": [
+        "question-deep-dive-1",
+        "question-deep-dive-2",
+        "question-deep-dive-3"
+      ]
+    },
+    {
+      "segment_id": "behavioral",
+      "minutes": 5,
+      "question_ids": ["question-behavioral"]
+    },
+    {
+      "segment_id": "closing",
+      "minutes": 3,
+      "question_ids": ["question-closing"]
+    }
+  ],
+  "questions": [
+    {
+      "question_id": "question-opening",
+      "segment_id": "opening",
+      "kind": "opening",
+      "minutes": 5,
+      "requirement_ids": [],
+      "evidence_goals": ["ownership", "metrics"],
+      "prompt": "请概述与你目标岗位最相关的一段真实经历和本人职责。",
+      "follow_ups": ["请补充一项你本人可以验证的结果。"],
+      "scoring_anchor": {
+        "low": "无法提供可验证的真实例子，或无法区分本人责任与团队工作。",
+        "meets": "能说明本人责任、关键决策和结果，并能回答必要追问。",
+        "strong": "能用具体证据解释取舍、风险、指标和复盘，并清楚说明边界。"
+      }
+    },
+    {
+      "question_id": "question-qualification-1",
+      "segment_id": "qualification",
+      "kind": "qualification",
+      "minutes": 10,
+      "requirement_ids": ["requirement-java-go"],
+      "evidence_goals": ["requirement_confirmation", "ownership", "metrics"],
+      "prompt": "请说明一个与该要求相关的真实经历：你本人负责什么、做了哪些关键决策、结果如何验证？",
+      "follow_ups": ["你本人具体负责哪一部分？", "如何验证结果？"],
+      "scoring_anchor": {
+        "low": "无法提供可验证的真实例子，或无法区分本人责任与团队工作。",
+        "meets": "能说明本人责任、关键决策和结果，并能回答必要追问。",
+        "strong": "能用具体证据解释取舍、风险、指标和复盘，并清楚说明边界。"
+      }
+    },
+    {
+      "question_id": "question-deep-dive-1",
+      "segment_id": "deep_dive",
+      "kind": "deep_dive",
+      "minutes": 8,
+      "requirement_ids": ["requirement-distributed-systems"],
+      "evidence_goals": ["technical_depth", "tradeoffs", "failure_recovery"],
+      "prompt": "请深入说明一个真实项目中的技术方案、取舍、失败恢复和结果指标；区分本人工作与团队工作。",
+      "follow_ups": ["当时有哪些取舍？", "如果重做会改变什么？"],
+      "scoring_anchor": {
+        "low": "无法提供可验证的真实例子，或无法区分本人责任与团队工作。",
+        "meets": "能说明本人责任、关键决策和结果，并能回答必要追问。",
+        "strong": "能用具体证据解释取舍、风险、指标和复盘，并清楚说明边界。"
+      }
+    },
+    {
+      "question_id": "question-deep-dive-2",
+      "segment_id": "deep_dive",
+      "kind": "deep_dive",
+      "minutes": 7,
+      "requirement_ids": ["requirement-robotics-cloud"],
+      "evidence_goals": ["domain_context", "tradeoffs", "metrics"],
+      "prompt": "请深入说明一个真实项目中的技术方案、取舍、失败恢复和结果指标；区分本人工作与团队工作。",
+      "follow_ups": ["当时有哪些取舍？", "如果重做会改变什么？"],
+      "scoring_anchor": {
+        "low": "无法提供可验证的真实例子，或无法区分本人责任与团队工作。",
+        "meets": "能说明本人责任、关键决策和结果，并能回答必要追问。",
+        "strong": "能用具体证据解释取舍、风险、指标和复盘，并清楚说明边界。"
+      }
+    },
+    {
+      "question_id": "question-deep-dive-3",
+      "segment_id": "deep_dive",
+      "kind": "deep_dive",
+      "minutes": 7,
+      "requirement_ids": ["requirement-collaboration"],
+      "evidence_goals": ["collaboration", "tradeoffs", "metrics"],
+      "prompt": "请深入说明一个真实项目中的技术方案、取舍、失败恢复和结果指标；区分本人工作与团队工作。",
+      "follow_ups": ["当时有哪些取舍？", "如果重做会改变什么？"],
+      "scoring_anchor": {
+        "low": "无法提供可验证的真实例子，或无法区分本人责任与团队工作。",
+        "meets": "能说明本人责任、关键决策和结果，并能回答必要追问。",
+        "strong": "能用具体证据解释取舍、风险、指标和复盘，并清楚说明边界。"
+      }
+    },
+    {
+      "question_id": "question-behavioral",
+      "segment_id": "behavioral",
+      "kind": "behavioral",
+      "minutes": 5,
+      "requirement_ids": ["requirement-collaboration"],
+      "evidence_goals": ["collaboration", "tradeoffs", "metrics"],
+      "prompt": "请说明一次真实的跨团队协作或冲突处理，包含你的行动、取舍和结果。",
+      "follow_ups": ["冲突如何处理？", "如何让相关团队达成共识？"],
+      "scoring_anchor": {
+        "low": "无法提供可验证的真实例子，或无法区分本人责任与团队工作。",
+        "meets": "能说明本人责任、关键决策和结果，并能回答必要追问。",
+        "strong": "能用具体证据解释取舍、风险、指标和复盘，并清楚说明边界。"
+      }
+    },
+    {
+      "question_id": "question-closing",
+      "segment_id": "closing",
+      "kind": "closing",
+      "minutes": 3,
+      "requirement_ids": [],
+      "evidence_goals": ["candidate_questions"],
+      "prompt": "还有哪些与岗位相关的信息或问题需要补充？",
+      "follow_ups": ["还有没有未覆盖的事实或待确认项？"],
+      "scoring_anchor": {
+        "low": "无法提供可验证的真实例子，或无法区分本人责任与团队工作。",
+        "meets": "能说明本人责任、关键决策和结果，并能回答必要追问。",
+        "strong": "能用具体证据解释取舍、风险、指标和复盘，并清楚说明边界。"
+      }
+    }
+  ],
+  "early_gate": {
+    "enabled": false,
+    "requirement_ids": [],
+    "question_ids": [],
+    "termination_rule": "disabled",
+    "confirmation_required": true
+  },
+  "unknown_requirement_ids": [
+    "requirement-distributed-systems",
+    "requirement-robotics-cloud",
+    "requirement-collaboration"
+  ],
+  "conflict_requirement_ids": [],
+  "candidate_preparation": {
+    "real_evidence_only": true,
+    "unknown_allowed": true,
+    "fabrication_allowed": false
+  },
+  "human_review": {
+    "required": true,
+    "reasons": ["unknown_requirements", "no_automatic_decision"]
+  }
+}
